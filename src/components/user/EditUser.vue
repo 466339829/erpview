@@ -80,7 +80,7 @@
         var params = new URLSearchParams();
         params.append("pageNo", _this.queryInfo.pageNo);
         params.append("pageSize", _this.queryInfo.pageSize);
-        params.append("loginName", _this.queryInfo.queryName);
+        params.append("loginId", _this.queryInfo.queryName);
         this.axios.post("/users/page", params).then(function (resp) {
           _this.total = resp.data.total;
           _this.userList = resp.data.list;

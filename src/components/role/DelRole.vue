@@ -98,10 +98,12 @@
         }).then(() => {
           var _this = this;
           this.axios.post("/roles/delete/" + role.id).then((response) => {
-            if (response.data == true) {
+            if (response.data.result) {
               _this.$message.success("删除成功")
               _this.queryRole.pageNo = 1;
               _this.getRoleList();
+            }else {
+              this.$message.success(response.data.message)
             }
           })
         }).catch(() => {

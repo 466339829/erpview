@@ -1,43 +1,43 @@
 <template>
   <div>
-    <!--   搜索 用户列表分页-->
+    <!--   搜索 菜单列表分页-->
     <el-card>
       <el-row :gutter="20">
         <el-col :span="8">
           <el-form :inline="true">
-            <el-form-item label="姓名">
-              <el-input placeholder="请输入姓名" clearable @clear="getUserList" v-model="queryInfo.queryName"></el-input>
+            <el-form-item label="菜单名称">
+              <el-input placeholder="请输入菜单名称" clearable @clear="getMenuList" v-model="queryInfo.queryName"></el-input>
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" @click="getUserList">查询</el-button>
+              <el-button type="primary" @click="getMenuList">查询</el-button>
             </el-form-item>
           </el-form>
         </el-col>
       </el-row>
-      <!-- 用户列表区域 -->
-      <el-table :data="userList" border stripe>
+      <!-- 菜单列表区域 -->
+      <el-table :data="menuList" border stripe>
         <!-- stripe: 斑马条纹 border：边框-->
         <el-table-column prop="id" label="ID"></el-table-column>
-        <el-table-column prop="loginId" label="用户名"></el-table-column>
-        <el-table-column prop="" label="密码">******</el-table-column>
-        <el-table-column label="头像">
+        <el-table-column prop="name" label="菜单名称"></el-table-column>
+        <el-table-column label="分类级别">
           <template slot-scope="scope">
-            <img width="60px" height="60px" :src=URL+scope.row.photo alt="" class="previewImg">
+            {{scope.row.seq | newTitle}}
           </template>
         </el-table-column>
-        <el-table-column label="创建时间">
+        <el-table-column label="菜单图标">
           <template slot-scope="scope">
-            <i class="el-icon-time"/>
-            {{ scope.row.creationDate }}
+            <i :class="scope.row.imageUrl" style="font-size: 20px"></i>
           </template>
         </el-table-column>
+        <el-table-column prop="linkUrl" label="链接地址"></el-table-column>
+        <el-table-column prop="parentName" label="父级分类"></el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button
               type="danger"
               icon="el-icon-delete"
               size="mini"
-              @click="removeUserById(scope.row)"
+              @click="removeMenuById(scope.row)"
             >删除
             </el-button>
           </template>
@@ -48,7 +48,7 @@
                      @size-change="handleSizeChange"
                      @current-change="handleCurrentChange"
                      :current-page="queryInfo.pageNo"
-                     :page-sizes="[5, 10, 15, 20]"
+                     :page-sizes="[5, 8, 15, 20]"
                      :page-size="queryInfo.pageSize"
                      layout="total, sizes, prev, pager, next, jumper"
                      :total="total"
@@ -59,73 +59,79 @@
 
 <script>
   export default {
-    name: "DelUser",
-    data() {
-      return {
-        URL: 'http://localhost:8080/images/',
-        // 获取用户列表查询参数对象
+    name: "DelMenu",
+    data(){
+      return{
+        // 获取菜单列表查询参数对象
         queryInfo: {
           queryName: '',
           pageNo: 1,
-          pageSize: 5
+          pageSize: 8
         },
-        userList: [],
+        menuList: [],
         total: 0,
       }
     },
     methods: {
-      //获取用户列表
-      getUserList() {
+
+      //获取菜单列表
+      getMenuList() {
         var _this = this;
         var params = new URLSearchParams();
         params.append("pageNo", _this.queryInfo.pageNo);
         params.append("pageSize", _this.queryInfo.pageSize);
-        params.append("loginId", _this.queryInfo.queryName);
-        this.axios.post("/users/page", params).then(function (resp) {
+        params.append("name", _this.queryInfo.queryName);
+        this.axios.post("/menus/page", params).then(function (resp) {
           _this.total = resp.data.total;
-          _this.userList = resp.data.list;
+          _this.menuList = resp.data.list;
         }).catch(function (error) {
-          return this.$message.error('获取用户列表失败！')
+          return this.$message.error('获取菜单列表失败！')
         })
       },
       // 监听 pagesize改变的事件
       handleSizeChange(newSize) {
-        // console.log(newSize)
         this.queryInfo.pageSize = newSize
-        this.getUserList()
+        this.getMenuList()
       },
       // 监听 页码值 改变事件
       handleCurrentChange(newSize) {
-        // console.log(newSize)
         this.queryInfo.pageNo = newSize
-        this.getUserList()
+        this.getMenuList()
       },
-
       //删除
-      removeUserById(user) {
-        this.$confirm('将删除[' + user.loginId + '], 是否继续?', '提示', {
+      removeMenuById(menu){
+        this.$confirm('将删除[' + menu.name + '], 是否继续?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
           var _this = this;
-          this.axios.post("/users/delete/" + user.id).then((response) => {
+          this.axios.post("/menus/delete/" + menu.id).then((response) => {
             if (response.data.result) {
-              _this.queryInfo.pageNo = 1;
-              _this.getUserList();
-              _this.$message.success("删除成功")
-            }else {
               _this.$message.success(response.data.message)
-              _this.getUserList();
+              _this.queryInfo.pageNo = 1;
+              _this.getMenuList();
+            }else {
+              _this.$message.success(response.data.message);
             }
           })
         }).catch(() => {
           this.$message.info("已取消删除")
         });
-      },
+      }
     },
     created() {
-      this.getUserList()
+      this.getMenuList();
+    },
+    filters: {   //过滤器
+      newTitle(val) {
+        if (val==1)
+          return "一级菜单";
+        else if(val==2)
+          return "二级菜单";
+        else
+          return "三级菜单";
+      }
     }
   }
 </script>

@@ -9,7 +9,7 @@ body,
 }
 
 .el-breadcrumb {
-    margin-bottom: 15px;
+    margin-bottom: 5px;
     font-size: 12px;
 }
 
@@ -18,12 +18,12 @@ body,
 }
 
 .el-table {
-    margin-top: 15px;
-    font-size: 12px;
+    margin-top: 0px;
+    font-size: 13px;
 }
 
 .el-pagination {
-    margin-top: 15px;
+    margin-top: 10px;
 }
 
 /* 解决级联选择框的问题 */

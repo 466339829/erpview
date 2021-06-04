@@ -5,12 +5,13 @@
       <div>
         <span>后台管理系统</span>
       </div>
+
       <el-button type="info" @click="logout">退出</el-button>
     </el-header>
     <!-- 主体 -->
     <el-container>
       <!-- 侧边栏 -->
-      <el-aside :width="isCollapse ? '64px' : '220px'">
+      <el-aside :width="isCollapse ? '53px' : '250px'">
         <div class="toggle-button" @click="togleCollapse"><i class="el-icon-s-fold" style="font-size: 20px"></i></div>
         <el-menu unique-opened :collapse="isCollapse" :collapse-transition="true"
                  background-color="#333744" text-color="#fff" active-text-color="#409FFF">
@@ -67,9 +68,15 @@
   import AddRole from '../components/role/AddRole'
   import DelRole from '../components/role/DelRole'
   import EditRole from '../components/role/EditRole'
+  import Menus from '../components/menu/Menus'
+  import AddMenus from '../components/menu/AddMenus'
+  import EditMenu from '../components/menu/EditMenu'
+  import DelMenu from '../components/menu/DelMenu'
+  import UserRoles from '../components/user/UserRoles'
   export default {
     components: {
-      Users,AddUser,Welcome,RoleMenus,DelUser,EditUser,Roles,AddRole,DelRole,EditRole
+      Users,AddUser,Welcome,RoleMenus,DelUser,EditUser,Roles,AddRole,DelRole,EditRole,
+      Menus,AddMenus,EditMenu,DelMenu,UserRoles
     },
     data() {
       return {
@@ -115,6 +122,9 @@
       removeTab(targetName) {
         let tabs = this.editableTabs;
         let activeName = this.editableTabsValue;
+        if (targetName==1) {
+          return;
+        }
         if (activeName === targetName) {
           tabs.forEach((tab, index) => {
             if (tab.name === targetName) {
