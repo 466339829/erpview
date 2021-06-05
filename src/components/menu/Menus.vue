@@ -2,7 +2,7 @@
   <!--   搜索 菜单列表分页-->
   <el-card>
     <el-row :gutter="20">
-      <el-col :span="8">
+      <el-col :span="9">
         <el-form :inline="true">
           <el-form-item label="菜单名称">
             <el-input placeholder="请输入菜单名称" clearable @clear="getMenuList" v-model="queryInfo.queryName"></el-input>

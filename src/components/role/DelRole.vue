@@ -103,7 +103,7 @@
               _this.queryRole.pageNo = 1;
               _this.getRoleList();
             }else {
-              this.$message.success(response.data.message)
+              this.$message.error(response.data.message)
             }
           })
         }).catch(() => {

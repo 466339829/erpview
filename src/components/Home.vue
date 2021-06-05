@@ -73,10 +73,18 @@
   import EditMenu from '../components/menu/EditMenu'
   import DelMenu from '../components/menu/DelMenu'
   import UserRoles from '../components/user/UserRoles'
+  import AddFile from '../components/file/AddFile'
+  import CheckFile from '../components/file/CheckFile'
+  import QueryFile from '../components/file/QueryFile'
+  import EditFile from '../components/file/EditFile'
+  import DelFile from '../components/file/DelFile'
+  import RemoveFile from '../components/file/RemoveFile'
+  import RecoveryFile from '../components/file/RecoveryFile'
   export default {
     components: {
       Users,AddUser,Welcome,RoleMenus,DelUser,EditUser,Roles,AddRole,DelRole,EditRole,
-      Menus,AddMenus,EditMenu,DelMenu,UserRoles
+      Menus,AddMenus,EditMenu,DelMenu,UserRoles,AddFile,CheckFile,QueryFile,EditFile,DelFile,RemoveFile,
+      RecoveryFile
     },
     data() {
       return {

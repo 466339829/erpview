@@ -74,6 +74,7 @@
             :on-preview="handlePictureCardPreview"
             :on-remove="handleRemove"
             :action="uploadURL"
+            :limit="1"
             :on-success="handleSuccess">
             <i class="el-icon-plus"></i>
           </el-upload>

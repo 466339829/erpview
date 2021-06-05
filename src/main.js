@@ -11,12 +11,13 @@ import Vuex from 'vuex'
 import './assets/css/global.css'
 // 导入字体图标
 import './assets/fonts/iconfont.css'
+import QS from 'qs'
 
 Vue.config.productionTip = false
 
 // 远程后台地址
 axios.defaults.baseURL = 'http://localhost:8080'
-
+Vue.use(QS)
 Vue.use(ElementUI);
 Vue.use(VueAxios, axios)
 /* eslint-disable no-new */

@@ -119,8 +119,6 @@
           ...this.$refs.treeRef.getHalfCheckedKeys(),
           ...this.$refs.treeRef.getCheckedKeys()
         ];
-        console.log("_this.roleId"+_this.roleId)
-        console.log(keys)
         if (keys.length == 0) {
           this.removeMenuByRoleId();
           return;

@@ -35,7 +35,7 @@
     data() {
       return {
         loginForm: {
-          loginId: 'admin',
+          loginId: '勇哥',
           password: '123456'
         },
         // 表单验证
@@ -74,6 +74,7 @@
                 var user = response.data.data;
                 console.log(user);
                 window.sessionStorage.setItem('id',user.id);
+                window.sessionStorage.setItem('loginId',user.loginId);
                 setTimeout(function () {
                   _this.$router.push("/home");
                 }, 1000)
