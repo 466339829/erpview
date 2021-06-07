@@ -3,7 +3,7 @@
     <!--   搜索 添加 产品列表分页-->
     <el-card>
       <el-row :gutter="20">
-        <el-col :span="10">
+        <el-col :span="13">
           <el-form :inline="true">
             <el-form-item label="产品名称">
               <el-input placeholder="请输入产品名称" clearable @clear="getFileList" v-model="queryFile.queryName"></el-input>
@@ -14,16 +14,25 @@
           </el-form>
         </el-col>
       </el-row>
-      <!-- 角色列表区域 -->
+      <!-- 产品列表区域 -->
       <el-table :data="fileList" border stripe>
         <!-- stripe: 斑马条纹 border：边框-->
         <el-table-column prop="productId" label="产品编号"></el-table-column>
         <el-table-column prop="productName" label="产品名称"></el-table-column>
-        <el-table-column prop="type" label="用途类型"></el-table-column>
-        <el-table-column prop="firstKindName" label="I级分类"></el-table-column>
-        <el-table-column prop="secondKindName" label="II级分类"></el-table-column>
-        <el-table-column prop="thirdKindName" label="III级分类"></el-table-column>
-        <el-table-column prop="responsiblePerson" label="产品经理"></el-table-column>
+        <el-table-column label="用途类型" width="120px">
+          <template slot-scope="scope">
+            {{scope.row.type | newTitle}}
+          </template>
+        </el-table-column>
+        <el-table-column prop="firstKindName" label="I级分类" width="120px"></el-table-column>
+        <el-table-column prop="secondKindName" label="II级分类" width="120px"></el-table-column>
+        <el-table-column prop="thirdKindName" label="III级分类" width="120px"></el-table-column>
+        <el-table-column label="建档时间">
+          <template slot-scope="scope">
+            <i class="el-icon-time"/>
+            {{ scope.row.registerTime }}
+          </template>
+        </el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button
@@ -47,7 +56,7 @@
                      :total="total"
       ></el-pagination>
     </el-card>
-    <!-- 添加角色的对话框 -->
+    <!-- 添加产品的对话框 -->
     <el-dialog title="登记复核" :visible.sync="checkDialogVisible" width="80%" @close="checkDialogClosed">
       <el-row :gutter="20">
         <el-col :span="16" :offset="21">
@@ -100,43 +109,17 @@
     data() {
       return {
         checkFileForm:{
-          id:'',
-          firstKindName:'',
-          secondKindName:'',
-          thirdKindName:'',
-          checkTag:'',
-          productId:'',
-          productName: '',
-          factoryName: '',
-          productNick: '',
-          firstKindId: '',
-          secondKindId: '',
-          thirdKindId: '',
-          type: '',
-          productClass: '',
-          personalValue: '',
-          listPrice: '',
-          costPrice: '',
-          warranty: '',
-          personalUnit: '',
-          twinName: '',
-          twinId: '',
-          lifecycle: '',
-          amountUnit: '',
-          responsiblePerson: '',
-          providerGroup: '',
-          productDescribe: '',
-          register: window.sessionStorage.getItem('loginId'),
-          registerTime: '',
-          image: ''
         },
+        checker: window.sessionStorage.getItem('loginId'),
         // 获取角色列表查询参数对象
         queryFile: {
           queryName: '',
           pageNo: 1,
           pageSize: 5,
-          checkTag:'0',
-          deleteTag:'0'
+          //审核标志0: 等待1: 通过2: 不通过
+          checkTag:0,
+          //产品删除标志0: 未删除1: 已删除2永久删除
+          deleteTag:0
         },
         fileList: [],
         total: 0,
@@ -188,7 +171,10 @@
       },
       //复核
       checkFile(id) {
-        this.axios.post("/files/checkTag/"+id).then((response) => {
+        var params = new URLSearchParams();
+        params.append("id",id)
+        params.append("checker",this.checker)
+        this.axios.post("/files/checkTag/",params).then((response) => {
           if (response.data==true) {
             this.$message.success("复核成功")
             this.checkDialogClosed(),
@@ -207,13 +193,22 @@
     created() {
       this.getFileList()
     },
-
+    filters: {   //过滤器
+      newTitle(val) {
+        if (val==1)
+          return "商品";
+        else if(val==2)
+          return "物料";
+        else
+          return "";
+      }
+    }
   }
 </script>
 
 <style scoped>
   .el-input,.el-select,.textarea {
-    width: 273px;
+    width: 200px;
   }
   .document-btn {
     flex-shrink: 0;

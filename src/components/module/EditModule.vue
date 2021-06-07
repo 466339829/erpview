@@ -14,25 +14,23 @@
           </el-form>
         </el-col>
       </el-row>
-      <!-- 角色列表区域 -->
+      <!-- 产品列表区域 -->
       <el-table :data="fileList" border stripe>
         <!-- stripe: 斑马条纹 border：边框-->
         <el-table-column prop="productId" label="产品编号"></el-table-column>
         <el-table-column prop="productName" label="产品名称"></el-table-column>
-        <el-table-column prop="type" label="用途类型"></el-table-column>
-        <el-table-column prop="firstKindName" label="I级分类"></el-table-column>
-        <el-table-column prop="secondKindName" label="II级分类"></el-table-column>
-        <el-table-column prop="thirdKindName" label="III级分类"></el-table-column>
-        <el-table-column prop="responsiblePerson" label="产品经理"></el-table-column>
-        <el-table-column label="操作">
+        <el-table-column label="用途类型" width="120px">
           <template slot-scope="scope">
-            <el-button
-              type="danger"
-              icon="el-icon-delete"
-              size="mini"
-              @click="delFileById(scope.row)"
-            >删除
-            </el-button>
+            {{scope.row.type | newTitle}}
+          </template>
+        </el-table-column>
+        <el-table-column prop="firstKindName" label="I级分类" width="120px"></el-table-column>
+        <el-table-column prop="secondKindName" label="II级分类" width="120px"></el-table-column>
+        <el-table-column prop="thirdKindName" label="III级分类" width="120px"></el-table-column>
+        <el-table-column label="建档时间">
+          <template slot-scope="scope">
+            <i class="el-icon-time"/>
+            {{ scope.row.registerTime }}
           </template>
         </el-table-column>
       </el-table>
@@ -53,55 +51,23 @@
 
 <script>
   export default {
-    name: "DelFile",
+    name: "EditModule",
     data() {
       return {
-
-        checkFileForm:{
-          id:'',
-          firstKindName:'',
-          secondKindName:'',
-          thirdKindName:'',
-          checkTag:'',
-          productId:'',
-          productName: '',
-          factoryName: '',
-          productNick: '',
-          firstKindId: '',
-          secondKindId: '',
-          thirdKindId: '',
-          type: '',
-          productClass: '',
-          personalValue: '',
-          listPrice: '',
-          costPrice: '',
-          warranty: '',
-          personalUnit: '',
-          twinName: '',
-          twinId: '',
-          lifecycle: '',
-          amountUnit: '',
-          responsiblePerson: '',
-          providerGroup: '',
-          productDescribe: '',
-          register: window.sessionStorage.getItem('loginId'),
-          registerTime: '',
-          image: ''
-        },
-        // 获取角色列表查询参数对象
+        // 获取产品列表查询参数对象
         queryFile: {
           queryName: '',
           pageNo: 1,
           pageSize: 5,
-          checkTag:'1',
-          deleteTag:'0'
+          checkTag:1,
+          deleteTag:0
         },
         fileList: [],
         total: 0,
       }
     },
     methods: {
-      //获取角色列表
+      //获取产品列表
       getFileList() {
         var params = new URLSearchParams();
         params.append("pageNo", this.queryFile.pageNo);
@@ -113,7 +79,7 @@
           this.total = resp.data.total;
           this.fileList = resp.data.records;
         }).catch(function (error) {
-          return this.$message.error('获取角色列表失败！')
+          return this.$message.error('获取产品列表失败！')
         })
       },
       // 监听 pagesize改变的事件
@@ -126,36 +92,24 @@
         this.queryInfo.pageNo = newSize
         this.getFileList()
       },
-      //删除
-      delFileById(row){
-        this.$confirm('将删除[' + row.productName + '], 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          this.axios.post("/files/delete/" + row.id).then((response) => {
-            if (response.data.result) {
-              this.$message.success("删除成功")
-              this.queryFile.pageNo = 1;
-              this.getFileList();
-            }else {
-              this.$message.error(response.data.message)
-            }
-          })
-        }).catch(() => {
-          this.$message.info("已取消删除")
-        });
-      }
+
     },
     created() {
       this.getFileList()
     },
-
+    filters: {   //过滤器
+      newTitle(val) {
+        if (val==1)
+          return "商品";
+        else if(val==2)
+          return "物料";
+        else
+          return "";
+      }
+    }
   }
 </script>
 
 <style scoped>
-  .el-input,.el-select,.textarea {
-    width: 200px;
-  }
+
 </style>

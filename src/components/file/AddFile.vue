@@ -1,6 +1,15 @@
 <template>
   <div  v-loading="loading">
     <el-card>
+      <el-row :gutter="20">
+        <el-col :span="16" :offset="19">
+          <div>
+              <span slot="footer" class="dialog-footer">
+                <el-button style="width: 150px" icon="el-icon-check" type="primary" @click="addFile('addFileForm')">提  交</el-button>
+                </span>
+          </div>
+        </el-col>
+      </el-row>
       <div>
         <label class="document-btn">主信息</label>
       </div>
@@ -32,7 +41,7 @@
           </el-form-item>
           <el-form-item label="用途类型" prop="type">
             <el-select clearable v-model="addFileForm.type" placeholder="请选择">
-              <el-option label="商品" value="1"/>
+              <el-option selected label="商品" value="1"/>
               <el-option label="物料" value="2"/>
             </el-select>
           </el-form-item>
@@ -47,7 +56,7 @@
             <el-input clearable v-model="addFileForm.personalUnit"/>
           </el-form-item>
           <el-form-item label="计量值" prop="personalValue">
-            <el-input clearable v-model="addFileForm.personalValue"/>
+            <el-input clearable v-model.number="addFileForm.personalValue"/>
           </el-form-item>
           <el-form-item label="市场单价(元)" prop="listPrice">
             <el-input clearable v-model.number="addFileForm.listPrice" maxlength="10"/>
@@ -103,8 +112,10 @@
               :on-remove="handleRemove"
               :action="uploadURL"
               :limit="1"
+              :before-upload="beforeAvatarUpload"
               :on-success="handleSuccess">
               <i class="el-icon-plus"></i>
+              <div slot="tip" class="el-upload__tip">只能上传一张图片，且不超过2MB</div>
             </el-upload>
           </el-form-item>
         </el-form>
@@ -112,16 +123,6 @@
         <el-dialog title="产品图片预览" :visible.sync="previewDialogVisible">
           <img width="100%" :src="picPreviewPath" alt="" class="previewImg">
         </el-dialog>
-
-        <el-row :gutter="20">
-          <el-col :span="16" :offset="6">
-            <div>
-              <span slot="footer" class="dialog-footer">
-                <el-button type="primary" @click="addFile('addFileForm')">提 交</el-button>
-                </span>
-            </div>
-          </el-col>
-        </el-row>
       </div>
     </el-card>
   </div>
@@ -131,13 +132,28 @@
   export default {
     name: "AddFile",
     data() {
+      var validateName = (rule, value, callback) => {
+        if (value === '') {
+          callback(new Error('请输入用户名'));
+        } else {
+          var params = new URLSearchParams();
+          params.append("name", value)
+          this.axios.post("/files/checkName", params).then(function (response) {
+            if (!response.data.result) {
+              callback(new Error(response.data.message));
+            } else
+              callback();
+          })
+        }
+      };
       return {
         loading:true,
         // 添加产品对话框
         addFileFormRules: {
           productName: [
             {required: true, message: '请输入产品名称', trigger: 'blur'},
-            {min: 2, max: 10, message: '长度在 2 到 10 个字符', trigger: 'blur'}
+            {min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur'},
+            {validator: validateName, trigger: 'blur'},
           ],
           firstKindId: [
             {required: true, message: '请选择I分类级别', trigger: 'change'},
@@ -155,34 +171,15 @@
           costPrice: [
             {required: true, message: '请输入计划成本单价', trigger: 'blur'},
             {type: 'number', message: '请输入数字值', trigger: 'blur'}
+          ],
+          personalValue: [
+            {required: true, message: '请输入计量值', trigger: 'blur'},
+            {type: 'number', message: '请输入数字值', trigger: 'blur'}
           ]
         },
         // 添加产品参数
         addFileForm: {
-         /* productName: '',
-          factoryName: '',
-          productNick: '',
-          firstKindId: '',
-          secondKindId: '',
-          thirdKindId: '',
-          type: '',
-          productClass: '',
-          personalValue: '',
-          listPrice: '',
-          costPrice: '',
-          warranty: '',
-          personalUnit: '',
-          twinName: '',
-          twinId: '',
-          lifecycle: '',
-          amountUnit: '',
-          responsiblePerson: '',
-          providerGroup: '',
-          productDescribe: '',*/
-          productId:'',
           register: window.sessionStorage.getItem('loginId'),
-          registerTime: '',
-          image: ''
         },
 
         uploadURL: 'http://localhost:8080/file/upload',
@@ -193,11 +190,24 @@
       }
     },
     methods: {
+      beforeAvatarUpload(file) {
+        const isJPG = file.type === 'image/jpeg';
+        const isLt2M = file.size / 1024 / 1024 < 2;
+
+        if (!isJPG) {
+          this.$message.error('上传头像图片只能是 JPG 格式!');
+        }
+        if (!isLt2M) {
+          this.$message.error('上传头像图片大小不能超过 2MB!');
+        }
+        return isJPG && isLt2M;
+      },
       // 监听 添加用户对话框的关闭事件
       addDialogClosed() {
         this.$refs.upload.clearFiles();
         this.$nextTick(() => {
-          this.$refs.addFileForm.resetFields()
+          this.$refs.addFileForm.resetFields();
+          this.addFileForm.registerTime = new Date();
         })
       },
       //添加产品
@@ -212,6 +222,10 @@
               if (response.data) {
                 this.$message.success("添加成功,待复核");
                 this.addDialogClosed();
+                this.loading = true;
+                setTimeout(() => {
+                  this.loading = false
+                },1000);
               } else {
                 this.$message.success("添加失败")
                 this.addDialogClosed();
@@ -249,11 +263,21 @@
     },
     mounted() {
       this.getDataTime();
+      this.loading = true
       setTimeout(() => {
         this.loading = false
-      }, 1.5 * 1000)
+      },1000)
     },
-
+    computed: {
+      totalPrices() { //计算小计
+        let totalPrices = 0;
+        this.list.forEach((val, index) => {
+          if (val.check == true)
+            totalPrices += parseFloat(val.price * val.shuliang);
+        })
+        return totalPrices.toString().replace(/\B(?=(\d{3})+$)/g, ','); //每三位数中间加一个‘，'
+      }
+    },
   }
 </script>
 
@@ -274,8 +298,8 @@
     text-align: center;
   }
 
-  .el-input, .textarea {
-    width: 220px;
+  .el-input, .textarea ,.el-select{
+    width: 200px;
   }
 
 </style>

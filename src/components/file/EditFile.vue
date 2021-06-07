@@ -3,10 +3,10 @@
     <!--   搜索 添加 产品列表分页-->
     <el-card>
       <el-row :gutter="20">
-        <el-col :span="9">
+        <el-col :span="10">
           <el-form :inline="true">
             <el-form-item label="角色名称">
-              <el-input placeholder="请输入角色名称" clearable @clear="getFileList" v-model="queryFile.queryName"></el-input>
+              <el-input placeholder="请输入产品名称" clearable @clear="getFileList" v-model="queryFile.queryName"></el-input>
             </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="getFileList">查询</el-button>
@@ -19,11 +19,20 @@
         <!-- stripe: 斑马条纹 border：边框-->
         <el-table-column prop="productId" label="产品编号"></el-table-column>
         <el-table-column prop="productName" label="产品名称"></el-table-column>
-        <el-table-column prop="type" label="用途类型"></el-table-column>
-        <el-table-column prop="firstKindName" label="I级分类"></el-table-column>
-        <el-table-column prop="secondKindName" label="II级分类"></el-table-column>
-        <el-table-column prop="thirdKindName" label="III级分类"></el-table-column>
-        <el-table-column prop="responsiblePerson" label="产品经理"></el-table-column>
+        <el-table-column label="用途类型" width="120px">
+          <template slot-scope="scope">
+            {{scope.row.type | Title}}
+          </template>
+        </el-table-column>
+        <el-table-column prop="firstKindName" label="I级分类" width="120px"></el-table-column>
+        <el-table-column prop="secondKindName" label="II级分类" width="120px"></el-table-column>
+        <el-table-column prop="thirdKindName" label="III级分类" width="120px"></el-table-column>
+        <el-table-column label="建档时间">
+          <template slot-scope="scope">
+            <i class="el-icon-time"/>
+            {{ scope.row.registerTime }}
+          </template>
+        </el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button
@@ -60,16 +69,19 @@
       </el-row>
 
       <!-- 内容主体 -->
-      <el-form  :inline="true"
-                :model="updateFileForm"
-                ref="updateFileForm"
-                :rules="updateFileFormRules"
-                label-width="107px">
+      <el-form :inline="true"
+               :model="updateFileForm"
+               ref="updateFileForm"
+               :rules="updateFileFormRules"
+               label-width="107px">
+        <el-form-item label="产品ID" prop="id">
+          <el-input disabled v-model="updateFileForm.id"/>
+        </el-form-item>
         <el-form-item label="产品编号" prop="productId">
-          <el-input  disabled v-model="updateFileForm.productId"/>
+          <el-input disabled v-model="updateFileForm.productId"/>
         </el-form-item>
         <el-form-item label="产品名称" prop="productName">
-          <el-input  disabled v-model="updateFileForm.productName"/>
+          <el-input disabled v-model="updateFileForm.productName"/>
         </el-form-item>
         <el-form-item label="制造商" prop="factoryName">
           <el-input clearable v-model="updateFileForm.factoryName"/>
@@ -109,7 +121,7 @@
           <el-input clearable v-model="updateFileForm.personalUnit"/>
         </el-form-item>
         <el-form-item label="计量值" prop="personalValue">
-          <el-input clearable v-model="updateFileForm.personalValue"/>
+          <el-input clearable v-model.number="updateFileForm.personalValue"/>
         </el-form-item>
         <el-form-item label="市场单价(元)" prop="listPrice">
           <el-input clearable v-model.number="updateFileForm.listPrice" maxlength="10"/>
@@ -156,7 +168,7 @@
           </el-date-picker>
         </el-form-item>
         <el-form-item label="产品图片" prop="image">
-          <img :src=URL+updateFileForm.image class="fileImages">
+          <img :src=updateFileForm.image class="fileImages">
           <el-upload
             ref="upload"
             list-type="picture-card"
@@ -165,9 +177,13 @@
             :on-remove="handleRemove"
             :action="uploadURL"
             :limit="1"
+            :before-upload="beforeAvatarUpload"
             :on-success="handleSuccess">
             <i class="el-icon-plus"></i>
           </el-upload>
+        </el-form-item>
+        <el-form-item label="复核人" prop="changer">
+          <el-input clearable v-model="updateFileForm.changer"/>
         </el-form-item>
       </el-form>
       <el-dialog title="产品图片预览" :visible.sync="previewDialogVisible">
@@ -184,10 +200,6 @@
       return {
         // 添加产品对话框
         updateFileFormRules: {
-          productName: [
-            {required: true, message: '请输入产品名称', trigger: 'blur'},
-            {min: 2, max: 10, message: '长度在 2 到 10 个字符', trigger: 'blur'}
-          ],
           firstKindId: [
             {required: true, message: '请选择I分类级别', trigger: 'change'},
           ],
@@ -204,50 +216,22 @@
           costPrice: [
             {required: true, message: '请输入计划成本单价', trigger: 'blur'},
             {type: 'number', message: '请输入数字值', trigger: 'blur'}
+          ],
+          personalValue: [
+            {required: true, message: '请输入计量值', trigger: 'blur'},
+            {type: 'number', message: '请输入数字值', trigger: 'blur'}
           ]
         },
-        updateFileForm:{
-          id:'',
-          checkTag:0,
-          changeTag:1,
-          changer:window.sessionStorage.getItem('loginId'),
-          priceChangeTag:1,
-          deleteTag:0,
-          designModuleTag:0,
-          designProcedureTag:0,
-          designCellTag:0,
-          productId:'',
-          productName: '',
-          factoryName: '',
-          productNick: '',
-          firstKindId: '',
-          secondKindId: '',
-          thirdKindId: '',
-          type: '',
-          productClass: '',
-          personalValue: '',
-          listPrice: '',
-          costPrice: '',
-          warranty: '',
-          personalUnit: '',
-          twinName: '',
-          twinId: '',
-          lifecycle: '',
-          amountUnit: '',
-          responsiblePerson: '',
-          providerGroup: '',
-          productDescribe: '',
-          register: window.sessionStorage.getItem('loginId'),
-          registerTime: '',
-          image: ''
+        updateFileForm: {
+          changer: window.sessionStorage.getItem('loginId'),
         },
         // 获取角色列表查询参数对象
         queryFile: {
           queryName: '',
           pageNo: 1,
           pageSize: 5,
-          checkTag:'1',
-          deleteTag:'0'
+          checkTag: '1',
+          deleteTag: '0'
         },
         fileList: [],
         total: 0,
@@ -258,15 +242,27 @@
         // 图片预览对话框
         previewDialogVisible: false,
         imageUrl: '',
-        URL:'http://localhost:8080/images/',
+        fileURL: 'http://localhost:8080/images/',
       }
     },
     methods: {
+      beforeAvatarUpload(file) {
+        const isJPG = file.type === 'image/jpeg';
+        const isLt2M = file.size / 1024 / 1024 < 2;
+
+        if (!isJPG) {
+          this.$message.error('上传头像图片只能是 JPG 格式!');
+        }
+        if (!isLt2M) {
+          this.$message.error('上传头像图片大小不能超过 2MB!');
+        }
+        return isJPG && isLt2M;
+      },
       // 监听 复核角色对话框的关闭事件
       updateDialogClosed() {
         this.$nextTick(() => {
           this.$refs.updateFileForm.resetFields();
-          this.$refs.upload.clearFiles()
+          this.$refs.upload.clearFiles();
           this.updateDialogVisible = false;
         })
       },
@@ -279,7 +275,7 @@
         params.append("productName", this.queryFile.queryName);
         params.append("checkTag", this.queryFile.checkTag);
         params.append("deleteTag", this.queryFile.deleteTag);
-        this.axios.post("/files/page", params).then( (resp) =>{
+        this.axios.post("/files/page", params).then((resp) => {
           this.total = resp.data.total;
           this.fileList = resp.data.records;
         }).catch(function (error) {
@@ -297,26 +293,25 @@
         this.getFileList()
       },
       //编辑打开模态框
-      showUpdateDialog(row){
+      showUpdateDialog(row) {
         this.title = row.productName;
         this.updateDialogVisible = true,
-          this.axios.post("/files/selectById/"+row.id).then( (resp) =>{
+          this.axios.post("/files/selectById/" + row.id).then((resp) => {
             this.updateFileForm = resp.data;
+            this.updateFileForm.image=this.fileURL+this.updateFileForm.image
           }).catch(function (error) {
             return this.$message.error('获取角色信息失败！')
           })
       },
       //编辑
       updateFile(formName) {
-        var _this = this;
         this.$refs.updateFileForm.validate((valid) => {
           if (valid) {
             var data = new URLSearchParams();
-            Object.keys(_this.updateFileForm).forEach( (key) =>{
-              data.append(key, _this.updateFileForm[key])
+            Object.keys(this.updateFileForm).forEach((key) => {
+              data.append(key, this.updateFileForm[key])
             })
-
-            this.axios.post("/files/update",data).then((response) => {
+            this.axios.post("/files/update", data).then((response) => {
               if (response.data) {
                 this.$message.success("档案变更成功,复核中");
                 this.updateDialogClosed();
@@ -358,7 +353,16 @@
     filters: {   //过滤器
       newTitle(val) {
         return "档案变更【" + val + "】";
+      },
+      Title(val) {
+        if (val == 1)
+          return "商品";
+        else if (val == 2)
+          return "物料";
+        else
+          return "";
       }
+
     },
 
   }
@@ -366,8 +370,9 @@
 
 <style scoped>
   .el-input,.el-select,.textarea {
-    width: 270px;
+    width: 200px;
   }
+
   .document-btn {
     flex-shrink: 0;
     display: block;
@@ -379,7 +384,8 @@
     line-height: 5px;
     font-size: 20px;
   }
-  .fileImages{
+
+  .fileImages {
     width: 70px;
     height: 70px;
     display: inline;

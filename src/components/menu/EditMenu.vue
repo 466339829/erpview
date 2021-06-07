@@ -92,7 +92,6 @@
           <el-input  clearable v-model="editMenuForm.linkUrl"></el-input>
         </el-form-item>
         <el-form-item v-if="editMenuForm.seq>1" label="父级分类" >
-          <!--<el-input  clearable v-model="addMenuForm.parentId"></el-input>-->
           <template>
             <el-select  v-model="editMenuForm.parentId" clearable placeholder="请选择">
               <el-option

@@ -154,5 +154,7 @@
 </script>
 
 <style scoped>
-
+  .el-input,.el-select,.textarea {
+    width: 200px;
+  }
 </style>

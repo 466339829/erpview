@@ -69,25 +69,14 @@
             })
             //表单验证成功，要发送登录请求
             this.axios.post("/users/login", params).then( (response)=> {
-              console.log(response.data)
               if (response.data.result) {
+                this.$message.success(response.data.message)
                 var user = response.data.data;
-                console.log(user);
                 window.sessionStorage.setItem('id',user.id);
                 window.sessionStorage.setItem('loginId',user.loginId);
                 setTimeout(function () {
                   _this.$router.push("/home");
                 }, 1000)
-                /*sessionStorage.setItem("isLogin", "true")
-                window.sessionStorage.setItem('id',user.id)
-                //往vuex里存放一个user对象
-                //先要有user对象
-                //再存到vuex里
-                _this.$store.dispatch('asyncUpdateUser', user);
-                _this.$message.success(response.data.message)
-                setTimeout(function () {
-                  _this.$router.push("/home");
-                }, 2000)*/
               } else {
                 _this.$message.error(response.data.message);
               }
