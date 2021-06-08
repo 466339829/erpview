@@ -182,5 +182,7 @@
 </script>
 
 <style scoped>
-
+  .el-input, .textarea ,.el-select{
+    width: 180px;
+  }
 </style>
