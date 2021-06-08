@@ -232,7 +232,18 @@
           this.$message.error("请至少添加一个物料");
           return;
         }
-
+        var params = new URLSearchParams();
+        params.append("roleMenus", JSON.stringify(this.moduleList))
+        params.append("module",this.addModuleForm)
+        this.axios.post("/module/addModuleDetails",params, {headers: {"Content-Type": "application/json"}})
+          .then((response) => {
+          if (response.data.result == true) {
+            this.$message.success('操作成功!')
+            this.addDialogVisible = false
+          }
+        }).catch(function (error) {
+          return this.$message.error('操作失败！')
+        })
       },
       // 添加索引
       tableRowClassName(row, index){
