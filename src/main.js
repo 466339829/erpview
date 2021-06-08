@@ -16,7 +16,7 @@ import QS from 'qs'
 Vue.config.productionTip = false
 
 // 远程后台地址
-axios.defaults.baseURL = 'http://localhost:8080'
+axios.defaults.baseURL = 'http://localhost:8888'
 Vue.use(QS)
 Vue.use(ElementUI);
 Vue.use(VueAxios, axios)
