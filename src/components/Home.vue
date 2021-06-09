@@ -16,14 +16,14 @@
         <el-menu unique-opened :collapse="isCollapse" :collapse-transition="true"
                  background-color="#333744" text-color="#fff" active-text-color="#409FFF">
 
-          <el-submenu unique-opened   :index="item.id+''" v-for="item in menuList" :key="item.id">
+          <el-submenu unique-opened :index="item.id+''" v-for="item in menuList" :key="item.id">
             <!-- 一级菜单的模板区域 -->
             <template slot="title">
               <i :class="item.imageUrl"></i>
               <span>{{item.name}}</span>
             </template>
 
-            <el-submenu  :index="'/' + subItem.id" v-for="subItem in item.childMenu" :key="subItem.id">
+            <el-submenu :index="'/' + subItem.id" v-for="subItem in item.childMenu" :key="subItem.id">
 
               <!-- 二级菜单的模板区域 -->
               <template slot="title">
@@ -31,7 +31,8 @@
                 <span>{{ subItem.name}}</span>
               </template>
 
-              <el-menu-item @click="addTab(subChilItem.name,subChilItem.linkUrl)"  :index="'/' + subChilItem.id" v-for="subChilItem in subItem.childMenu" :key="subChilItem.id">
+              <el-menu-item @click="addTab(subChilItem.name,subChilItem.linkUrl)" :index="'/' + subChilItem.id"
+                            v-for="subChilItem in subItem.childMenu" :key="subChilItem.id">
                 <i :class="subChilItem.imageUrl"></i>
                 <span>{{subChilItem.name}}</span>
               </el-menu-item>
@@ -40,18 +41,18 @@
         </el-menu>
       </el-aside>
       <!-- 内容主体 -->
-     <el-main>
+      <el-main>
 
-       <el-tabs v-model="editableTabsValue" type="card" closable @tab-remove="removeTab">
-         <el-tab-pane
-           v-for="(item, index) in editableTabs"
-           :key="item.name"
-           :label="item.title"
-           :name="item.name"
-         >
-           <component :is="item.content"></component>
-         </el-tab-pane>
-       </el-tabs>
+        <el-tabs v-model="editableTabsValue" type="card" closable @tab-remove="removeTab">
+          <el-tab-pane
+            v-for="(item, index) in editableTabs"
+            :key="item.name"
+            :label="item.title"
+            :name="item.name"
+          >
+            <component :is="item.content"></component>
+          </el-tab-pane>
+        </el-tabs>
       </el-main>
     </el-container>
   </el-container>
@@ -84,11 +85,13 @@
   import CheckModule from '../components/module/CheckModule'
   import EditModule from '../components/module/EditModule'
   import QueryModule from '../components/module/QueryModule'
+  import Safetystock from "./warehouse/Safetystock";
+
   export default {
     components: {
-      Users,AddUser,Welcome,RoleMenus,DelUser,EditUser,Roles,AddRole,DelRole,EditRole,
-      Menus,AddMenus,EditMenu,DelMenu,UserRoles,AddFile,CheckFile,QueryFile,EditFile,DelFile,RemoveFile,
-      RecoveryFile,AddModule,CheckModule,EditModule,QueryModule
+      Users, AddUser, Welcome, RoleMenus, DelUser, EditUser, Roles, AddRole, DelRole, EditRole,
+      Menus, AddMenus, EditMenu, DelMenu, UserRoles, AddFile, CheckFile, QueryFile, EditFile, DelFile, RemoveFile,
+      RecoveryFile, AddModule, CheckModule, EditModule, QueryModule, Safetystock
     },
     data() {
       return {
@@ -111,15 +114,17 @@
       this.getMenuList()
     },
     methods: {
-      addTab(titlename,linkurl) {
+      addTab(titlename, linkurl) {
 
         //判断当前页面是否存在
-        var tempobj = this.editableTabs.find((item)=>{return item.title==titlename});
+        var tempobj = this.editableTabs.find((item) => {
+          return item.title == titlename
+        });
 
         //存在  active
-        if(tempobj!=undefined){
-          this.editableTabsValue =tempobj.name ;
-        }else {
+        if (tempobj != undefined) {
+          this.editableTabsValue = tempobj.name;
+        } else {
           //不存在 添加
           let newTabName = ++this.tabIndex + '';
           this.editableTabs.push({
@@ -134,7 +139,7 @@
       removeTab(targetName) {
         let tabs = this.editableTabs;
         let activeName = this.editableTabsValue;
-        if (targetName==1) {
+        if (targetName == 1) {
           return;
         }
         if (activeName === targetName) {
@@ -158,7 +163,7 @@
       // 获取请求菜单
       getMenuList() {
         var _this = this;
-        this.axios.post("/menus/selectMenusByUid/" + _this.uid).then( (response)=> {
+        this.axios.post("/menus/selectMenusByUid/" + _this.uid).then((response) => {
           _this.menuList = response.data;
         }).catch(function (error) {
           alert("服务端获取数据失败");
@@ -227,7 +232,8 @@
     // 鼠标放上去变成小手
     cursor: pointer;
   }
-  .el-main{
+
+  .el-main {
     background: #ffffff;
   }
 </style>
