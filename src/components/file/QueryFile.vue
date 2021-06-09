@@ -39,7 +39,7 @@
                      @size-change="handleSizeChange"
                      @current-change="handleCurrentChange"
                      :current-page="queryFile.pageNo"
-                     :page-sizes="[5, 10, 15, 20]"
+                     :page-sizes="[7, 10, 15, 20]"
                      :page-size="queryFile.pageSize"
                      layout="total, sizes, prev, pager, next, jumper"
                      :total="total"
@@ -58,7 +58,7 @@
         queryFile: {
           queryName: '',
           pageNo: 1,
-          pageSize: 5,
+          pageSize: 7,
           checkTag:1,
           deleteTag:0
         },
@@ -84,12 +84,12 @@
       },
       // 监听 pagesize改变的事件
       handleSizeChange(newSize) {
-        this.queryInfo.pageSize = newSize
+        this.queryFile.pageSize = newSize
         this.getFileList()
       },
       // 监听 页码值 改变事件
       handleCurrentChange(newSize) {
-        this.queryInfo.pageNo = newSize
+        this.queryFile.pageNo = newSize
         this.getFileList()
       },
 

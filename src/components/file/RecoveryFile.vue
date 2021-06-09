@@ -19,10 +19,14 @@
         <!-- stripe: 斑马条纹 border：边框-->
         <el-table-column prop="productId" label="产品编号"></el-table-column>
         <el-table-column prop="productName" label="产品名称"></el-table-column>
-        <el-table-column prop="type" label="用途类型"></el-table-column>
-        <el-table-column prop="firstKindName" label="I级分类"></el-table-column>
-        <el-table-column prop="secondKindName" label="II级分类"></el-table-column>
-        <el-table-column prop="thirdKindName" label="III级分类"></el-table-column>
+        <el-table-column label="用途类型" width="120px">
+          <template slot-scope="scope">
+            {{scope.row.type | newTitle}}
+          </template>
+        </el-table-column>
+        <el-table-column prop="firstKindName" label="I级分类" width="120px"></el-table-column>
+        <el-table-column prop="secondKindName" label="II级分类" width="120px"></el-table-column>
+        <el-table-column prop="thirdKindName" label="III级分类" width="120px"></el-table-column>
         <el-table-column prop="responsiblePerson" label="产品经理"></el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
@@ -41,7 +45,7 @@
                      @size-change="handleSizeChange"
                      @current-change="handleCurrentChange"
                      :current-page="queryFile.pageNo"
-                     :page-sizes="[5, 10, 15, 20]"
+                     :page-sizes="[7, 10, 15, 20]"
                      :page-size="queryFile.pageSize"
                      layout="total, sizes, prev, pager, next, jumper"
                      :total="total"
@@ -92,7 +96,7 @@
         queryFile: {
           queryName: '',
           pageNo: 1,
-          pageSize: 5,
+          pageSize: 7,
           checkTag:'1',
           deleteTag:'1'
         },
@@ -118,12 +122,12 @@
       },
       // 监听 pagesize改变的事件
       handleSizeChange(newSize) {
-        this.queryInfo.pageSize = newSize
+        this.queryFile.pageSize = newSize
         this.getFileList()
       },
       // 监听 页码值 改变事件
       handleCurrentChange(newSize) {
-        this.queryInfo.pageNo = newSize
+        this.queryFile.pageNo = newSize
         this.getFileList()
       },
       //您确认要恢复这例档案
@@ -150,7 +154,16 @@
     created() {
       this.getFileList()
     },
-
+    filters: {   //过滤器
+      newTitle(val) {
+        if (val==1)
+          return "商品";
+        else if(val==2)
+          return "物料";
+        else
+          return "";
+      }
+    }
   }
 </script>
 

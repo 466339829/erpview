@@ -19,14 +19,14 @@
         <!-- stripe: 斑马条纹 border：边框-->
         <el-table-column prop="productId" label="产品编号"></el-table-column>
         <el-table-column prop="productName" label="产品名称"></el-table-column>
-        <el-table-column label="用途类型" width="120px">
+        <el-table-column label="用途类型" width="95px">
           <template slot-scope="scope">
             {{scope.row.type | newTitle}}
           </template>
         </el-table-column>
-        <el-table-column prop="firstKindName" label="I级分类" width="120px"></el-table-column>
-        <el-table-column prop="secondKindName" label="II级分类" width="120px"></el-table-column>
-        <el-table-column prop="thirdKindName" label="III级分类" width="120px"></el-table-column>
+        <el-table-column prop="firstKindName" label="I级分类" width="100px"></el-table-column>
+        <el-table-column prop="secondKindName" label="II级分类" width="100px"></el-table-column>
+        <el-table-column prop="thirdKindName" label="III级分类" width="100px"></el-table-column>
         <el-table-column label="建档时间">
           <template slot-scope="scope">
             <i class="el-icon-time"/>
@@ -58,15 +58,14 @@
     </el-card>
 
     <!-- 添加设计单的对话框 -->
-    <el-dialog title="物料组成设计单" :visible.sync="addDialogVisible" width="85%" @close="addDialogClosed">
+    <el-dialog title="物料组成设计单" :visible.sync="addDialogVisible" width="90%" @close="addDialogClosed">
       <el-row :gutter="20">
         <el-col :span="16" :offset="12">
           <div>
               <span slot="footer" class="dialog-footer">
-                <el-button icon="el-icon-circle-plus-outline" type="primary" @click="AddModuleDetails">添加物料</el-button>
-                 <el-button icon="el-icon-remove-outline" type="info" @click="getSelected">删除物料</el-button>
-                      <el-button icon="el-icon-check" type="primary" @click="addModuleDetails('addModuleForm')">提  交</el-button>
-
+                <el-button icon="el-icon-circle-plus-outline" type="primary" @click="AddModuleDetailLists">添加物料</el-button>
+                <el-button icon="el-icon-remove-outline" type="info" @click="getSelected">删除物料</el-button>
+                <el-button icon="el-icon-check" type="primary" @click="addModuleDetails">提  交</el-button>
                 <el-button icon="el-icon-circle-close" type="danger" @click="addDialogClosed">取消</el-button>
                 </span>
           </div>
@@ -74,18 +73,16 @@
       </el-row>
 
       <!-- 内容主体 -->
-      <span ><strong >产品编号: </strong>  {{addModuleForm.productId}}</span>
-      <span ><strong>产品名称: </strong>  {{addModuleForm.productName}}</span>
+      <span><strong>产品编号: </strong>  {{addModuleForm.productId}}</span>
+      <span><strong>产品名称: </strong>  {{addModuleForm.productName}}</span>
       <el-form
         :model="addModuleForm"
         ref="addModuleForm"
         label-width="100px"
-        :rules="addModuleFormRules"
-      >
+        :rules="addModuleFormRules">
         <el-form-item label="设计人" prop="designer">
-          <el-input clearable  v-model="addModuleForm.designer"></el-input>
+          <el-input clearable v-model="addModuleForm.designer"></el-input>
         </el-form-item>
-
         <!-- 产品物料组成 -->
         <el-table :data="moduleList"
                   :row-class-name="tableRowClassName"
@@ -95,18 +92,18 @@
           </el-table-column>
           <el-table-column prop="productId" label="物料编号"></el-table-column>
           <el-table-column prop="productName" label="物料名称"></el-table-column>
-          <el-table-column label="用途类型" width="120px" prop="type" >
+          <el-table-column label="用途类型" width="120px" prop="type">
             <template slot-scope="scope">
               {{scope.row.type | newTitle}}
             </template>
           </el-table-column>
           <el-table-column prop="productDescribe" label="描述"></el-table-column>
 
-          <el-table-column prop="amount" label="数量"  width="170">
-            <template slot-scope="scope">
-              <el-input clearable  v-model.number="scope.row.amount" ></el-input>
-            </template>
-          </el-table-column>
+          <el-table-column prop="amount" label="数量" width="180">
+          <template slot-scope="scope">
+              <el-input clearable v-model.number="scope.row.amount" maxlength="8" oninput = "value=value.replace(/[^\d]/g,'')"/>
+          </template>
+        </el-table-column>
 
           <el-table-column prop="amountUnit" label="单位"></el-table-column>
           <el-table-column prop="costPrice" label="计划成本单价(元)"></el-table-column>
@@ -120,11 +117,10 @@
         <span><strong>建档时间: </strong>  {{addModuleForm.registerTime}}</span>
 
         <el-form-item label="设计要求" prop="moduleDescribe">
-          <el-input v-model="addModuleForm.moduleDescribe" type="textarea" class="xxx" />
+          <el-input v-model="addModuleForm.moduleDescribe" type="textarea" class="xxx"/>
         </el-form-item>
       </el-form>
     </el-dialog>
-
 
     <el-dialog
       title="添加物料"
@@ -134,10 +130,11 @@
         <el-col :span="10">
           <el-form :inline="true">
             <el-form-item label="产品名称">
-              <el-input placeholder="请输入产品名称" clearable @clear="AddModuleDetails" v-model="queryModule.productName"></el-input>
+              <el-input placeholder="请输入产品名称" clearable @clear="AddModuleDetailLists"
+                        v-model="queryModule.productName"></el-input>
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" @click="AddModuleDetails">查询</el-button>
+              <el-button type="primary" @click="AddModuleDetailLists">查询</el-button>
             </el-form-item>
           </el-form>
         </el-col>
@@ -155,7 +152,7 @@
         <el-table-column prop="productDescribe" label="物料描述"></el-table-column>
         <el-table-column prop="amountUnit" label="单位"></el-table-column>
         <el-table-column prop="costPrice" label="设计成本单价"></el-table-column>
-        <el-table-column label="操作"  >
+        <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button
               type="success"
@@ -170,8 +167,8 @@
       </el-table>
       <!-- 分页区域 -->
       <el-pagination background
-                     @size-change="handleSizeChange"
-                     @current-change="handleCurrentChange"
+                     @size-change="handleAddSizeChange"
+                     @current-change="handleAddCurrentChange"
                      :current-page="queryModule.pageNo"
                      :page-sizes="[5, 10, 15, 20]"
                      :page-size="queryModule.pageSize"
@@ -183,7 +180,6 @@
     <el-button @click="moduleDialogVisible = false">返 回</el-button>
   </span>
     </el-dialog>
-
   </div>
 </template>
 
@@ -198,75 +194,80 @@
             {type: 'number', message: '请输入数字值', trigger: 'blur'}
           ]
         },
-        moduleDialogVisible:false,
+        moduleDialogVisible: false,
         addDialogVisible: false,
-        addModuleForm:{},
-        moduleList:[],
-        moduleDetailsList:[],
+        addModuleForm: {},
+        moduleList: [],
+        moduleDetailsList: [],
         // 获取产品列表查询参数对象
         queryFile: {
-          queryName: '',
+          productName: '',
           pageNo: 1,
           pageSize: 5,
-          checkTag:1,
-          deleteTag:0,
-          type:1
+          checkTag: 1,
+          deleteTag: 0,
+          type: 1,
+          designModuleTag: 0
         },
-        queryModule:{
+        queryModule: {
           name: '',
           pageNo: 1,
           pageSize: 5,
-          checkTag:1,
-          deleteTag:0,
-          type:2
+          checkTag: 1,
+          deleteTag: 0,
+          type: 2
         },
         fileList: [],
         total: 0,
-        moduleTotal:0,
+        moduleTotal: 0,
         multipleSelection: [],
       }
     },
     methods: {
-      addModuleDetails(){
-        if (this.moduleList.length==0){
+      addModuleDetails() {
+        if (this.moduleList.length == 0) {
           this.$message.error("请至少添加一个物料");
           return;
         }
-        var params = new URLSearchParams();
-        params.append("roleMenus", JSON.stringify(this.moduleList))
-        params.append("module",this.addModuleForm)
-        this.axios.post("/module/addModuleDetails",params, {headers: {"Content-Type": "application/json"}})
+        this.moduleList.forEach((item) => {
+          item.goodsId = this.addModuleForm.productId;
+          item.designer = this.addModuleForm.designer;
+          item.moduleDescribe = this.addModuleForm.moduleDescribe;
+          item.register = window.sessionStorage.getItem('loginId');
+        })
+        this.axios.post("/module/addModuleDetails", JSON.stringify(this.moduleList), {headers: {"Content-Type": "application/json"}})
           .then((response) => {
-          if (response.data.result == true) {
-            this.$message.success('操作成功!')
-            this.addDialogVisible = false
-          }
-        }).catch(function (error) {
+            if (response.data.result == true) {
+              this.$message.success('操作成功!');
+              this.getFileList();
+              this.addDialogVisible = false;
+            }
+          }).catch(function (error) {
           return this.$message.error('操作失败！')
         })
       },
       // 添加索引
-      tableRowClassName(row, index){
+      tableRowClassName(row, index) {
         // 给每条数据添加一个索引
         row.row.index = row.rowIndex
       },
       //获取选中结果删除物料
       getSelected() {
         var val = this.multipleSelection;
-        if (this.moduleList.length==0){
+        if (this.moduleList.length == 0) {
           this.$message.error("请先添加物料");
           return;
         }
-        if (val.length==0){
+        if (val.length == 0) {
           this.$message.error("请至少选中一个物料删除");
           return;
         }
-        val.forEach((val,index) =>{
+        val.forEach((val, index) => {
           //遍历源数据
-          this.moduleList.forEach((v,i)=>{
+          this.moduleList.forEach((v, i) => {
             //如果选中数据和源数据的某一条唯一标识符相等，删除对应的源数据
-            if(val.index === v.index){
-              this.moduleList.splice(i,1)
+            if (val.index === v.index) {
+              this.moduleList.splice(i, 1)
             }
           })
         })
@@ -277,36 +278,45 @@
         this.multipleSelection = val;
       },
       //点击添加物料
-      addModule(row){
+      addModule(row) {
         var bool = true;
-        this.moduleList.forEach((item)=>{
-          if (item.productId==row.productId) {
+        this.moduleList.forEach((item) => {
+          if (item.productId == row.productId) {
             this.$message.error("请勿重复添加物料")
-            bool=false;
+            bool = false;
           }
         })
-        if (bool==true)
-        this.moduleList.push(row);
+        if (bool == true)
+          this.moduleList.push(row);
       },
       //查询所有物料
-      AddModuleDetails(){
+      AddModuleDetailLists() {
         this.moduleDialogVisible = true;
         var params = new URLSearchParams();
         Object.keys(this.queryModule).forEach((key) => {
           params.append(key, this.queryModule[key])
         });
 
-        this.axios.post("/files/page", params).then( (resp) =>{
+        this.axios.post("/files/page", params).then((resp) => {
           this.moduleTotal = resp.data.total;
           this.moduleDetailsList = resp.data.records;
         }).catch(function (error) {
           return this.$message.error('获取产品列表失败！')
         })
       },
+      handleAddSizeChange(newSize) {
+        this.queryModule.pageSize = newSize
+        this.AddModuleDetailLists()
+      },
+      // 监听 页码值 改变事件
+      handleAddCurrentChange(newSize) {
+        this.queryModule.pageNo = newSize
+        this.AddModuleDetailLists()
+      },
       //添加物料打开模态框
-      showAddDialog(id){
+      showAddDialog(id) {
         this.addDialogVisible = true;
-        this.axios.post("/files/selectById/"+id).then( (resp) =>{
+        this.axios.post("/files/selectById/" + id).then((resp) => {
           this.addModuleForm = resp.data;
         }).catch(function (error) {
           return this.$message.error('获取角色信息失败！')
@@ -316,7 +326,7 @@
       addDialogClosed() {
         this.$nextTick(() => {
           this.$refs.addModuleForm.resetFields();
-          this.moduleList=[];
+          this.moduleList = [];
           this.addDialogVisible = false
         })
       },
@@ -327,7 +337,7 @@
           params.append(key, this.queryFile[key])
         });
 
-        this.axios.post("/files/page", params).then( (resp) =>{
+        this.axios.post("/files/page", params).then((resp) => {
           this.total = resp.data.total;
           this.fileList = resp.data.records;
         }).catch(function (error) {
@@ -336,12 +346,12 @@
       },
       // 监听 pagesize改变的事件
       handleSizeChange(newSize) {
-        this.queryInfo.pageSize = newSize
+        this.queryFile.pageSize = newSize
         this.getFileList()
       },
       // 监听 页码值 改变事件
       handleCurrentChange(newSize) {
-        this.queryInfo.pageNo = newSize
+        this.queryFile.pageNo = newSize
         this.getFileList()
       },
 
@@ -351,9 +361,9 @@
     },
     filters: {   //过滤器
       newTitle(val) {
-        if (val==1)
+        if (val == 1)
           return "商品";
-        else if(val==2)
+        else if (val == 2)
           return "物料";
         else
           return "";
@@ -363,10 +373,11 @@
 </script>
 
 <style scoped>
-  .el-input, .textarea ,.el-select{
+  .el-input, .textarea, .el-select {
     width: 145px;
   }
-  .xxx{
+
+  .xxx {
     width: 400px;
   }
 </style>

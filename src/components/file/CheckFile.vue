@@ -152,17 +152,17 @@
       },
       // 监听 pagesize改变的事件
       handleSizeChange(newSize) {
-        this.queryInfo.pageSize = newSize
+        this.queryFile.pageSize = newSize
         this.getFileList()
       },
       // 监听 页码值 改变事件
       handleCurrentChange(newSize) {
-        this.queryInfo.pageNo = newSize
+        this.queryFile.pageNo = newSize
         this.getFileList()
       },
       //编辑打开模态框
       showCheckDialog(id){
-        this.checkDialogVisible = true,
+        this.checkDialogVisible = true;
           this.axios.post("/files/selectById/"+id).then( (resp) =>{
             this.checkFileForm = resp.data;
           }).catch(function (error) {

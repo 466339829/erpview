@@ -24,10 +24,10 @@
             {{scope.row.type | Title}}
           </template>
         </el-table-column>
-        <el-table-column prop="firstKindName" label="I级分类" width="120px"></el-table-column>
-        <el-table-column prop="secondKindName" label="II级分类" width="120px"></el-table-column>
-        <el-table-column prop="thirdKindName" label="III级分类" width="120px"></el-table-column>
-        <el-table-column label="建档时间">
+        <el-table-column prop="firstKindName" label="I级分类" width="100px"></el-table-column>
+        <el-table-column prop="secondKindName" label="II级分类" width="100px"></el-table-column>
+        <el-table-column prop="thirdKindName" label="III级分类" width="100px"></el-table-column>
+        <el-table-column label="建档时间" width="190px">
           <template slot-scope="scope">
             <i class="el-icon-time"/>
             {{ scope.row.registerTime }}
@@ -50,13 +50,13 @@
                      @size-change="handleSizeChange"
                      @current-change="handleCurrentChange"
                      :current-page="queryFile.pageNo"
-                     :page-sizes="[5, 10, 15, 20]"
+                     :page-sizes="[7, 10, 15, 20]"
                      :page-size="queryFile.pageSize"
                      layout="total, sizes, prev, pager, next, jumper"
                      :total="total"
       ></el-pagination>
     </el-card>
-    <!-- 添加角色的对话框 -->
+    <!-- 添加修改的对话框 -->
     <el-dialog :title="title| newTitle" :visible.sync="updateDialogVisible" width="80%" @close="updateDialogClosed">
       <el-row :gutter="20">
         <el-col :span="16" :offset="22">
@@ -164,11 +164,22 @@
           <el-input clearable v-model="updateFileForm.register"/>
         </el-form-item>
         <el-form-item label="建档时间" prop="registerTime">
-          <el-date-picker v-model="updateFileForm.registerTime" type="datetime" disabled class="input-class">
+          <el-input disabled v-model="updateFileForm.registerTime"/>
+         <!-- <el-date-picker v-model="updateFileForm.registerTime" type="datetime" disabled class="input-class">
+          </el-date-picker>-->
+        </el-form-item>
+        <el-form-item label="复核人" prop="checker">
+          <el-input clearable v-model="updateFileForm.checker"/>
+        </el-form-item>
+        <el-form-item label="变更人" prop="changer">
+          <el-input clearable v-model="updateFileForm.changer"/>
+        </el-form-item>
+        <el-form-item label="变更时间" prop="changeTime">
+          <el-date-picker v-model="updateFileForm.changeTime" type="datetime" disabled class="input-class">
           </el-date-picker>
         </el-form-item>
         <el-form-item label="产品图片" prop="image">
-          <img :src=updateFileForm.image class="fileImages">
+          <img :src=imageURL class="fileImages">
           <el-upload
             ref="upload"
             list-type="picture-card"
@@ -181,9 +192,6 @@
             :on-success="handleSuccess">
             <i class="el-icon-plus"></i>
           </el-upload>
-        </el-form-item>
-        <el-form-item label="复核人" prop="changer">
-          <el-input clearable v-model="updateFileForm.changer"/>
         </el-form-item>
       </el-form>
       <el-dialog title="产品图片预览" :visible.sync="previewDialogVisible">
@@ -198,6 +206,8 @@
     name: "EditFile",
     data() {
       return {
+        loginId: window.sessionStorage.getItem('loginId'),
+        imageURL:'',
         // 添加产品对话框
         updateFileFormRules: {
           firstKindId: [
@@ -222,14 +232,12 @@
             {type: 'number', message: '请输入数字值', trigger: 'blur'}
           ]
         },
-        updateFileForm: {
-          changer: window.sessionStorage.getItem('loginId'),
-        },
+        updateFileForm: {},
         // 获取角色列表查询参数对象
         queryFile: {
           queryName: '',
           pageNo: 1,
-          pageSize: 5,
+          pageSize: 7,
           checkTag: '1',
           deleteTag: '0'
         },
@@ -246,6 +254,9 @@
       }
     },
     methods: {
+      getDataTime() {//默认显示今天
+        this.updateFileForm.changeTime = new Date();
+      },
       beforeAvatarUpload(file) {
         const isJPG = file.type === 'image/jpeg';
         const isLt2M = file.size / 1024 / 1024 < 2;
@@ -284,12 +295,12 @@
       },
       // 监听 pagesize改变的事件
       handleSizeChange(newSize) {
-        this.queryInfo.pageSize = newSize
+        this.queryFile.pageSize = newSize
         this.getFileList()
       },
       // 监听 页码值 改变事件
       handleCurrentChange(newSize) {
-        this.queryInfo.pageNo = newSize
+        this.queryFile.pageNo = newSize
         this.getFileList()
       },
       //编辑打开模态框
@@ -298,7 +309,10 @@
         this.updateDialogVisible = true,
           this.axios.post("/files/selectById/" + row.id).then((resp) => {
             this.updateFileForm = resp.data;
-            this.updateFileForm.image=this.fileURL+this.updateFileForm.image
+            this.updateFileForm.changer=this.loginId;
+            this.updateFileForm.changeTime=this.changeTime;
+            this.imageURL = this.fileURL + this.updateFileForm.image;
+            this.updateFileForm.image=this.updateFileForm.image;
           }).catch(function (error) {
             return this.$message.error('获取角色信息失败！')
           })
@@ -307,6 +321,20 @@
       updateFile(formName) {
         this.$refs.updateFileForm.validate((valid) => {
           if (valid) {
+            var date = new Date();
+            var nian =   date.getFullYear();
+            var yue =   date.getMonth()+1;
+            var ri = date.getDate();
+            var shi = date.getHours();
+            var fen = date.getMinutes();
+            var miao = date.getSeconds();
+            if (yue<10) yue= "0"+yue;
+            if (ri<10) ri= "0"+ri;
+            if(miao<10) miao= "0"+miao;
+            if(fen<10) fen= "0"+fen;
+            if(shi<10) shi= "0"+shi;
+            this.updateFileForm.changeTime =nian+"-"+yue+"-"+ri+" "+shi+":"+fen+":"+miao;
+            this.updateFileForm.realCostPrice=0;
             var data = new URLSearchParams();
             Object.keys(this.updateFileForm).forEach((key) => {
               data.append(key, this.updateFileForm[key])
@@ -348,8 +376,12 @@
       },
     },
     created() {
-      this.getFileList()
+      this.getFileList();
     },
+    mounted() {
+      this.getDataTime();
+    },
+
     filters: {   //过滤器
       newTitle(val) {
         return "档案变更【" + val + "】";
@@ -369,7 +401,7 @@
 </script>
 
 <style scoped>
-  .el-input,.el-select,.textarea {
+  .el-input, .el-select, .textarea {
     width: 200px;
   }
 

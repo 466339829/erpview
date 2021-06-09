@@ -214,6 +214,19 @@
       addFile(formName) {
         this.$refs.addFileForm.validate((valid) => {
           if (valid) {
+            var date = new Date();
+            var nian =   date.getFullYear();
+            var yue =   date.getMonth()+1;
+            var ri = date.getDate();
+            var shi = date.getHours();
+            var fen = date.getMinutes();
+            var miao = date.getSeconds();
+            if (yue<10) yue= "0"+yue;
+            if (ri<10) ri= "0"+ri;
+            if(miao<10) miao= "0"+miao;
+            if(fen<10) fen= "0"+fen;
+            if(shi<10) shi= "0"+shi;
+            this.addFileForm.registerTime =nian+"-"+yue+"-"+ri+" "+shi+":"+fen+":"+miao;
             var params = new URLSearchParams();
             Object.keys(this.addFileForm).forEach((key) => {
               params.append(key, this.addFileForm[key])
