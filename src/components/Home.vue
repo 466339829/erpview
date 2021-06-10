@@ -86,12 +86,12 @@
   import EditModule from '../components/module/EditModule'
   import QueryModule from '../components/module/QueryModule'
   import Safetystock from "./warehouse/Safetystock";
-
+import Library from "./warehouse/Library";
   export default {
     components: {
       Users, AddUser, Welcome, RoleMenus, DelUser, EditUser, Roles, AddRole, DelRole, EditRole,
       Menus, AddMenus, EditMenu, DelMenu, UserRoles, AddFile, CheckFile, QueryFile, EditFile, DelFile, RemoveFile,
-      RecoveryFile, AddModule, CheckModule, EditModule, QueryModule, Safetystock
+      RecoveryFile, AddModule, CheckModule, EditModule, QueryModule, Safetystock,Library
     },
     data() {
       return {
