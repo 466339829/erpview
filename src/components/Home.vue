@@ -90,12 +90,14 @@
   import CheckDesignProcedureModule from '../components/designproceduremodule/CheckDesignProcedureModule'
   import QueryDesignProcedureModule from '../components/designproceduremodule/QueryDesignProcedureModule'
 
+import Library from "./warehouse/Library";
   export default {
     components: {
       Users, AddUser, Welcome, RoleMenus, DelUser, EditUser, Roles, AddRole, DelRole, EditRole,
       Menus, AddMenus, EditMenu, DelMenu, UserRoles, AddFile, CheckFile, QueryFile, EditFile, DelFile, RemoveFile,
       RecoveryFile, AddModule, CheckModule, EditModule, QueryModule, Safetystock,AddDesignProcedureModule,
       CheckDesignProcedureModule,QueryDesignProcedureModule
+      RecoveryFile, AddModule, CheckModule, EditModule, QueryModule, Safetystock,Library
     },
     data() {
       return {
