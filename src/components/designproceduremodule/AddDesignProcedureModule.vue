@@ -123,8 +123,6 @@
           <div><strong>建档时间: </strong> {{designProcedure.registerTime}}</div>
         </el-col>
       </el-row>
-
-
     </el-dialog>
 
     <!-- 添加设计单的对话框 -->
@@ -258,7 +256,7 @@
       //获取产品物料
       getModuleDetails(){
         var params = new URLSearchParams();
-        params.append("productId", this.productId)
+        params.append("productId", this.productId);
         this.axios.post("/moduleDetails/selectByProductId", params).then((resp) => {
           this.moduleDetailsList2=resp.data;
         }).catch(function (error) {
