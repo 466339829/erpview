@@ -89,15 +89,15 @@
   import AddDesignProcedureModule from '../components/designproceduremodule/AddDesignProcedureModule'
   import CheckDesignProcedureModule from '../components/designproceduremodule/CheckDesignProcedureModule'
   import QueryDesignProcedureModule from '../components/designproceduremodule/QueryDesignProcedureModule'
-
-import Library from "./warehouse/Library";
+  import Library from "./warehouse/Library";
+  import OutOfStock from "./warehouse/OutOfStock";
+  import OutStockAudit from "./warehouse/OutStockAudit";
   export default {
     components: {
       Users, AddUser, Welcome, RoleMenus, DelUser, EditUser, Roles, AddRole, DelRole, EditRole,
       Menus, AddMenus, EditMenu, DelMenu, UserRoles, AddFile, CheckFile, QueryFile, EditFile, DelFile, RemoveFile,
       RecoveryFile, AddModule, CheckModule, EditModule, QueryModule, Safetystock,AddDesignProcedureModule,
-      CheckDesignProcedureModule,QueryDesignProcedureModule
-      RecoveryFile, AddModule, CheckModule, EditModule, QueryModule, Safetystock,Library
+      CheckDesignProcedureModule,QueryDesignProcedureModule, Library,OutOfStock,OutStockAudit
     },
     data() {
       return {
