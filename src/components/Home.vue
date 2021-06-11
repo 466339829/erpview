@@ -97,7 +97,8 @@
       Users, AddUser, Welcome, RoleMenus, DelUser, EditUser, Roles, AddRole, DelRole, EditRole,
       Menus, AddMenus, EditMenu, DelMenu, UserRoles, AddFile, CheckFile, QueryFile, EditFile, DelFile, RemoveFile,
       RecoveryFile, AddModule, CheckModule, EditModule, QueryModule, Safetystock,AddDesignProcedureModule,
-      CheckDesignProcedureModule,QueryDesignProcedureModule, Library,OutOfStock,OutStockAudit
+      CheckDesignProcedureModule,QueryDesignProcedureModule, Library,OutOfStock,OutStockAudit,
+
     },
     data() {
       return {
