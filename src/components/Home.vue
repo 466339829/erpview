@@ -85,19 +85,31 @@
   import CheckModule from '../components/module/CheckModule'
   import EditModule from '../components/module/EditModule'
   import QueryModule from '../components/module/QueryModule'
-  import Safetystock from "./warehouse/Safetystock";
   import AddDesignProcedureModule from '../components/designproceduremodule/AddDesignProcedureModule'
   import CheckDesignProcedureModule from '../components/designproceduremodule/CheckDesignProcedureModule'
   import QueryDesignProcedureModule from '../components/designproceduremodule/QueryDesignProcedureModule'
+  import EditDesignProcedureModule from '../components/designproceduremodule/EditDesignProcedureModule'
+
+
+  import Safetystock from "./warehouse/Safetystock";
+
 
 import Library from "./warehouse/Library";
   export default {
     components: {
+      //yong
       Users, AddUser, Welcome, RoleMenus, DelUser, EditUser, Roles, AddRole, DelRole, EditRole,
-      Menus, AddMenus, EditMenu, DelMenu, UserRoles, AddFile, CheckFile, QueryFile, EditFile, DelFile, RemoveFile,
-      RecoveryFile, AddModule, CheckModule, EditModule, QueryModule, Safetystock,AddDesignProcedureModule,
-      CheckDesignProcedureModule,QueryDesignProcedureModule,
-      RecoveryFile, AddModule, CheckModule, EditModule, QueryModule, Safetystock,Library
+      Menus, AddMenus, EditMenu, DelMenu, UserRoles, AddFile, CheckFile, QueryFile, EditFile,
+      DelFile, RemoveFile, RecoveryFile, AddModule, CheckModule, EditModule, QueryModule,
+      AddDesignProcedureModule, CheckDesignProcedureModule,QueryDesignProcedureModule,
+      EditDesignProcedureModule,
+
+      //
+      Safetystock,
+
+      //
+      Library
+
     },
     data() {
       return {

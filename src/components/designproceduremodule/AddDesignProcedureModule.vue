@@ -78,6 +78,7 @@
           <div><strong>产品名称: </strong> {{designProcedure.productName}}</div>
         </el-col>
       </el-row>
+      <el-divider></el-divider>
       <!-- 内容主体 -->
       <!-- 产品工序组成 -->
       <el-table :data="designProcedureDetails" :row-class-name="tableRowClassName"  border stripe>
@@ -108,7 +109,7 @@
           </template>
         </el-table-column>
       </el-table>
-
+      <el-divider></el-divider>
       <el-row :gutter="20" style="margin-top: 20px" >
         <el-col :span="5">
           <div><strong>工时总成本: </strong> {{procedureInfo.costPriceSum}}</div>
@@ -203,6 +204,8 @@
         procedureInfo:{},
         proDetail:{},
         index:'',
+
+        designProcedureModuleList:[],
       }
     },
     methods: {
@@ -278,8 +281,17 @@
       },
       //工序添加物料
       AddModuleDetail(){
-        //添加当前工序所需物料
+
         this.designProcedureDetails[this.index].moduleDetails = this.moduleDetailsList;
+        /*this.moduleDetailsList.forEach((item)=>{
+
+          console.log(item)
+          /!*this.designProcedureDetails[this.index].moduleDetails.add(item)*!/
+          /!*item.residualAmount = (item.residualAmount - item.amount);
+          item.amount = item.residualAmount;*!/
+        })*/
+        //添加当前工序所需物料
+        /*this.designProcedureDetails[this.index].moduleDetails = this.moduleDetailsList;*/
         /*this.moduleDetailsList.forEach((item)=>{
           item.residualAmount = (item.residualAmount - item.amount);
           item.amount = item.residualAmount;

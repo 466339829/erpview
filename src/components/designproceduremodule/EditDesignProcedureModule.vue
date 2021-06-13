@@ -2,21 +2,6 @@
   <div>
     <!--   搜索 品生产工序列表分页-->
     <el-card>
-
-      <el-row :gutter="20">
-        <el-col :span="8">
-          <el-form :inline="true">
-            <el-form-item label="姓名">
-              <el-input placeholder="请输入产品名称" clearable @clear="getDesignProcedureList"
-                        v-model="queryDesignProcedure.productName"></el-input>
-            </el-form-item>
-            <el-form-item>
-              <el-button type="primary" @click="getDesignProcedureList">查询</el-button>
-            </el-form-item>
-          </el-form>
-        </el-col>
-      </el-row>
-
       <el-row :gutter="20">
         <el-col :span="8">
           <el-form :inline="true">
@@ -55,11 +40,11 @@
         <el-table-column label="审核">
           <template slot-scope="scope">
             <el-button
-              type="warning"
-              icon="el-icon-star-off"
+              type="primary"
+              icon="el-icon-edit"
               size="mini"
               @click="showAddDialog(scope.row)"
-            >查看
+            >变更
             </el-button>
           </template>
         </el-table-column>
@@ -106,14 +91,21 @@
         <el-table-column prop="labourHourAmount" label="公时数(小时)"></el-table-column>
         <el-table-column prop="subtotal" label="公时成本小计(元)"></el-table-column>
         <el-table-column prop="moduleSubtotal" label="物料成本小计(元)"></el-table-column>
-        <el-table-column label="设计">
+        <el-table-column label="操作">
           <template slot-scope="scope">
-            <el-button v-if="scope.row.moduleDetails == null"
-                       type="warning"
-                       icon="el-icon-star-off"
+            <el-button v-if="scope.row.checked == false"
+                       type="primary"
+                       icon="el-icon-edit"
                        size="mini"
                        @click="showModuleDetails(scope.row)"
-            >查看
+            >变更
+            </el-button>
+            <el-button v-else
+                       type="primary"
+                       icon="el-icon-edit"
+                       size="mini"
+                       @click="showModuleDetails(scope.row)"
+            >重新变更
             </el-button>
           </template>
         </el-table-column>
@@ -151,20 +143,25 @@
     <!-- 添加设计单的对话框 -->
     <el-dialog title="工序物料设计单" :visible.sync="moduleDialogVisible" width="90%" @close="moduleDialogClosed">
       <el-row :gutter="20" style="margin-top: -20px">
-        <el-col :span="5">
+        <el-col :span="4">
           <div><strong>设计单编号: </strong> {{procedureInfo.designId}}</div>
         </el-col>
         <el-col :span="4">
           <div><strong>设计人: </strong> {{procedureInfo.designer}}</div>
         </el-col>
-        <el-col :span="5">
+        <el-col :span="4">
           <div><strong>产品编号: </strong> {{designProcedure.productId}}</div>
         </el-col>
-        <el-col :span="5">
+        <el-col :span="4">
           <div><strong>产品名称: </strong> {{designProcedure.productName}}</div>
         </el-col>
-        <el-col :span="5">
+        <el-col :span="4">
           <div><strong>工序名称: </strong> {{proDetail.procedureName}}</div>
+        </el-col>
+        <el-col :span="4">
+          <div>
+            <el-button icon="el-icon-check" type="primary" @click="AddModuleDetail">确 定</el-button>
+          </div>
         </el-col>
       </el-row>
       <el-divider></el-divider>
@@ -175,12 +172,22 @@
         <el-table-column prop="productId" label="物料编号"></el-table-column>
         <el-table-column prop="productName" label="物料名称"></el-table-column>
         <el-table-column prop="productDescribe" label="描述"></el-table-column>
-        <el-table-column prop="amount" label="本工序数量"></el-table-column>
+        <el-table-column prop="amount" label="可用数量" width="100px"></el-table-column>
         <el-table-column prop="amountUnit" label="单位"></el-table-column>
         <el-table-column prop="costPrice" label="单价(元)"></el-table-column>
-        <el-table-column label="小计(元)">
+
+        <el-table-column label="本工序数量" prop="count" >
           <template slot-scope="scope">
-            {{scope.row.amount*scope.row.costPrice}}
+            <el-input-number v-model.number="scope.row.count" :aria-readonly="true"
+                      :min="1"  :max="scope.row.amount"  style="width: 150px" >
+
+            </el-input-number>
+          </template>
+        </el-table-column>
+
+        <el-table-column label="小计(元)" width="100px">
+          <template slot-scope="scope">
+            {{scope.row.count*scope.row.costPrice}}
           </template>
         </el-table-column>
       </el-table>
@@ -194,6 +201,7 @@
     name: "QueryDesignProcedureModule",
     data() {
       return {
+        show:false,
         // 获取品生产工序列表查询参数对象
         queryDesignProcedure: {
           productName: '',
@@ -258,6 +266,7 @@
         this.productId = row.productId;
         this.addDialogVisible = true;
         this.axios.post("/designProcedure/designProcedureDetailsByPId/" + row.id).then((resp) => {
+          console.log(resp.data)
           this.designProcedure = resp.data.designProcedure;
           this.designProcedureDetails = resp.data.designProcedureDetails;
         }).catch(function (error) {
@@ -269,7 +278,9 @@
         this.proDetail = row;
         this.index = row.index;
         this.axios.post("/designProcedureModule/selectByPId/" + row.id).then((resp) => {
-          this.moduleDetailsList = resp.data
+          this.moduleDetailsList = resp.data;
+          this.designProcedureDetails[this.index].moduleDetails=resp.data
+
         }).catch(function (error) {
           return this.$message.error('获取角色信息失败！')
         })
@@ -281,9 +292,14 @@
           this.moduleDialogVisible = false;
         })
       },
+      AddModuleDetail(){
+        this.designProcedureDetails[this.index].moduleDetails = this.moduleDetailsList
+
+        this.moduleDialogVisible = false;
+      },
     },
     created() {
-      this.getDesignProcedureList()
+      this.getDesignProcedureList();
     },
     filters: {   //过滤器
       newTitle(val) {

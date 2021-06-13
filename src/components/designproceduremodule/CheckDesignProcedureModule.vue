@@ -214,7 +214,7 @@
           productName: '',
           pageNo: 1,
           pageSize: 5,
-          CheckTag: 0,
+          checkTag: 0,
           designModuleTag: 1
         },
         designProcedureList: [],

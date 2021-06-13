@@ -3,13 +3,54 @@
     <!--   搜索 添加 产品列表分页-->
     <el-card>
       <el-row :gutter="20">
-        <el-col :span="13">
+        <el-col>
           <el-form :inline="true">
             <el-form-item label="产品名称">
-              <el-input placeholder="请输入产品名称" clearable @clear="getFileList" v-model="queryFile.queryName"></el-input>
+              <el-input placeholder="请输入产品名称" clearable @clear="getFileList" v-model="queryFile.productName"></el-input>
             </el-form-item>
+
+            <el-form-item label="I级分类">
+              <el-select clearable @clear="getFileList" @change="firstKindIdChange" v-model="queryFile.firstKindId"
+                         placeholder="请选择">
+                <el-option v-for="item in firstKindList" :key="item.id" :value="item.kindId" :label="item.kindName"/>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="II级分类">
+              <el-select clearable @clear="getFileList" @change="secondKindChange" v-model="queryFile.secondKindId"
+                         placeholder="请选择">
+                <el-option v-for="item in secondKindSelectList" :key="item.id" :value="item.kindId"
+                           :label="item.kindName"/>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="III级分类">
+              <el-select clearable @clear="getFileList" @change="thirdKindChange" v-model="queryFile.thirdKindId"
+                         placeholder="请选择">
+                <el-option v-for="item in thirdKindSelectList" :key="item.id" :value="item.kindId"
+                           :label="item.kindName"/>
+              </el-select>
+            </el-form-item>
+
+            <el-form-item label="用途类型">
+              <el-select clearable @clear="getFileList" v-model="queryFile.type" placeholder="请选择">
+                <el-option label="商品" value="1"/>
+                <el-option label="物料" value="2"/>
+              </el-select>
+            </el-form-item>
+
+            <el-form-item label="建档时间">
+              <el-date-picker @change="change"
+                              v-model="queryFile.dataTime"
+                              type="daterange"
+                              unlink-panels
+                              range-separator="至"
+                              start-placeholder="开始日期"
+                              end-placeholder="结束日期"
+                              :picker-options="pickerOptions">
+              </el-date-picker>
+            </el-form-item>
+
             <el-form-item>
-              <el-button type="primary" @click="getFileList">查询</el-button>
+              <el-button type="primary" icon="el-icon-search" @click="getFileList">查询</el-button>
             </el-form-item>
           </el-form>
         </el-col>
@@ -36,8 +77,8 @@
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button
-              type="success"
-              icon="el-icon-edit"
+              type="warning"
+              icon="el-icon-star-off"
               size="mini"
               @click="showCheckDialog(scope.row.id)"
             >复核
@@ -57,48 +98,134 @@
       ></el-pagination>
     </el-card>
     <!-- 添加产品的对话框 -->
-    <el-dialog title="登记复核" :visible.sync="checkDialogVisible" width="80%" @close="checkDialogClosed">
-      <el-row :gutter="20">
+    <el-dialog :title="checkFileForm.productName | title" :visible.sync="checkDialogVisible" width="80%" @close="checkDialogClosed">
+
+      <el-row :gutter="20" style="margin-top: -20px">
         <el-col :span="16" :offset="21">
           <div>
-              <span slot="footer" class="dialog-footer">
-                <el-button type="success" icon="el-icon-star-off"  @click="checkFile(checkFileForm.id)">复核通过</el-button>
-                </span>
+            <el-button style="margin-top: -30px" type="warning" icon="el-icon-star-off"
+                       @click="checkFile(checkFileForm.id)">复核通过
+            </el-button>
           </div>
         </el-col>
       </el-row>
+      <el-row :gutter="20" style="margin-top: -20px">
+        <el-col :span="4">
+          <div><label class="document-btn">主信息</label></div>
+        </el-col>
+      </el-row>
       <!-- 内容主体 -->
-      <div>
-        <label class="document-btn">主信息</label>
-      </div>
-      <span ><strong >产品编号: </strong>  {{checkFileForm.productId}}</span>
-      <span ><strong>产品名称: </strong>  {{checkFileForm.productName}}</span>
-      <span ><strong>制造商: </strong>  {{checkFileForm.factoryName}}</span>
-      <span ><strong>产品简称: </strong>  {{checkFileForm.productNick}}</span><br/>
-      <span ><strong>I级分类: </strong>  {{checkFileForm.firstKindName}}</span>
-      <span ><strong>II级分类: </strong>  {{checkFileForm.secondKindName}}</span>
-      <span><strong>III级分类: </strong>  {{checkFileForm.thirdKindName}}</span>
-      <span><strong>用途类型: </strong>  {{checkFileForm.type}}</span><br/>
-      <span><strong>档次级别: </strong>  {{checkFileForm.productClass}}</span>
-      <span><strong>计量单位: </strong>  {{checkFileForm.personalUnit}}</span>
-      <span><strong>计量值: </strong>  {{checkFileForm.personalValue}}</span>
-      <span><strong>市场单价(元): </strong>  {{checkFileForm.listPrice}}</span>
-      <span><strong>计划成本单价: </strong>  {{checkFileForm.costPrice}}</span>
-        <el-divider></el-divider>
-        <div>
-          <label class="document-btn">辅助信息</label>
-        </div>
-      <span><strong>保修期: </strong>  {{checkFileForm.warranty}}</span>
-      <span><strong>替代品名称: </strong>  {{checkFileForm.twinName}}</span>
-      <span><strong>替代品编号: </strong>  {{checkFileForm.twinId}}</span>
-      <span><strong>生命周期(年): </strong>  {{checkFileForm.lifecycle}}</span><br/>
-      <span><strong>单位: </strong>  {{checkFileForm.amountUnit}}</span>
-      <span><strong>产品经理: </strong>  {{checkFileForm.responsiblePerson}}</span>
-      <span><strong>供应商集合: </strong>  {{checkFileForm.providerGroup}}</span>
-      <span><strong>产品描述: </strong>  {{checkFileForm.productDescribe}}</span><br/>
-      <span><strong>登记人: </strong>  {{checkFileForm.register}}</span>
-      <span><strong>建档时间: </strong>  {{checkFileForm.registerTime}}</span>
-      <span><strong>产品图片: </strong><img :src=URL+checkFileForm.image width="60px" height="60px"></span>
+      <el-divider></el-divider>
+      <el-row :gutter="20" style="margin-top: 0px">
+        <el-col :span="5">
+          <div><strong>产品编号: </strong> {{checkFileForm.productId}}</div>
+        </el-col>
+        <el-col :span="5">
+          <div><strong>产品名称: </strong> {{checkFileForm.productName}}</div>
+        </el-col>
+        <el-col :span="5">
+          <div><strong>制造商: </strong> {{checkFileForm.factoryName}}</div>
+        </el-col>
+        <el-col :span="5">
+          <div><strong>产品简称: </strong> {{checkFileForm.productNick}}</div>
+        </el-col>
+      </el-row>
+
+      <el-row :gutter="20" style="margin-top: 10px">
+        <el-col :span="5">
+          <div><strong>I级分类: </strong> {{checkFileForm.firstKindName}}</div>
+        </el-col>
+        <el-col :span="5">
+          <div><strong>II级分类: </strong> {{checkFileForm.secondKindName}}</div>
+        </el-col>
+        <el-col :span="5">
+          <div><strong>III级分类: </strong> {{checkFileForm.thirdKindName}}</div>
+        </el-col>
+        <el-col :span="5">
+          <div><strong>用途类型: </strong> {{checkFileForm.type | newTitle}}</div>
+        </el-col>
+      </el-row>
+
+      <el-row :gutter="20" style="margin-top: 10px">
+        <el-col :span="5">
+          <div><strong>档次级别: </strong> {{checkFileForm.productClass | productTitle}}</div>
+        </el-col>
+        <el-col :span="5">
+          <div><strong>计量单位: </strong> {{checkFileForm.personalUnit}}</div>
+        </el-col>
+        <el-col :span="5">
+          <div><strong>计量值: </strong> {{checkFileForm.personalValue}}</div>
+        </el-col>
+        <el-col :span="5">
+          <div><strong>市场单价(元): </strong> {{checkFileForm.listPrice}}</div>
+        </el-col>
+        <el-col :span="4">
+          <div><strong>计划成本单价: </strong> {{checkFileForm.costPrice}}</div>
+        </el-col>
+      </el-row>
+
+      <el-divider></el-divider>
+      <el-row :gutter="20" style="margin-top: 10px">
+        <el-col :span="4">
+          <div><label class="document-btn">辅助信息</label></div>
+        </el-col>
+      </el-row>
+
+      <el-row :gutter="20" style="margin-top: 10px">
+        <el-col :span="5">
+          <div><strong>保修期: </strong> {{checkFileForm.warranty}}</div>
+        </el-col>
+        <el-col :span="5">
+          <div><strong>替代品名称: </strong> {{checkFileForm.twinName}}</div>
+        </el-col>
+        <el-col :span="5">
+          <div><strong>替代品编号: </strong> {{checkFileForm.twinId}}</div>
+        </el-col>
+        <el-col :span="5">
+          <div><strong>生命周期(年): </strong> {{checkFileForm.lifecycle}}</div>
+        </el-col>
+        <el-col :span="4">
+          <div><strong>保修期: </strong> {{checkFileForm.warranty}}</div>
+        </el-col>
+      </el-row>
+
+      <el-row :gutter="20" style="margin-top: 10px">
+        <el-col :span="5">
+          <div><strong>生命周期(年): </strong> {{checkFileForm.lifecycle}}</div>
+        </el-col>
+        <el-col :span="5">
+          <div><strong>单位: </strong> {{checkFileForm.amountUnit}}</div>
+        </el-col>
+        <el-col :span="5">
+          <div><strong>产品经理: </strong> {{checkFileForm.responsiblePerson}}</div>
+        </el-col>
+        <el-col :span="5">
+          <div><strong>供应商集合: </strong> {{checkFileForm.providerGroup}}</div>
+        </el-col>
+        <el-col :span="4">
+          <div><strong>产品描述: </strong> {{checkFileForm.productDescribe}}</div>
+        </el-col>
+      </el-row>
+
+      <el-row :gutter="20" style="margin-top: 10px">
+        <el-col :span="5">
+          <div><strong>登记人: </strong> {{checkFileForm.register}}</div>
+        </el-col>
+        <el-col :span="5">
+          <div><strong>建档时间: </strong> {{checkFileForm.registerTime}}</div>
+        </el-col>
+        <el-col :span="7">
+          <div><strong>产品图片: </strong>
+            <img :src=URL+checkFileForm.image width="100px" height="100px">
+            <span class="el-upload-list__item-actions">
+              <span class="el-upload-list__item-preview" @click="handlePictureCardPreview(checkFileForm.image)"><i class="el-icon-zoom-in"></i></span>
+            </span>
+          </div>
+        </el-col>
+      </el-row>
+    </el-dialog>
+    <el-dialog :visible.sync="dialogVisible">
+      <img width="100%" :src="dialogImageUrl" alt="">
     </el-dialog>
   </div>
 </template>
@@ -108,44 +235,104 @@
     name: "CheckFile",
     data() {
       return {
-        checkFileForm:{
+        pickerOptions: {
+          shortcuts: [{
+            text: '最近一周',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近一个月',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近三个月',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+              picker.$emit('pick', [start, end]);
+            }
+          }]
         },
+        checkFileForm: {},
         checker: window.sessionStorage.getItem('loginId'),
-        // 获取角色列表查询参数对象
+        // 获取产品列表查询参数对象
         queryFile: {
-          queryName: '',
+          productName: '',
           pageNo: 1,
-          pageSize: 5,
+          pageSize: 7,
           //审核标志0: 等待1: 通过2: 不通过
-          checkTag:0,
+          checkTag: 0,
           //产品删除标志0: 未删除1: 已删除2永久删除
-          deleteTag:0
+          deleteTag: 0,
+          firstKindId: '',
+          secondKindId: '',
+          thirdKindId: '',
+          type:'',
+          dataTime: ''
         },
         fileList: [],
         total: 0,
         checkDialogVisible: false,
-        URL:'http://localhost:8080/images/',
+        URL: 'http://localhost:8080/images/',
+        firstKindList: [],
+        secondKindList: [],
+        thirdKindList: [],
+
+        secondKindSelectList: [],
+        thirdKindSelectList: [],
+
+        title:'',
+        dialogImageUrl: '',
+        dialogVisible: false,
       }
     },
     methods: {
+      handlePictureCardPreview(file) {
+        this.dialogImageUrl = this.URL+file;
+        this.dialogVisible = true;
+      },
       // 监听 复核角色对话框的关闭事件
       checkDialogClosed() {
         this.$nextTick(() => {
           this.checkDialogVisible = false
         })
       },
-
-      //获取角色列表
+      getDataTime(dataTime) {//默认显示今天
+        var nian = dataTime.getFullYear();
+        var yue = dataTime.getMonth() + 1;
+        var ri = dataTime.getDate();
+        var shi = dataTime.getHours();
+        var fen = dataTime.getMinutes();
+        var miao = dataTime.getSeconds();
+        if (yue < 10) yue = "0" + yue;
+        if (ri < 10) ri = "0" + ri;
+        if (miao < 10) miao = "0" + miao;
+        if (fen < 10) fen = "0" + fen;
+        if (shi < 10) shi = "0" + shi;
+        return nian + "-" + yue + "-" + ri + " " + shi + ":" + fen + ":" + miao;
+      },
+      //获取产品列表
       getFileList() {
         var params = new URLSearchParams();
-        params.append("pageNo", this.queryFile.pageNo);
-        params.append("pageSize", this.queryFile.pageSize);
-        params.append("productName", this.queryFile.queryName);
-        params.append("checkTag", this.queryFile.checkTag);
-        params.append("deleteTag", this.queryFile.deleteTag);
-        this.axios.post("/files/page", params).then( (resp) =>{
+        if (this.queryFile.dataTime) {
+          params.append("registerTime", this.getDataTime(this.queryFile.dataTime[0]))
+          params.append("registerTime2", this.getDataTime(this.queryFile.dataTime[1]))
+        }
+        Object.keys(this.queryFile).forEach((key) => {
+          params.append(key, this.queryFile[key])
+        });
+        this.axios.post("/files/page", params).then((resp) => {
           this.total = resp.data.total;
-          this.fileList = resp.data.records;
+          this.fileList = resp.data.list;
         }).catch(function (error) {
           return this.$message.error('获取角色列表失败！')
         })
@@ -161,39 +348,90 @@
         this.getFileList()
       },
       //编辑打开模态框
-      showCheckDialog(id){
+      showCheckDialog(id) {
         this.checkDialogVisible = true;
-          this.axios.post("/files/selectById/"+id).then( (resp) =>{
-            this.checkFileForm = resp.data;
-          }).catch(function (error) {
-            return this.$message.error('获取角色信息失败！')
-          })
+        this.axios.post("/files/selectById/" + id).then((resp) => {
+          this.checkFileForm = resp.data;
+        }).catch(function (error) {
+          return this.$message.error('获取角色信息失败！')
+        })
       },
       //复核
       checkFile(id) {
         var params = new URLSearchParams();
-        params.append("id",id)
-        params.append("checker",this.checker)
-        this.axios.post("/files/checkTag/",params).then((response) => {
-          if (response.data==true) {
+        params.append("id", id)
+        params.append("checker", this.checker)
+        this.axios.post("/files/checkTag/", params).then((response) => {
+          if (response.data == true) {
             this.$message.success("复核成功")
             this.checkDialogClosed(),
               this.getFileList();
           } else {
             this.$message.success("复核失败")
             this.checkDialogClosed(),
-             this.getFileList();
+              this.getFileList();
           }
         }).catch(function (error) {
           alert("服务端获取数据失败");
         });
 
       },
+      //获取所有分类信息
+      getConfigFileKindList() {
+        this.axios.post("/configFileKind/list").then((resp) => {
+          resp.data.forEach((item) => {
+            if (item.kindLevel == 1)
+              this.firstKindList.push(item)
+            if (item.kindLevel == 2)
+              this.secondKindList.push(item)
+            if (item.kindLevel == 3)
+              this.thirdKindList.push(item)
+          })
+        }).catch(function (error) {
+          return this.$message.error('获取酚类信息失败！')
+        })
+      },
+      //I级分类选择
+      firstKindIdChange(val) {
+        this.queryFile.firstKindId = val;
+        this.secondKindSelectList = [];
+        this.thirdKindSelectList = [];
+        this.queryFile.secondKindId = '';
+        this.queryFile.thirdKindId = '';
+        this.secondKindList.forEach(item => {
+          if (item.pid == val) {
+            this.secondKindSelectList.push(item);
+          }
+        });
+      },
+      //II级分类
+      secondKindChange(val) {
+        this.queryFile.thirdKindId = '';
+        this.thirdKindSelectList = [];
+        this.thirdKindList.forEach(item => {
+          if (item.pid == val) {
+            this.thirdKindSelectList.push(item);
+          }
+        });
+        this.queryFile.secondKindId = val;
+      },
+      //III级分类
+      thirdKindChange(val) {
+        this.queryFile.thirdKindId = val
+      },
+      // 条件查询建档时间value = []
+      change(value) {
+        if (value == null) this.getFileList();
+      },
     },
     created() {
-      this.getFileList()
+      this.getFileList();
+      this.getConfigFileKindList()
     },
-    filters: {   //过滤器
+    filters: {//过滤器
+      title(val) {
+        return "登记复核【" + val + "】";
+      },
       newTitle(val) {
         if (val==1)
           return "商品";
@@ -201,15 +439,24 @@
           return "物料";
         else
           return "";
+      },
+      productTitle(val){
+        if (val==1)
+          return "高档";
+        else if(val==2)
+          return "中档";
+        else
+          return "低挡";
       }
     }
   }
 </script>
 
 <style scoped>
-  .el-input,.el-select,.textarea {
+  .el-input, .el-select, .textarea {
     width: 200px;
   }
+
   .document-btn {
     flex-shrink: 0;
     display: block;
