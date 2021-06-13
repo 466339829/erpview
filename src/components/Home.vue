@@ -94,7 +94,7 @@
   import Safetystock from "./warehouse/Safetystock";
 
 
-import Library from "./warehouse/Library";
+  import Library from "./warehouse/Library";
   export default {
     components: {
       //yong
@@ -109,7 +109,6 @@ import Library from "./warehouse/Library";
 
       //
       Library
-
     },
     data() {
       return {
