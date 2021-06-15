@@ -63,7 +63,8 @@
         <el-col :span="16" :offset="12">
           <div>
               <span slot="footer" class="dialog-footer">
-                <el-button icon="el-icon-circle-plus-outline" type="primary" @click="AddModuleDetailLists">添加物料</el-button>
+                <el-button icon="el-icon-circle-plus-outline" type="primary"
+                           @click="AddModuleDetailLists">添加物料</el-button>
                 <el-button icon="el-icon-remove-outline" type="info" @click="getSelected">删除物料</el-button>
                 <el-button icon="el-icon-check" type="primary" @click="addModuleDetails">提  交</el-button>
                 <el-button icon="el-icon-circle-close" type="danger" @click="addDialogClosed">取消</el-button>
@@ -100,10 +101,11 @@
           <el-table-column prop="productDescribe" label="描述"></el-table-column>
 
           <el-table-column prop="amount" label="数量" width="180">
-          <template slot-scope="scope">
-              <el-input clearable v-model.number="scope.row.amount" maxlength="8" oninput = "value=value.replace(/[^\d]/g,'')"/>
-          </template>
-        </el-table-column>
+            <template slot-scope="scope">
+              <el-input clearable v-model.number="scope.row.amount" maxlength="8"
+                        oninput="value=value.replace(/[^\d]/g,'')"/>
+            </template>
+          </el-table-column>
 
           <el-table-column prop="amountUnit" label="单位"></el-table-column>
           <el-table-column prop="costPrice" label="计划成本单价(元)"></el-table-column>
@@ -353,8 +355,7 @@
       handleCurrentChange(newSize) {
         this.queryFile.pageNo = newSize
         this.getFileList()
-      },
-
+      }
     },
     created() {
       this.getFileList()
