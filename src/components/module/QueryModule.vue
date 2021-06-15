@@ -3,14 +3,27 @@
     <!--   搜索 添加 产品列表分页-->
     <el-card>
       <el-row :gutter="20">
-        <el-col :span="10">
+        <el-col :span="20">
           <el-form :inline="true">
             <el-form-item label="产品名称">
               <el-input placeholder="请输入产品名称" clearable @clear="getModuleList"
-                        v-model="selectModule.productName"></el-input>
+                        v-model="queryModule.productName"></el-input>
             </el-form-item>
+
+            <el-form-item label="建档时间">
+              <el-date-picker @change="change"
+                              v-model="queryModule.dataTime"
+                              type="daterange"
+                              unlink-panels
+                              range-separator="至"
+                              start-placeholder="开始日期"
+                              end-placeholder="结束日期"
+                              :picker-options="pickerOptions">
+              </el-date-picker>
+            </el-form-item>
+
             <el-form-item>
-              <el-button type="primary" @click="getModuleList">查询</el-button>
+              <el-button type="primary" icon="el-icon-search"  @click="getModuleList">查询</el-button>
             </el-form-item>
           </el-form>
         </el-col>
@@ -20,7 +33,7 @@
         <!-- stripe: 斑马条纹 border：边框-->
         <el-table-column prop="designId" label="设计单编号"></el-table-column>
         <el-table-column prop="productId" label="产品编号"></el-table-column>
-        <el-table-column prop="productName" label="产品名称" width="130px"></el-table-column>
+        <el-table-column prop="productName" label="产品名称" width="140px"></el-table-column>
         <el-table-column prop="costPriceSum" label="物料总成本" width="130px"></el-table-column>
         <el-table-column label="登记时间">
           <template slot-scope="scope">
@@ -45,9 +58,9 @@
       <el-pagination background
                      @size-change="handleSizeChange"
                      @current-change="handleCurrentChange"
-                     :current-page="selectModule.pageNo"
-                     :page-sizes="[5, 10, 15, 20]"
-                     :page-size="selectModule.pageSize"
+                     :current-page="queryModule.pageNo"
+                     :page-sizes="[7, 10, 15, 20]"
+                     :page-size="queryModule.pageSize"
                      layout="total, sizes, prev, pager, next, jumper"
                      :total="total"
       ></el-pagination>
@@ -61,7 +74,7 @@
         <el-col :span="3">
           <div><strong>设计人: </strong> {{module.designer}}</div>
         </el-col>
-        <el-col :span="4">
+        <el-col :span="5">
           <div><strong>产品名称: </strong> {{module.productName}}</div>
         </el-col>
         <el-col :span="5">
@@ -115,12 +128,40 @@
     name: "QueryModule",
     data() {
       return {
+        pickerOptions: {
+          shortcuts: [{
+            text: '最近一周',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近一个月',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近三个月',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+              picker.$emit('pick', [start, end]);
+            }
+          }]
+        },
         ruleForm:{},
         // 获取产品列表查询参数对象
-        selectModule: {
+        queryModule: {
           productName: '',
           pageNo: 1,
-          pageSize: 5,
+          pageSize: 7,
+          dataTime: ''
         },
         moduleList: [],
         total: 0,
@@ -145,14 +186,36 @@
           return this.$message.error('获取角色信息失败！')
         })
       },
+      // 条件查询建档时间value = []
+      change(value) {
+        if (value == null) this.getModuleList();
+      },
+      getDataTime(dataTime) {//默认显示今天
+        var nian = dataTime.getFullYear();
+        var yue = dataTime.getMonth() + 1;
+        var ri = dataTime.getDate();
+        var shi = dataTime.getHours();
+        var fen = dataTime.getMinutes();
+        var miao = dataTime.getSeconds();
+        if (yue < 10) yue = "0" + yue;
+        if (ri < 10) ri = "0" + ri;
+        if (miao < 10) miao = "0" + miao;
+        if (fen < 10) fen = "0" + fen;
+        if (shi < 10) shi = "0" + shi;
+        return nian + "-" + yue + "-" + ri + " " + shi + ":" + fen + ":" + miao;
+      },
       //获取产品列表
       getModuleList() {
         var params = new URLSearchParams();
-        Object.keys(this.selectModule).forEach((key) => {
-          params.append(key, this.selectModule[key])
+        if (this.queryModule.dataTime) {
+          params.append("registerTime", this.getDataTime(this.queryModule.dataTime[0]))
+          params.append("registerTime2", this.getDataTime(this.queryModule.dataTime[1]))
+        }
+        Object.keys(this.queryModule).forEach((key) => {
+          params.append(key, this.queryModule[key])
         });
         this.axios.post("/module/page", params).then((resp) => {
-          resp.data.records.forEach((item)=>{
+          resp.data.list.forEach((item)=>{
             if (item.checkTag==0)
               item.checkTag='等待';
             else if (item.checkTag==1)
@@ -161,7 +224,7 @@
               item.checkTag='不通过';
           })
           this.total = resp.data.total;
-          this.moduleList = resp.data.records;
+          this.moduleList = resp.data.list;
 
         }).catch(function (error) {
           return this.$message.error('获取产品列表失败！')
@@ -169,12 +232,12 @@
       },
       // 监听 pagesize改变的事件
       handleSizeChange(newSize) {
-        this.selectModule.pageSize = newSize
+        this.queryModule.pageSize = newSize
         this.getModuleList()
       },
       // 监听 页码值 改变事件
       handleCurrentChange(newSize) {
-        this.selectModule.pageNo = newSize
+        this.queryModule.pageNo = newSize
         this.getModuleList()
       },
 

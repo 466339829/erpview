@@ -1,11 +1,12 @@
 <template>
-  <div  v-loading="loading">
+  <div v-loading="loading">
     <el-card>
       <el-row :gutter="20">
         <el-col :span="16" :offset="19">
           <div>
               <span slot="footer" class="dialog-footer">
-                <el-button style="width: 150px" icon="el-icon-check" type="primary" @click="addFile('addFileForm')">提  交</el-button>
+                <el-button style="width: 150px" icon="el-icon-check" type="primary"
+                           @click="addFile('addFileForm')">提  交</el-button>
                 </span>
           </div>
         </el-col>
@@ -24,19 +25,20 @@
           <el-form-item label="产品简称" prop="productNick">
             <el-input clearable v-model="addFileForm.productNick"/>
           </el-form-item>
+
           <el-form-item label="I级分类" prop="firstKindId">
-            <el-select clearable v-model="addFileForm.firstKindId" placeholder="请选择">
-              <el-option label="电子" value="01"/>
+            <el-select clearable @change="firstKindIdChange" v-model="addFileForm.firstKindId" placeholder="请选择">
+              <el-option v-for="item in firstKindList" :key="item.id" :value="item.kindId" :label="item.kindName"/>
             </el-select>
           </el-form-item>
           <el-form-item label="II级分类" prop="secondKindId">
-            <el-select clearable v-model="addFileForm.secondKindId" placeholder="请选择">
-              <el-option label="计算机" value="02"/>
+            <el-select clearable @change="secondKindChange" v-model="addFileForm.secondKindId" placeholder="请选择">
+              <el-option v-for="item in secondKindSelectList" :key="item.id" :value="item.kindId" :label="item.kindName"/>
             </el-select>
           </el-form-item>
           <el-form-item label="III级分类" prop="thirdKindId">
-            <el-select v-model="addFileForm.thirdKindId" placeholder="请选择">
-              <el-option label="服务器" value="03"/>
+            <el-select clearable @change="thirdKindChange" v-model="addFileForm.thirdKindId" placeholder="请选择">
+              <el-option v-for="item in thirdKindSelectList" :key="item.id" :value="item.kindId" :label="item.kindName"/>
             </el-select>
           </el-form-item>
           <el-form-item label="用途类型" prop="type">
@@ -49,7 +51,7 @@
             <el-select clearable v-model="addFileForm.productClass" placeholder="请选择">
               <el-option label="高档" value="1"/>
               <el-option label="中档" value="2"/>
-              <el-option label="抵挡" value="3"/>
+              <el-option label="低挡" value="3"/>
             </el-select>
           </el-form-item>
           <el-form-item label="计量单位" prop="personalUnit">
@@ -147,7 +149,7 @@
         }
       };
       return {
-        loading:true,
+        loading: true,
         // 添加产品对话框
         addFileFormRules: {
           productName: [
@@ -186,7 +188,13 @@
         picPreviewPath: '',
         // 图片预览对话框
         previewDialogVisible: false,
-        imageUrl: ''
+        imageUrl: '',
+        firstKindList: [],
+        secondKindList: [],
+        thirdKindList: [],
+
+        secondKindSelectList: [],
+        thirdKindSelectList: []
       }
     },
     methods: {
@@ -214,19 +222,6 @@
       addFile(formName) {
         this.$refs.addFileForm.validate((valid) => {
           if (valid) {
-            var date = new Date();
-            var nian =   date.getFullYear();
-            var yue =   date.getMonth()+1;
-            var ri = date.getDate();
-            var shi = date.getHours();
-            var fen = date.getMinutes();
-            var miao = date.getSeconds();
-            if (yue<10) yue= "0"+yue;
-            if (ri<10) ri= "0"+ri;
-            if(miao<10) miao= "0"+miao;
-            if(fen<10) fen= "0"+fen;
-            if(shi<10) shi= "0"+shi;
-            this.addFileForm.registerTime =nian+"-"+yue+"-"+ri+" "+shi+":"+fen+":"+miao;
             var params = new URLSearchParams();
             Object.keys(this.addFileForm).forEach((key) => {
               params.append(key, this.addFileForm[key])
@@ -238,7 +233,7 @@
                 this.loading = true;
                 setTimeout(() => {
                   this.loading = false
-                },1000);
+                }, 1000);
               } else {
                 this.$message.success("添加失败")
                 this.addDialogClosed();
@@ -249,8 +244,20 @@
           }
         })
       },
-      getDataTime() {//默认显示今天
-        this.addFileForm.registerTime = new Date();
+     getDataTime() {//默认显示今天
+        var date = new Date();
+        var nian = date.getFullYear();
+        var yue = date.getMonth() + 1;
+        var ri = date.getDate();
+        var shi = date.getHours();
+        var fen = date.getMinutes();
+        var miao = date.getSeconds();
+        if (yue < 10) yue = "0" + yue;
+        if (ri < 10) ri = "0" + ri;
+        if (miao < 10) miao = "0" + miao;
+        if (fen < 10) fen = "0" + fen;
+        if (shi < 10) shi = "0" + shi;
+        this.addFileForm.registerTime = nian + "-" + yue + "-" + ri + " " + shi + ":" + fen + ":" + miao;
       },
       handleRemove(file, fileList) {
         this.addFileForm.image = '';
@@ -273,13 +280,53 @@
         // 2.将图片信息对象，添加到addFileForm.image 中
         this.addFileForm.image = response.data.path;
       },
+      getConfigFileKindList() {
+        this.axios.post("/configFileKind/list").then((resp) => {
+          resp.data.forEach((item) => {
+            if (item.kindLevel == 1)
+              this.firstKindList.push(item)
+            if (item.kindLevel == 2)
+              this.secondKindList.push(item)
+            if (item.kindLevel == 3)
+              this.thirdKindList.push(item)
+          })
+        }).catch(function (error) {
+          return this.$message.error('获取酚类信息失败！')
+        })
+      },
+      //I级分类选择
+      firstKindIdChange(val) {
+        this.addFileForm.firstKindId =val;
+        this.secondKindSelectList = [];
+        this.thirdKindSelectList = [];
+        /*this.addFileForm.secondKindId = '';
+        this.addFileForm.thirdKindId = '';*/
+        this.secondKindList.forEach(item => {
+          if (item.pid == val) {
+            this.secondKindSelectList.push(item);
+          }
+        });
+      },
+      //III级分类
+      secondKindChange(val) {
+        /*this.addFileForm.thirdKindId = '';*/
+        this.thirdKindSelectList = [];
+        this.thirdKindList.forEach(item => {
+          if (item.pid == val) {
+            this.thirdKindSelectList.push(item);
+          }
+        });
+        this.addFileForm.secondKindId = val;
+      },
+      thirdKindChange(val){
+        this.addFileForm.thirdKindId =val
+      }
     },
     mounted() {
-      this.getDataTime();
       this.loading = true
       setTimeout(() => {
         this.loading = false
-      },1000)
+      }, 1000)
     },
     computed: {
       totalPrices() { //计算小计
@@ -291,6 +338,12 @@
         return totalPrices.toString().replace(/\B(?=(\d{3})+$)/g, ','); //每三位数中间加一个‘，'
       }
     },
+    created() {
+      this.getConfigFileKindList();
+      setInterval(() => {
+        this.getDataTime();
+      },1000)
+    }
   }
 </script>
 
@@ -311,7 +364,7 @@
     text-align: center;
   }
 
-  .el-input, .textarea ,.el-select{
+  .el-input, .textarea, .el-select {
     width: 200px;
   }
 

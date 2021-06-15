@@ -3,10 +3,17 @@
     <!--   搜索 菜单列表分页-->
     <el-card>
       <el-row :gutter="20">
-        <el-col :span="9">
+        <el-col :span="20">
           <el-form :inline="true">
             <el-form-item label="菜单名称">
               <el-input placeholder="请输入菜单名称" clearable @clear="getMenuList" v-model="queryInfo.queryName"></el-input>
+            </el-form-item>
+            <el-form-item label="分类级别">
+              <el-select clearable @clear="getMenuList"  v-model="queryInfo.seq" placeholder="请选择分类级别">
+                <el-option label="一级菜单" value="1"></el-option>
+                <el-option label="二级菜单" value="2"></el-option>
+                <el-option label="三级菜单" value="3"></el-option>
+              </el-select>
             </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="getMenuList">查询</el-button>
@@ -66,7 +73,8 @@
         queryInfo: {
           queryName: '',
           pageNo: 1,
-          pageSize: 8
+          pageSize: 8,
+          seq:''
         },
         menuList: [],
         total: 0,
@@ -81,6 +89,7 @@
         params.append("pageNo", _this.queryInfo.pageNo);
         params.append("pageSize", _this.queryInfo.pageSize);
         params.append("name", _this.queryInfo.queryName);
+        params.append("seq", _this.queryInfo.seq);
         this.axios.post("/menus/page", params).then(function (resp) {
           _this.total = resp.data.total;
           _this.menuList = resp.data.list;

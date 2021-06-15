@@ -3,13 +3,54 @@
     <!--   搜索 添加 产品列表分页-->
     <el-card>
       <el-row :gutter="20">
-        <el-col :span="10">
+        <el-col>
           <el-form :inline="true">
-            <el-form-item label="角色名称">
-              <el-input placeholder="请输入产品名称" clearable @clear="getFileList" v-model="queryFile.queryName"></el-input>
+            <el-form-item label="产品名称">
+              <el-input placeholder="请输入产品名称" clearable @clear="getFileList" v-model="queryFile.productName"></el-input>
             </el-form-item>
+
+            <el-form-item label="I级分类">
+              <el-select clearable @clear="getFileList" @change="firstKindIdChange" v-model="queryFile.firstKindId"
+                         placeholder="请选择">
+                <el-option v-for="item in firstKindList" :key="item.id" :value="item.kindId" :label="item.kindName"/>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="II级分类">
+              <el-select clearable @clear="getFileList" @change="secondKindChange" v-model="queryFile.secondKindId"
+                         placeholder="请选择">
+                <el-option v-for="item in secondKindSelectList" :key="item.id" :value="item.kindId"
+                           :label="item.kindName"/>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="III级分类">
+              <el-select clearable @clear="getFileList" @change="thirdKindChange" v-model="queryFile.thirdKindId"
+                         placeholder="请选择">
+                <el-option v-for="item in thirdKindSelectList" :key="item.id" :value="item.kindId"
+                           :label="item.kindName"/>
+              </el-select>
+            </el-form-item>
+
+            <el-form-item label="用途类型">
+              <el-select clearable @clear="getFileList" v-model="queryFile.type" placeholder="请选择">
+                <el-option label="商品" value="1"/>
+                <el-option label="物料" value="2"/>
+              </el-select>
+            </el-form-item>
+
+            <el-form-item label="建档时间">
+              <el-date-picker @change="change"
+                              v-model="queryFile.dataTime"
+                              type="daterange"
+                              unlink-panels
+                              range-separator="至"
+                              start-placeholder="开始日期"
+                              end-placeholder="结束日期"
+                              :picker-options="pickerOptions">
+              </el-date-picker>
+            </el-form-item>
+
             <el-form-item>
-              <el-button type="primary" @click="getFileList">查询</el-button>
+              <el-button type="primary" icon="el-icon-search" @click="getFileList">查询</el-button>
             </el-form-item>
           </el-form>
         </el-col>
@@ -50,17 +91,20 @@
                      @size-change="handleSizeChange"
                      @current-change="handleCurrentChange"
                      :current-page="queryFile.pageNo"
-                     :page-sizes="[7, 10, 15, 20]"
+                     :page-sizes="[6, 10, 15, 20]"
                      :page-size="queryFile.pageSize"
                      layout="total, sizes, prev, pager, next, jumper"
                      :total="total"
       ></el-pagination>
     </el-card>
     <!-- 添加修改的对话框 -->
-    <el-dialog :title="title| newTitle" :visible.sync="updateDialogVisible" width="80%" @close="updateDialogClosed">
-      <el-row :gutter="20">
-        <el-col :span="16" :offset="22">
-          <div>
+    <el-dialog :title="title| newTitle" :visible.sync="updateDialogVisible" width="70%" @close="updateDialogClosed">
+      <el-row style="margin-top: -10px">
+        <el-col :span="4">
+          <div><label class="document-btn">主信息</label></div>
+        </el-col>
+        <el-col :span="16" :offset="20">
+          <div style="margin-top: -30px">
               <span slot="footer" class="dialog-footer">
                 <el-button type="primary" @click="updateFile('updateFileForm')">提 交</el-button>
                 </span>
@@ -68,6 +112,7 @@
         </el-col>
       </el-row>
 
+      <el-divider></el-divider>
       <!-- 内容主体 -->
       <el-form :inline="true"
                :model="updateFileForm"
@@ -89,21 +134,25 @@
         <el-form-item label="产品简称" prop="productNick">
           <el-input clearable v-model="updateFileForm.productNick"/>
         </el-form-item>
+
         <el-form-item label="I级分类" prop="firstKindId">
-          <el-select clearable v-model="updateFileForm.firstKindId" placeholder="请选择">
-            <el-option label="电子" value="01"/>
+          <el-select clearable @change="firstKindIdChange" v-model="updateFileForm.firstKindId" placeholder="请选择">
+            <el-option v-for="item in firstKindList" :key="item.id" :value="item.kindId" :label="item.kindName"/>
           </el-select>
         </el-form-item>
+
         <el-form-item label="II级分类" prop="secondKindId">
-          <el-select clearable v-model="updateFileForm.secondKindId" placeholder="请选择">
-            <el-option label="计算机" value="01"/>
+          <el-select clearable @change="secondKindChange" v-model="updateFileForm.secondKindId" placeholder="请选择">
+            <el-option v-for="item in secondKindSelectList" :key="item.id" :value="item.kindId" :label="item.kindName"/>
           </el-select>
         </el-form-item>
+
         <el-form-item label="III级分类" prop="thirdKindId">
-          <el-select v-model="updateFileForm.thirdKindId" placeholder="请选择">
-            <el-option label="服务器" value="01"/>
+          <el-select clearable @change="thirdKindChange" v-model="updateFileForm.thirdKindId" placeholder="请选择">
+            <el-option v-for="item in thirdKindSelectList" :key="item.id" :value="item.kindId" :label="item.kindName"/>
           </el-select>
         </el-form-item>
+
         <el-form-item label="用途类型" prop="type">
           <el-select clearable v-model="updateFileForm.type" placeholder="请选择">
             <el-option label="商品" value="1"/>
@@ -165,8 +214,6 @@
         </el-form-item>
         <el-form-item label="建档时间" prop="registerTime">
           <el-input disabled v-model="updateFileForm.registerTime"/>
-         <!-- <el-date-picker v-model="updateFileForm.registerTime" type="datetime" disabled class="input-class">
-          </el-date-picker>-->
         </el-form-item>
         <el-form-item label="复核人" prop="checker">
           <el-input clearable v-model="updateFileForm.checker"/>
@@ -178,6 +225,8 @@
           <el-date-picker v-model="updateFileForm.changeTime" type="datetime" disabled class="input-class">
           </el-date-picker>
         </el-form-item>
+
+
         <el-form-item label="产品图片" prop="image">
           <img :src=imageURL class="fileImages">
           <el-upload
@@ -206,6 +255,33 @@
     name: "EditFile",
     data() {
       return {
+        pickerOptions: {
+          shortcuts: [{
+            text: '最近一周',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近一个月',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近三个月',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+              picker.$emit('pick', [start, end]);
+            }
+          }]
+        },
         loginId: window.sessionStorage.getItem('loginId'),
         imageURL:'',
         // 添加产品对话框
@@ -233,14 +309,23 @@
           ]
         },
         updateFileForm: {},
-        // 获取角色列表查询参数对象
+
+        // 获取产品列表查询参数对象
         queryFile: {
-          queryName: '',
+          productName: '',
           pageNo: 1,
-          pageSize: 7,
-          checkTag: '1',
-          deleteTag: '0'
+          pageSize:6,
+          //审核标志0: 等待1: 通过2: 不通过
+          checkTag: 1,
+          //产品删除标志0: 未删除1: 已删除2永久删除
+          deleteTag: 0,
+          firstKindId: '',
+          secondKindId: '',
+          thirdKindId: '',
+          type:'',
+          dataTime:'',
         },
+
         fileList: [],
         total: 0,
         title: '',
@@ -251,11 +336,30 @@
         previewDialogVisible: false,
         imageUrl: '',
         fileURL: 'http://localhost:8080/images/',
+
+        firstKindList: [],
+        secondKindList: [],
+        thirdKindList: [],
+
+        secondKindSelectList: [],
+        thirdKindSelectList: [],
       }
     },
     methods: {
-      getDataTime() {//默认显示今天
-        this.updateFileForm.changeTime = new Date();
+      getNowTime() {//默认显示今天
+        var date = new Date();
+        var nian = date.getFullYear();
+        var yue = date.getMonth() + 1;
+        var ri = date.getDate();
+        var shi = date.getHours();
+        var fen = date.getMinutes();
+        var miao = date.getSeconds();
+        if (yue < 10) yue = "0" + yue;
+        if (ri < 10) ri = "0" + ri;
+        if (miao < 10) miao = "0" + miao;
+        if (fen < 10) fen = "0" + fen;
+        if (shi < 10) shi = "0" + shi;
+        this.updateFileForm.changeTime =nian + "-" + yue + "-" + ri + " " + shi + ":" + fen + ":" + miao;
       },
       beforeAvatarUpload(file) {
         const isJPG = file.type === 'image/jpeg';
@@ -277,18 +381,33 @@
           this.updateDialogVisible = false;
         })
       },
-
-      //获取角色列表
+      getDataTime(dataTime) {//默认显示今天
+        var nian = dataTime.getFullYear();
+        var yue = dataTime.getMonth() + 1;
+        var ri = dataTime.getDate();
+        var shi = dataTime.getHours();
+        var fen = dataTime.getMinutes();
+        var miao = dataTime.getSeconds();
+        if (yue < 10) yue = "0" + yue;
+        if (ri < 10) ri = "0" + ri;
+        if (miao < 10) miao = "0" + miao;
+        if (fen < 10) fen = "0" + fen;
+        if (shi < 10) shi = "0" + shi;
+        return nian + "-" + yue + "-" + ri + " " + shi + ":" + fen + ":" + miao;
+      },
+      //获取产品列表
       getFileList() {
         var params = new URLSearchParams();
-        params.append("pageNo", this.queryFile.pageNo);
-        params.append("pageSize", this.queryFile.pageSize);
-        params.append("productName", this.queryFile.queryName);
-        params.append("checkTag", this.queryFile.checkTag);
-        params.append("deleteTag", this.queryFile.deleteTag);
+        if (this.queryFile.dataTime) {
+          params.append("registerTime", this.getDataTime(this.queryFile.dataTime[0]))
+          params.append("registerTime2", this.getDataTime(this.queryFile.dataTime[1]))
+        }
+        Object.keys(this.queryFile).forEach((key) => {
+          params.append(key, this.queryFile[key])
+        });
         this.axios.post("/files/page", params).then((resp) => {
           this.total = resp.data.total;
-          this.fileList = resp.data.records;
+          this.fileList = resp.data.list;
         }).catch(function (error) {
           return this.$message.error('获取角色列表失败！')
         })
@@ -313,27 +432,22 @@
             this.updateFileForm.changeTime=this.changeTime;
             this.imageURL = this.fileURL + this.updateFileForm.image;
             this.updateFileForm.image=this.updateFileForm.image;
+            this.firstKindIdChange( resp.data.firstKindId);
+            this.secondKindChange(resp.data.secondKindId);
+            this.thirdKindChange(resp.data.thirdKindId);
           }).catch(function (error) {
             return this.$message.error('获取角色信息失败！')
-          })
+          });
+
+        setInterval(() => {
+          this.getNowTime();
+        },1000)
       },
       //编辑
       updateFile(formName) {
         this.$refs.updateFileForm.validate((valid) => {
           if (valid) {
-            var date = new Date();
-            var nian =   date.getFullYear();
-            var yue =   date.getMonth()+1;
-            var ri = date.getDate();
-            var shi = date.getHours();
-            var fen = date.getMinutes();
-            var miao = date.getSeconds();
-            if (yue<10) yue= "0"+yue;
-            if (ri<10) ri= "0"+ri;
-            if(miao<10) miao= "0"+miao;
-            if(fen<10) fen= "0"+fen;
-            if(shi<10) shi= "0"+shi;
-            this.updateFileForm.changeTime =nian+"-"+yue+"-"+ri+" "+shi+":"+fen+":"+miao;
+            this.updateFileForm.registerTime2=this.updateFileForm.changeTime;
             this.updateFileForm.realCostPrice=0;
             var data = new URLSearchParams();
             Object.keys(this.updateFileForm).forEach((key) => {
@@ -341,6 +455,7 @@
             })
             this.axios.post("/files/update", data).then((response) => {
               if (response.data) {
+                this.getFileList();
                 this.$message.success("档案变更成功,复核中");
                 this.updateDialogClosed();
               } else {
@@ -374,12 +489,61 @@
         // 2.将图片信息对象，添加到addFileForm.image 中
         this.updateFileForm.image = response.data.path;
       },
+
+      //获取所有分类信息
+      getConfigFileKindList() {
+        this.axios.post("/configFileKind/list").then((resp) => {
+          resp.data.forEach((item) => {
+            if (item.kindLevel == 1)
+              this.firstKindList.push(item)
+            if (item.kindLevel == 2)
+              this.secondKindList.push(item)
+            if (item.kindLevel == 3)
+              this.thirdKindList.push(item)
+          })
+        }).catch(function (error) {
+          return this.$message.error('获取酚类信息失败！')
+        })
+      },
+      //I级分类选择
+      firstKindIdChange(val) {
+        this.updateFileForm.firstKindId = val;
+        this.secondKindSelectList = [];
+        this.thirdKindSelectList = [];
+       /* this.updateFileForm.secondKindId = '';
+        this.updateFileForm.thirdKindId = '';*/
+        this.secondKindList.forEach(item => {
+          if (item.pid == val) {
+            this.secondKindSelectList.push(item);
+          }
+        });
+      },
+      //II级分类
+      secondKindChange(val) {
+        /*this.updateFileForm.thirdKindId = '';*/
+        this.thirdKindSelectList = [];
+        this.thirdKindList.forEach(item => {
+          if (item.pid == val) {
+            this.thirdKindSelectList.push(item);
+          }
+        });
+        this.updateFileForm.secondKindId = val;
+      },
+      //III级分类
+      thirdKindChange(val) {
+        this.updateFileForm.thirdKindId = val
+      },
+      // 条件查询建档时间value = []
+      change(value) {
+        if (value == null) this.getFileList();
+      },
     },
     created() {
       this.getFileList();
+      this.getConfigFileKindList();
     },
     mounted() {
-      this.getDataTime();
+
     },
 
     filters: {   //过滤器

@@ -3,14 +3,27 @@
     <!--   搜索 添加 产品列表分页-->
     <el-card>
       <el-row :gutter="20">
-        <el-col :span="10">
+        <el-col :span="20">
           <el-form :inline="true">
             <el-form-item label="产品名称">
               <el-input placeholder="请输入产品名称" clearable @clear="getModuleList"
                         v-model="queryModule.productName"></el-input>
             </el-form-item>
+
+            <el-form-item label="建档时间">
+              <el-date-picker @change="change"
+                              v-model="queryModule.dataTime"
+                              type="daterange"
+                              unlink-panels
+                              range-separator="至"
+                              start-placeholder="开始日期"
+                              end-placeholder="结束日期"
+                              :picker-options="pickerOptions">
+              </el-date-picker>
+            </el-form-item>
+
             <el-form-item>
-              <el-button type="primary" @click="getModuleList">查询</el-button>
+              <el-button type="primary" icon="el-icon-search"  @click="getModuleList">查询</el-button>
             </el-form-item>
           </el-form>
         </el-col>
@@ -20,7 +33,7 @@
         <!-- stripe: 斑马条纹 border：边框-->
         <el-table-column prop="designId" label="设计单编号"></el-table-column>
         <el-table-column prop="productId" label="产品编号"></el-table-column>
-        <el-table-column prop="productName" label="产品名称" width="130px"></el-table-column>
+        <el-table-column prop="productName" label="产品名称" width="140px"></el-table-column>
         <el-table-column prop="designer" label="设计人" width="130px"></el-table-column>
         <el-table-column prop="costPriceSum" label="物料总成本" width="130px"></el-table-column>
         <el-table-column label="登记时间">
@@ -46,7 +59,7 @@
                      @size-change="handleSizeChange"
                      @current-change="handleCurrentChange"
                      :current-page="queryModule.pageNo"
-                     :page-sizes="[5, 10, 15, 20]"
+                     :page-sizes="[7, 10, 15, 20]"
                      :page-size="queryModule.pageSize"
                      layout="total, sizes, prev, pager, next, jumper"
                      :total="total"
@@ -58,9 +71,11 @@
         <el-col :span="16" :offset="18">
           <div>
               <span slot="footer" class="dialog-footer">
-                <el-button icon="el-icon-check" type="primary" @click="addModuleDetails">提  交</el-button>
-                 <el-button icon="el-icon-circle-close" type="danger" @click="updateDialogClosed">取消</el-button>
-                </span>
+                <el-button v-if="viewShow==2" icon="el-icon-check" type="primary" @click="addModuleDetails">提  交</el-button>
+                 <el-button icon="el-icon-view" v-if="viewShow==1" type="primary" @click="updateViewShow">预 览</el-button>
+                 <el-button v-if="viewShow==1" icon="el-icon-circle-close" type="danger" @click="updateDialogClosed">取 消</el-button>
+                <el-button icon="el-icon-back" v-if="viewShow==2" type="primary" @click="viewShow=1">返 回</el-button>
+              </span>
           </div>
         </el-col>
       </el-row>
@@ -74,11 +89,12 @@
             <div><strong>设计单编号: </strong> {{module.designId}}</div>
           </el-col>
           <el-col :span="5">
-            <div>
+            <div v-if="viewShow==1">
               <el-form-item label="设计人" prop="designer">
                 <el-input clearable v-model="module.designer"></el-input>
               </el-form-item>
             </div>
+            <div v-if="viewShow==2"><strong>设计人: </strong> {{module.designer}}</div>
           </el-col>
           <el-col :span="4">
             <div><strong>产品名称: </strong> {{module.productName}}</div>
@@ -104,7 +120,7 @@
           </el-table-column>
           <el-table-column prop="productDescribe" label="描述"></el-table-column>
 
-          <el-table-column prop="amount" label="数量" width="50"></el-table-column>
+          <el-table-column prop="amount" label="数量"></el-table-column>
 
           <el-table-column prop="amountUnit" label="单位"></el-table-column>
           <el-table-column prop="costPrice" label="计划成本单价(元)"></el-table-column>
@@ -113,7 +129,7 @@
               {{scope.row.amount*scope.row.costPrice}}
             </template>
           </el-table-column>
-          <el-table-column label="操作">
+          <el-table-column label="操作" v-if="viewShow==1">
             <template slot-scope="scope">
               <el-button
                 type="danger"
@@ -130,7 +146,7 @@
           <el-col :span="3">
             <label class="document-btn">新添加物料</label>
           </el-col>
-          <el-col :span="16" :offset="17">
+          <el-col :span="16" :offset="17" v-if="viewShow==1">
             <div>
               <span slot="footer" class="dialog-footer">
                 <el-button icon="el-icon-circle-plus-outline" type="primary"
@@ -156,12 +172,15 @@
           </el-table-column>
           <el-table-column prop="productDescribe" label="描述"></el-table-column>
 
-          <el-table-column prop="amount" label="数量" width="170">
+          <el-table-column v-if="viewShow==1" prop="amount" label="数量" width="170">
             <template slot-scope="scope">
-              <el-input clearable v-model.number="scope.row.amount"></el-input>
+              <el-input clearable v-model.number="scope.row.amount" maxlength="4"
+                        placeholder="正整数(长度1-4)"
+                        oninput="value=value.replace(/[^\d]/g,'')"></el-input>
             </template>
           </el-table-column>
 
+          <el-table-column v-if="viewShow==2" prop="amount" label="数量"></el-table-column>
           <el-table-column prop="amountUnit" label="单位"></el-table-column>
           <el-table-column prop="costPrice" label="计划成本单价(元)"></el-table-column>
           <el-table-column label="小计(元)">
@@ -170,15 +189,27 @@
             </template>
           </el-table-column>
         </el-table>
+        <el-divider></el-divider>
         <span><strong>物料总成本: </strong>  {{module.costPriceSum}}</span><br>
-        <el-form-item label="设计要求" prop="moduleDescribe">
-          <el-input v-model="module.moduleDescribe" clearable type="textarea" class="xxx"/>
-        </el-form-item>
+
+        <el-row :gutter="20" v-if="viewShow==1">
+          <el-col :span="5">
+            <div> <el-form-item label="设计要求" prop="moduleDescribe">
+              <el-input v-model="module.moduleDescribe" clearable type="textarea" class="xxx"/>
+            </el-form-item></div>
+          </el-col>
+        </el-row>
+
+        <el-row :gutter="20" v-if="viewShow==2">
+          <el-col :span="5">
+            <div><strong>设计要求: </strong> {{module.moduleDescribe}}</div>
+          </el-col>
+        </el-row>
+
       </el-form>
     </el-dialog>
 
-    <el-dialog
-      title="添加新物料"
+    <el-dialog title="添加新物料"
       :visible.sync="moduleDialogVisible"
       width="80%">
       <el-row :gutter="20">
@@ -243,6 +274,34 @@
     name: "EditModule",
     data() {
       return {
+        viewShow:1,
+        pickerOptions: {
+          shortcuts: [{
+            text: '最近一周',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近一个月',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近三个月',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+              picker.$emit('pick', [start, end]);
+            }
+          }]
+        },
         rules: {
           check: [
             {required: true, message: '请选择', trigger: 'change'}
@@ -253,7 +312,8 @@
         queryModule: {
           productName: '',
           pageNo: 1,
-          pageSize: 5,
+          pageSize: 7,
+          dataTime: '',
           checkTag: 1,
         },
         moduleList: [],
@@ -278,6 +338,24 @@
       }
     },
     methods: {
+      updateViewShow(){
+        var bool = true;
+        if (this.moduleDetailsList.length == 0 && this.productList.length == 0) {
+          this.$message.error("请至少添加一个物料");
+          return;
+        }
+        if (this.productList.length > 0) {
+          this.productList.forEach((product) => {
+            if (!product.amount) {
+              this.$message.error('请输入数量！');
+              bool = false;
+            }
+          });
+        };
+        if (bool == true){
+          this.viewShow=2
+        }
+      },
       //删除物料
       removeById(row) {
         this.$confirm('将删除[' + row.productName + '], 是否继续?', '提示', {
@@ -364,10 +442,9 @@
         Object.keys(this.queryModuleDetails).forEach((key) => {
           params.append(key, this.queryModuleDetails[key])
         });
-
         this.axios.post("/files/page", params).then((resp) => {
           this.moduleTotal = resp.data.total;
-          this.wuLiaoList = resp.data.records;
+          this.wuLiaoList = resp.data.list;
         }).catch(function (error) {
           return this.$message.error('获取产品列表失败！')
         })
@@ -411,6 +488,7 @@
       // 监听 复核角色对话框的关闭事件
       updateDialogClosed() {
         this.$nextTick(() => {
+          this.viewShow=1;
           this.productList = [];
           this.updateDialogVisible = false;
         })
@@ -429,15 +507,37 @@
           return this.$message.error('获取角色信息失败！')
         })
       },
+      // 条件查询建档时间value = []
+      change(value) {
+        if (value == null) this.getModuleList();
+      },
+      getDataTime(dataTime) {//默认显示今天
+        var nian = dataTime.getFullYear();
+        var yue = dataTime.getMonth() + 1;
+        var ri = dataTime.getDate();
+        var shi = dataTime.getHours();
+        var fen = dataTime.getMinutes();
+        var miao = dataTime.getSeconds();
+        if (yue < 10) yue = "0" + yue;
+        if (ri < 10) ri = "0" + ri;
+        if (miao < 10) miao = "0" + miao;
+        if (fen < 10) fen = "0" + fen;
+        if (shi < 10) shi = "0" + shi;
+        return nian + "-" + yue + "-" + ri + " " + shi + ":" + fen + ":" + miao;
+      },
       //获取产品列表
       getModuleList() {
         var params = new URLSearchParams();
+        if (this.queryModule.dataTime) {
+          params.append("registerTime", this.getDataTime(this.queryModule.dataTime[0]))
+          params.append("registerTime2", this.getDataTime(this.queryModule.dataTime[1]))
+        }
         Object.keys(this.queryModule).forEach((key) => {
           params.append(key, this.queryModule[key])
         });
         this.axios.post("/module/page", params).then((resp) => {
           this.total = resp.data.total;
-          this.moduleList = resp.data.records;
+          this.moduleList = resp.data.list;
         }).catch(function (error) {
           return this.$message.error('获取产品列表失败！')
         })
