@@ -285,7 +285,7 @@
               showClose: true
             });
             this.drawer = false;
-            this.$router.push({})
+            this.tables();
           } else {
             this.$notify.success({
               title: '失败',
