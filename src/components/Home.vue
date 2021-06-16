@@ -89,12 +89,13 @@
   import SafetystockQuery from "./warehouse/SafetystockQuery";
   import SafetystockUpdate from "./warehouse/SafetystockUpdate";
   import Library from "./warehouse/Library";
+  import Inboundapplication from "./warehouse/Inboundapplication";
   export default {
     components: {
       Users, AddUser, Welcome, RoleMenus, DelUser, EditUser, Roles, AddRole, DelRole, EditRole,
       Menus, AddMenus, EditMenu, DelMenu, UserRoles, AddFile, CheckFile, QueryFile, EditFile, DelFile, RemoveFile,
       RecoveryFile, AddModule, CheckModule, EditModule, QueryModule, Safetystock,Library,
-      SafetystockQuery,SafetystockUpdate
+      SafetystockQuery,SafetystockUpdate,Inboundapplication
     },
     data() {
       return {

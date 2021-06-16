@@ -207,6 +207,7 @@
           this.value1=true
           this.axios.post("/Cells/fuHebyid",params).then((response)=>{
             this.selectfrom=response.data;
+            this.tabssa[0].menuca = response.data.firstKindName + '/' + response.data.secondKindName + '/' + response.data.thirdKindName;
           }).catch()
           if (item.checkTag==1){
             this.value1=false
