@@ -93,14 +93,14 @@
         <el-table-column prop="moduleSubtotal" label="物料成本小计(元)"></el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
-            <el-button v-if="scope.row.checked == false"
+            <el-button v-if="scope.row.designModuleChangeTag == 0"
                        type="primary"
                        icon="el-icon-edit"
                        size="mini"
                        @click="showModuleDetails(scope.row)"
             >变更
             </el-button>
-            <el-button v-else
+            <el-button v-else-if="scope.row.designModuleChangeTag == 1"
                        type="primary"
                        icon="el-icon-edit"
                        size="mini"
@@ -175,19 +175,15 @@
         <el-table-column prop="amount" label="可用数量" width="100px"></el-table-column>
         <el-table-column prop="amountUnit" label="单位"></el-table-column>
         <el-table-column prop="costPrice" label="单价(元)"></el-table-column>
-
-        <el-table-column label="本工序数量" prop="count" >
-          <template slot-scope="scope">
-            <el-input-number v-model.number="scope.row.count" :aria-readonly="true"
-                      :min="1"  :max="scope.row.amount"  style="width: 150px" >
-
-            </el-input-number>
-          </template>
-        </el-table-column>
-
         <el-table-column label="小计(元)" width="100px">
           <template slot-scope="scope">
             {{scope.row.count*scope.row.costPrice}}
+          </template>
+        </el-table-column>
+        <el-table-column label="本工序数量" prop="count" >
+          <template slot-scope="scope">
+            <el-input v-model.number="scope.row.count"  :min="1"
+                      onkeyup="this.value = this.value.replace(/[^\d.]/g,'')" style="width: 130px"></el-input>
           </template>
         </el-table-column>
       </el-table>
@@ -207,8 +203,8 @@
           productName: '',
           pageNo: 1,
           pageSize: 5,
-         /* CheckTag: 0,
-          designModuleTag: 1*/
+          CheckTag: 1,
+          designModuleTag:2
         },
         designProcedureList: [],
         total: 0,
@@ -264,9 +260,18 @@
         this.procedureInfo = row;
         this.fileId = row.id;
         this.productId = row.productId;
+        this.getData(row.id)
         this.addDialogVisible = true;
-        this.axios.post("/designProcedure/designProcedureDetailsByPId/" + row.id).then((resp) => {
-          console.log(resp.data)
+        // this.axios.post("/designProcedure/designProcedureDetailsByPId/" + row.id).then((resp) => {
+        //   console.log(resp.data)
+        //   this.designProcedure = resp.data.designProcedure;
+        //   this.designProcedureDetails = resp.data.designProcedureDetails;
+        // }).catch(function (error) {
+        //   return this.$message.error('获取产品列表失败！')
+        // })
+      },
+      getData(id){
+        this.axios.post("/designProcedure/designProcedureDetailsByPId/" + id).then((resp) => {
           this.designProcedure = resp.data.designProcedure;
           this.designProcedureDetails = resp.data.designProcedureDetails;
         }).catch(function (error) {
@@ -280,7 +285,7 @@
         this.axios.post("/designProcedureModule/selectByPId/" + row.id).then((resp) => {
           this.moduleDetailsList = resp.data;
           this.designProcedureDetails[this.index].moduleDetails=resp.data
-
+          this.getData( this.fileId);
         }).catch(function (error) {
           return this.$message.error('获取角色信息失败！')
         })
@@ -293,9 +298,29 @@
         })
       },
       AddModuleDetail(){
-        this.designProcedureDetails[this.index].moduleDetails = this.moduleDetailsList
-
-        this.moduleDialogVisible = false;
+        var bool  = true;
+        this.moduleDetailsList.forEach((item)=>{
+          if (item.amount<item.count) {
+            this.$message.error("可用数量超出范围");
+            bool = false;
+          } else{
+            item.subtotal = item.count * item.costPrice;
+            item.amount = item.count;
+          }
+        })
+        if (bool == true){
+          console.log(this.moduleDetailsList);
+          this.axios.post("/designProcedureModule/updateDesignProcedureModuleById", JSON.stringify(this.moduleDetailsList),
+            {headers: {"Content-Type": "application/json"}}).then((response) => {
+            if (response.data.result == true) {
+              this.getProcedureDetailsByPId(this.procedureInfo.id);
+              this.$message.success('操作成功!');
+              this.moduleDialogVisible = false;
+            }
+          }).catch(function (error) {
+            return this.$message.error('操作失败！')
+          })
+        }
       },
     },
     created() {

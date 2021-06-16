@@ -89,6 +89,7 @@
   import CheckDesignProcedureModule from '../components/designproceduremodule/CheckDesignProcedureModule'
   import QueryDesignProcedureModule from '../components/designproceduremodule/QueryDesignProcedureModule'
   import EditDesignProcedureModule from '../components/designproceduremodule/EditDesignProcedureModule'
+  import AddApply from '../components/apply/AddApply'
 
 
   import Safetystock from "./warehouse/Safetystock";
@@ -102,7 +103,7 @@
       Menus, AddMenus, EditMenu, DelMenu, UserRoles, AddFile, CheckFile, QueryFile, EditFile,
       DelFile, RemoveFile, RecoveryFile, AddModule, CheckModule, EditModule, QueryModule,
       AddDesignProcedureModule, CheckDesignProcedureModule,QueryDesignProcedureModule,
-      EditDesignProcedureModule,
+      EditDesignProcedureModule,AddApply,
 
       //
       Safetystock,

@@ -176,7 +176,7 @@
             <template slot-scope="scope">
               <el-input clearable v-model.number="scope.row.amount" maxlength="4"
                         placeholder="正整数(长度1-4)"
-                        oninput="value=value.replace(/[^\d]/g,'')"></el-input>
+                        onkeyup="this.value = this.value.replace(/[^\d.]/g,'');"></el-input>
             </template>
           </el-table-column>
 

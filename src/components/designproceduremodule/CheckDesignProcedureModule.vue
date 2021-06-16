@@ -214,7 +214,7 @@
           productName: '',
           pageNo: 1,
           pageSize: 5,
-          checkTag: 0,
+          checkTag: 1,
           designModuleTag: 1
         },
         designProcedureList: [],
@@ -370,7 +370,6 @@
               });
             }
           } else {
-            console.log('error submit!!');
             return false;
           }
         });
