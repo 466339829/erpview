@@ -2,21 +2,6 @@
   <div>
     <!--   搜索 品生产工序列表分页-->
     <el-card>
-
-      <el-row :gutter="20">
-        <el-col :span="8">
-          <el-form :inline="true">
-            <el-form-item label="姓名">
-              <el-input placeholder="请输入产品名称" clearable @clear="getDesignProcedureList"
-                        v-model="queryDesignProcedure.productName"></el-input>
-            </el-form-item>
-            <el-form-item>
-              <el-button type="primary" @click="getDesignProcedureList">查询</el-button>
-            </el-form-item>
-          </el-form>
-        </el-col>
-      </el-row>
-
       <el-row :gutter="20">
         <el-col :span="8">
           <el-form :inline="true">
@@ -199,7 +184,7 @@
           productName: '',
           pageNo: 1,
           pageSize: 5,
-         /* CheckTag: 0,
+          /*CheckTag: 0,
           designModuleTag: 1*/
         },
         designProcedureList: [],
@@ -296,11 +281,11 @@
       },
       newTag(val) {
         if (val==0)
-          return "等待";
+          return "未设计";
         else if(val==1)
-          return "完成";
+          return "已提交";
         else
-          return "执行";
+          return "已审核";
       }
     }
   }

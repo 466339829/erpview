@@ -85,17 +85,31 @@
   import CheckModule from '../components/module/CheckModule'
   import EditModule from '../components/module/EditModule'
   import QueryModule from '../components/module/QueryModule'
+  import AddDesignProcedureModule from '../components/designproceduremodule/AddDesignProcedureModule'
+  import CheckDesignProcedureModule from '../components/designproceduremodule/CheckDesignProcedureModule'
+  import QueryDesignProcedureModule from '../components/designproceduremodule/QueryDesignProcedureModule'
+  import EditDesignProcedureModule from '../components/designproceduremodule/EditDesignProcedureModule'
+  import AddApply from '../components/apply/AddApply'
+
+
   import Safetystock from "./warehouse/Safetystock";
-  import SafetystockQuery from "./warehouse/SafetystockQuery";
-  import SafetystockUpdate from "./warehouse/SafetystockUpdate";
+
+
   import Library from "./warehouse/Library";
-  import Inboundapplication from "./warehouse/Inboundapplication";
   export default {
     components: {
+      //yong
       Users, AddUser, Welcome, RoleMenus, DelUser, EditUser, Roles, AddRole, DelRole, EditRole,
-      Menus, AddMenus, EditMenu, DelMenu, UserRoles, AddFile, CheckFile, QueryFile, EditFile, DelFile, RemoveFile,
-      RecoveryFile, AddModule, CheckModule, EditModule, QueryModule, Safetystock,Library,
-      SafetystockQuery,SafetystockUpdate,Inboundapplication
+      Menus, AddMenus, EditMenu, DelMenu, UserRoles, AddFile, CheckFile, QueryFile, EditFile,
+      DelFile, RemoveFile, RecoveryFile, AddModule, CheckModule, EditModule, QueryModule,
+      AddDesignProcedureModule, CheckDesignProcedureModule,QueryDesignProcedureModule,
+      EditDesignProcedureModule,
+
+      //
+      Safetystock,
+
+      //
+      Library
     },
     data() {
       return {

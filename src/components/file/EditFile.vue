@@ -308,7 +308,11 @@
             {type: 'number', message: '请输入数字值', trigger: 'blur'}
           ]
         },
-        updateFileForm: {},
+        updateFileForm: {
+          firstKindId:'',
+          secondKindId:'',
+          thirdKindId:'',
+        },
 
         // 获取产品列表查询参数对象
         queryFile: {
@@ -432,9 +436,12 @@
             this.updateFileForm.changeTime=this.changeTime;
             this.imageURL = this.fileURL + this.updateFileForm.image;
             this.updateFileForm.image=this.updateFileForm.image;
-            this.firstKindIdChange( resp.data.firstKindId);
-            this.secondKindChange(resp.data.secondKindId);
-            this.thirdKindChange(resp.data.thirdKindId);
+            this.updateFileForm.secondKindId =  resp.data.secondKindName;
+            this.updateFileForm.thirdKindId =  resp.data.thirdKindName
+            this.updateFileForm.personalValue = resp.data.personalValue-0
+            /*this.firstKindIdChange( resp.data.firstKindId);*/
+            /*this.secondKindChange(resp.data.secondKindId);
+            this.thirdKindChange(resp.data.thirdKindId);*/
           }).catch(function (error) {
             return this.$message.error('获取角色信息失败！')
           });
@@ -510,8 +517,8 @@
         this.updateFileForm.firstKindId = val;
         this.secondKindSelectList = [];
         this.thirdKindSelectList = [];
-       /* this.updateFileForm.secondKindId = '';
-        this.updateFileForm.thirdKindId = '';*/
+        this.updateFileForm.secondKindId = '';
+        this.updateFileForm.thirdKindId = '';
         this.secondKindList.forEach(item => {
           if (item.pid == val) {
             this.secondKindSelectList.push(item);
@@ -520,7 +527,7 @@
       },
       //II级分类
       secondKindChange(val) {
-        /*this.updateFileForm.thirdKindId = '';*/
+        this.updateFileForm.thirdKindId = '';
         this.thirdKindSelectList = [];
         this.thirdKindList.forEach(item => {
           if (item.pid == val) {
@@ -528,10 +535,12 @@
           }
         });
         this.updateFileForm.secondKindId = val;
+        this.$forceUpdate();
       },
       //III级分类
       thirdKindChange(val) {
-        this.updateFileForm.thirdKindId = val
+        this.updateFileForm.thirdKindId = val;
+        this.$forceUpdate();
       },
       // 条件查询建档时间value = []
       change(value) {

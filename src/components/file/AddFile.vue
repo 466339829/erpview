@@ -181,6 +181,9 @@
         },
         // 添加产品参数
         addFileForm: {
+          firstKindId:'',
+          secondKindId:'',
+          thirdKindId:'',
           register: window.sessionStorage.getItem('loginId'),
         },
 
@@ -299,8 +302,8 @@
         this.addFileForm.firstKindId =val;
         this.secondKindSelectList = [];
         this.thirdKindSelectList = [];
-        /*this.addFileForm.secondKindId = '';
-        this.addFileForm.thirdKindId = '';*/
+        this.addFileForm.secondKindId = '';
+        this.addFileForm["thirdKindId"] = '';
         this.secondKindList.forEach(item => {
           if (item.pid == val) {
             this.secondKindSelectList.push(item);
@@ -309,7 +312,7 @@
       },
       //III级分类
       secondKindChange(val) {
-        /*this.addFileForm.thirdKindId = '';*/
+        this.addFileForm.thirdKindId = '';
         this.thirdKindSelectList = [];
         this.thirdKindList.forEach(item => {
           if (item.pid == val) {
@@ -317,9 +320,11 @@
           }
         });
         this.addFileForm.secondKindId = val;
+        this.$forceUpdate();
       },
       thirdKindChange(val){
-        this.addFileForm.thirdKindId =val
+        this.addFileForm.thirdKindId =val;
+        this.$forceUpdate();
       }
     },
     mounted() {
