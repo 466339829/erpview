@@ -121,19 +121,11 @@
         </el-col>
       </el-row>
 
-      <el-row v-if="viewShow==2" :gutter="20" style="margin-top: 10px">
-        <el-col :span="5">
-          <div><strong>设计人: </strong> {{addModuleForm.designer}}</div>
-        </el-col>
-      </el-row>
       <el-form
         :model="addModuleForm"
         ref="addModuleForm"
         label-width="100px"
         :rules="addModuleFormRules">
-        <el-form-item v-if="viewShow==1" label="设计人" prop="designer">
-          <el-input clearable v-model="addModuleForm.designer"></el-input>
-        </el-form-item>
         <el-divider></el-divider>
         <!-- 产品物料组成 -->
         <el-table :data="moduleList"
@@ -169,10 +161,26 @@
         <el-divider></el-divider>
         <span><strong>登记人: </strong>  {{addModuleForm.register}}</span>
         <span><strong>建档时间: </strong>  {{addModuleForm.registerTime}}</span>
-        <el-form-item v-if="viewShow==1" label="设计要求" prop="moduleDescribe">
-          <el-input v-model="addModuleForm.moduleDescribe" type="textarea" class="xxx"/>
-        </el-form-item>
+
+        <el-row v-if="viewShow==1" :gutter="20" style="margin-top: 10px">
+          <el-col :span="5">
+            <el-form-item v-if="viewShow==1" label="设计人" prop="designer" style="margin-top: 10px">
+              <el-input clearable v-model="addModuleForm.designer"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="5">
+            <el-form-item v-if="viewShow==1" label="设计要求" prop="moduleDescribe">
+              <el-input v-model="addModuleForm.moduleDescribe" type="textarea" class="xxx"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
       </el-form>
+      <el-row v-if="viewShow==2" :gutter="20" style="margin-top: 10px">
+        <el-col :span="5">
+          <div><strong>设计人: </strong> {{addModuleForm.designer}}</div>
+        </el-col>
+      </el-row>
       <el-row v-if="viewShow==2" :gutter="20" style="margin-top: 10px">
         <el-col :span="5">
           <div><strong>设计要求: </strong> {{addModuleForm.moduleDescribe}}</div>
@@ -180,15 +188,14 @@
       </el-row>
     </el-dialog>
 
-    <el-dialog
-      title="添加物料"
+    <el-dialog title="添加物料"
       :visible.sync="moduleDialogVisible"
       width="90%">
       <el-row :gutter="20">
         <el-col :span="10">
           <el-form :inline="true">
-            <el-form-item label="产品名称">
-              <el-input placeholder="请输入产品名称" clearable @clear="AddModuleDetailLists"
+            <el-form-item label="产品物料">
+              <el-input placeholder="请输入物料名称" clearable @clear="AddModuleDetailLists"
                         v-model="queryModule.productName"></el-input>
             </el-form-item>
             <el-form-item>
@@ -373,7 +380,8 @@
         this.$refs.addModuleForm.validate((valid) => {
           if (valid) {
             if (bool == true) {
-              this.axios.post("/module/addModuleDetails", JSON.stringify(this.moduleList), {headers: {"Content-Type": "application/json"}})
+              this.axios.post("/module/addModuleDetails", JSON.stringify(this.moduleList),
+                {headers: {"Content-Type": "application/json"}})
                 .then((response) => {
                   if (response.data.result == true) {
                     this.$message.success('操作成功,等待审核!');

@@ -98,131 +98,153 @@
       ></el-pagination>
     </el-card>
     <!-- 添加产品的对话框 -->
-    <el-dialog :title="checkFileForm.productName | title" :visible.sync="checkDialogVisible" width="80%" @close="checkDialogClosed">
+    <el-dialog :title="checkFileForm.productName | title" :visible.sync="checkDialogVisible" width="80%"
+               @close="checkDialogClosed">
 
-      <el-row :gutter="20" style="margin-top: -20px">
-        <el-col :span="16" :offset="21">
+      <el-form :inline="true"
+               :model="checkForm"
+               ref="checkForm"
+               label-width="100px"
+               :rules="rules">
+        <el-row>
+          <el-col :span="4">
+            <div><label class="document-btn">主信息</label></div>
+          </el-col>
+        <el-col :span="6" :offset="14">
           <div>
-            <el-button style="margin-top: -30px" type="warning" icon="el-icon-star-off"
-                       @click="checkFile(checkFileForm.id)">复核通过
-            </el-button>
+            <el-form-item prop="check">
+              <el-radio-group v-model="checkForm.check">
+                <el-radio v-model="checkForm.check" label="1">通过</el-radio>
+                <el-radio v-model="checkForm.check" label="2">未通过</el-radio>
+              </el-radio-group>
+            </el-form-item>
+            <el-button type="warning" icon="el-icon-star-off" @click="checkFile('checkForm')">复 核</el-button>
           </div>
         </el-col>
-      </el-row>
-      <el-row :gutter="20" style="margin-top: -20px">
-        <el-col :span="4">
-          <div><label class="document-btn">主信息</label></div>
-        </el-col>
-      </el-row>
-      <!-- 内容主体 -->
-      <el-divider></el-divider>
-      <el-row :gutter="20" style="margin-top: 0px">
-        <el-col :span="5">
-          <div><strong>产品编号: </strong> {{checkFileForm.productId}}</div>
-        </el-col>
-        <el-col :span="5">
-          <div><strong>产品名称: </strong> {{checkFileForm.productName}}</div>
-        </el-col>
-        <el-col :span="5">
-          <div><strong>制造商: </strong> {{checkFileForm.factoryName}}</div>
-        </el-col>
-        <el-col :span="5">
-          <div><strong>产品简称: </strong> {{checkFileForm.productNick}}</div>
-        </el-col>
-      </el-row>
+        </el-row>
+        <!-- 内容主体 -->
+        <el-divider></el-divider>
+        <el-row :gutter="20" style="margin-top: 0px">
+          <el-col :span="5">
+            <div><strong>产品编号: </strong> {{checkFileForm.productId}}</div>
+          </el-col>
+          <el-col :span="5">
+            <div><strong>产品名称: </strong> {{checkFileForm.productName}}</div>
+          </el-col>
+          <el-col :span="5">
+            <div><strong>制造商: </strong> {{checkFileForm.factoryName}}</div>
+          </el-col>
+          <el-col :span="5">
+            <div><strong>产品简称: </strong> {{checkFileForm.productNick}}</div>
+          </el-col>
+        </el-row>
 
-      <el-row :gutter="20" style="margin-top: 10px">
-        <el-col :span="5">
-          <div><strong>I级分类: </strong> {{checkFileForm.firstKindName}}</div>
-        </el-col>
-        <el-col :span="5">
-          <div><strong>II级分类: </strong> {{checkFileForm.secondKindName}}</div>
-        </el-col>
-        <el-col :span="5">
-          <div><strong>III级分类: </strong> {{checkFileForm.thirdKindName}}</div>
-        </el-col>
-        <el-col :span="5">
-          <div><strong>用途类型: </strong> {{checkFileForm.type | newTitle}}</div>
-        </el-col>
-      </el-row>
+        <el-row :gutter="20" style="margin-top: 10px">
+          <el-col :span="5">
+            <div><strong>I级分类: </strong> {{checkFileForm.firstKindName}}</div>
+          </el-col>
+          <el-col :span="5">
+            <div><strong>II级分类: </strong> {{checkFileForm.secondKindName}}</div>
+          </el-col>
+          <el-col :span="5">
+            <div><strong>III级分类: </strong> {{checkFileForm.thirdKindName}}</div>
+          </el-col>
+          <el-col :span="5">
+            <div><strong>用途类型: </strong> {{checkFileForm.type | newTitle}}</div>
+          </el-col>
+        </el-row>
 
-      <el-row :gutter="20" style="margin-top: 10px">
-        <el-col :span="5">
-          <div><strong>档次级别: </strong> {{checkFileForm.productClass | productTitle}}</div>
-        </el-col>
-        <el-col :span="5">
-          <div><strong>计量单位: </strong> {{checkFileForm.personalUnit}}</div>
-        </el-col>
-        <el-col :span="5">
-          <div><strong>计量值: </strong> {{checkFileForm.personalValue}}</div>
-        </el-col>
-        <el-col :span="5">
-          <div><strong>市场单价(元): </strong> {{checkFileForm.listPrice}}</div>
-        </el-col>
-        <el-col :span="4">
-          <div><strong>计划成本单价: </strong> {{checkFileForm.costPrice}}</div>
-        </el-col>
-      </el-row>
+        <el-row :gutter="20" style="margin-top: 10px">
+          <el-col :span="5">
+            <div><strong>档次级别: </strong> {{checkFileForm.productClass | productTitle}}</div>
+          </el-col>
+          <el-col :span="5">
+            <div><strong>计量单位: </strong> {{checkFileForm.personalUnit}}</div>
+          </el-col>
+          <el-col :span="5">
+            <div><strong>计量值: </strong> {{checkFileForm.personalValue}}</div>
+          </el-col>
+          <el-col :span="5">
+            <div><strong>市场单价(元): </strong> {{checkFileForm.listPrice}}</div>
+          </el-col>
+          <el-col :span="4">
+            <div><strong>计划成本单价: </strong> {{checkFileForm.costPrice}}</div>
+          </el-col>
+        </el-row>
 
-      <el-divider></el-divider>
-      <el-row :gutter="20" style="margin-top: 10px">
-        <el-col :span="4">
-          <div><label class="document-btn">辅助信息</label></div>
-        </el-col>
-      </el-row>
+        <el-divider></el-divider>
+        <el-row :gutter="20" style="margin-top: 10px">
+          <el-col :span="4">
+            <div><label class="document-btn">辅助信息</label></div>
+          </el-col>
+        </el-row>
 
-      <el-row :gutter="20" style="margin-top: 10px">
-        <el-col :span="5">
-          <div><strong>保修期: </strong> {{checkFileForm.warranty}}</div>
-        </el-col>
-        <el-col :span="5">
-          <div><strong>替代品名称: </strong> {{checkFileForm.twinName}}</div>
-        </el-col>
-        <el-col :span="5">
-          <div><strong>替代品编号: </strong> {{checkFileForm.twinId}}</div>
-        </el-col>
-        <el-col :span="5">
-          <div><strong>生命周期(年): </strong> {{checkFileForm.lifecycle}}</div>
-        </el-col>
-        <el-col :span="4">
-          <div><strong>保修期: </strong> {{checkFileForm.warranty}}</div>
-        </el-col>
-      </el-row>
+        <el-row :gutter="20" style="margin-top: 10px">
+          <el-col :span="5">
+            <div><strong>保修期: </strong> {{checkFileForm.warranty}}</div>
+          </el-col>
+          <el-col :span="5">
+            <div><strong>替代品名称: </strong> {{checkFileForm.twinName}}</div>
+          </el-col>
+          <el-col :span="5">
+            <div><strong>替代品编号: </strong> {{checkFileForm.twinId}}</div>
+          </el-col>
+          <el-col :span="5">
+            <div><strong>生命周期(年): </strong> {{checkFileForm.lifecycle}}</div>
+          </el-col>
+          <el-col :span="4">
+            <div><strong>保修期: </strong> {{checkFileForm.warranty}}</div>
+          </el-col>
+        </el-row>
 
-      <el-row :gutter="20" style="margin-top: 10px">
-        <el-col :span="5">
-          <div><strong>生命周期(年): </strong> {{checkFileForm.lifecycle}}</div>
-        </el-col>
-        <el-col :span="5">
-          <div><strong>单位: </strong> {{checkFileForm.amountUnit}}</div>
-        </el-col>
-        <el-col :span="5">
-          <div><strong>产品经理: </strong> {{checkFileForm.responsiblePerson}}</div>
-        </el-col>
-        <el-col :span="5">
-          <div><strong>供应商集合: </strong> {{checkFileForm.providerGroup}}</div>
-        </el-col>
-        <el-col :span="4">
-          <div><strong>产品描述: </strong> {{checkFileForm.productDescribe}}</div>
-        </el-col>
-      </el-row>
+        <el-row :gutter="20" style="margin-top: 10px">
+          <el-col :span="5">
+            <div><strong>生命周期(年): </strong> {{checkFileForm.lifecycle}}</div>
+          </el-col>
+          <el-col :span="5">
+            <div><strong>单位: </strong> {{checkFileForm.amountUnit}}</div>
+          </el-col>
+          <el-col :span="5">
+            <div><strong>产品经理: </strong> {{checkFileForm.responsiblePerson}}</div>
+          </el-col>
+          <el-col :span="5">
+            <div><strong>供应商集合: </strong> {{checkFileForm.providerGroup}}</div>
+          </el-col>
+          <el-col :span="4">
+            <div><strong>产品描述: </strong> {{checkFileForm.productDescribe}}</div>
+          </el-col>
+        </el-row>
 
-      <el-row :gutter="20" style="margin-top: 10px">
-        <el-col :span="5">
-          <div><strong>登记人: </strong> {{checkFileForm.register}}</div>
-        </el-col>
-        <el-col :span="5">
-          <div><strong>建档时间: </strong> {{checkFileForm.registerTime}}</div>
-        </el-col>
-        <el-col :span="7">
-          <div><strong>产品图片: </strong>
-            <img :src=URL+checkFileForm.image width="100px" height="100px">
-            <span class="el-upload-list__item-actions">
-              <span class="el-upload-list__item-preview" @click="handlePictureCardPreview(checkFileForm.image)"><i class="el-icon-zoom-in"></i></span>
+        <el-row :gutter="20" style="margin-top: 10px">
+          <el-col :span="5">
+            <div><strong>登记人: </strong> {{checkFileForm.register}}</div>
+          </el-col>
+          <el-col :span="5">
+            <div><strong>建档时间: </strong> {{checkFileForm.registerTime}}</div>
+          </el-col>
+          <el-col :span="7">
+            <div><strong>产品图片: </strong>
+              <img :src=checkFileForm.image width="100px" height="100px">
+              <span class="el-upload-list__item-actions">
+              <span class="el-upload-list__item-preview" @click="handlePictureCardPreview(checkFileForm.image)"><i
+                class="el-icon-zoom-in"></i></span>
             </span>
-          </div>
-        </el-col>
-      </el-row>
+            </div>
+          </el-col>
+        </el-row>
+        <el-divider></el-divider>
+        <el-row :gutter="20" style="margin-top: 10px">
+          <el-form-item label="审核人" prop="checker">
+            <el-input clearable v-model="checkForm.checker"/>
+          </el-form-item>
+          <el-form-item label="审核时间" prop="checkTime">
+            <el-date-picker
+              v-model="checkForm.checkTime" readonly
+              type="datetime" class="input-class" style="width: 200px">
+            </el-date-picker>
+          </el-form-item>
+        </el-row>
+      </el-form>
     </el-dialog>
     <el-dialog :visible.sync="dialogVisible">
       <img width="100%" :src="dialogImageUrl" alt="">
@@ -235,6 +257,19 @@
     name: "CheckFile",
     data() {
       return {
+        rules: {
+          check: [
+            {required: true, message: '请选择', trigger: 'change'}
+          ],
+          checker: [
+            {required: true, message: '请输入复核人', trigger: 'blur'},
+            {min: 2, max: 6, message: '长度在 2 到 6 个字符', trigger: 'blur'},
+          ],
+        },
+        checkForm: {
+          checkTime:'',
+          checker: window.sessionStorage.getItem('loginId'),
+        },
         pickerOptions: {
           shortcuts: [{
             text: '最近一周',
@@ -263,7 +298,6 @@
           }]
         },
         checkFileForm: {},
-        checker: window.sessionStorage.getItem('loginId'),
         // 获取产品列表查询参数对象
         queryFile: {
           productName: '',
@@ -276,7 +310,7 @@
           firstKindId: '',
           secondKindId: '',
           thirdKindId: '',
-          type:'',
+          type: '',
           dataTime: ''
         },
         fileList: [],
@@ -290,14 +324,14 @@
         secondKindSelectList: [],
         thirdKindSelectList: [],
 
-        title:'',
+        title: '',
         dialogImageUrl: '',
         dialogVisible: false,
       }
     },
     methods: {
       handlePictureCardPreview(file) {
-        this.dialogImageUrl = this.URL+file;
+        this.dialogImageUrl = file;
         this.dialogVisible = true;
       },
       // 监听 复核角色对话框的关闭事件
@@ -352,29 +386,72 @@
         this.checkDialogVisible = true;
         this.axios.post("/files/selectById/" + id).then((resp) => {
           this.checkFileForm = resp.data;
+          this.checkFileForm.image = this.URL + this.checkFileForm.image
         }).catch(function (error) {
           return this.$message.error('获取角色信息失败！')
         })
+        setInterval(() => {
+          this.checkForm.checkTime = this.getDataTime(new Date());
+        }, 1000)
       },
       //复核
-      checkFile(id) {
-        var params = new URLSearchParams();
-        params.append("id", id)
-        params.append("checker", this.checker)
-        this.axios.post("/files/checkTag/", params).then((response) => {
-          if (response.data == true) {
-            this.$message.success("复核成功")
-            this.checkDialogClosed(),
-              this.getFileList();
+      checkFile(formName) {
+        var checked = this.checkForm.check;
+        if (!checked) {
+          this.$message.error("请选择")
+        }
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            var params = new URLSearchParams();
+            params.append("id", (this.checkFileForm.id-0))
+            params.append("checkTime",this.checkForm.checkTime)
+            params.append("checker",this.checkForm.checker)
+            if (checked == 2) {
+              this.$confirm('不通过[' + this.checkFileForm.productName + ']工序设计单, 是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+              }).then(() => {
+                params.append("checkTag","2")
+                this.axios.post("/files/checkTag" ,params).then((response) => {
+                  if (response.data) {
+                    this.$message.success("操作成功")
+                    this.queryFile.pageNo = 1;
+                    this.getFileList();
+                    this.checkDialogVisible = false;
+                  } else {
+                    this.$message.error("操作失败")
+                  }
+                })
+              }).catch(() => {
+                this.$message.info("已取消不通过")
+              });
+            }
+            if (checked == 1) {
+              this.$confirm('通过[' + this.checkFileForm.productName + ']工序设计单, 是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'success'
+              }).then(() => {
+                params.append("checkTag","1")
+                this.axios.post("/files/checkTag", params).then((response) => {
+                  if (response.data) {
+                    this.$message.success("操作成功")
+                    this.queryFile.pageNo = 1;
+                    this.getFileList();
+                    this.checkDialogVisible = false;
+                  } else {
+                    this.$message.error("操作失败")
+                  }
+                })
+              }).catch(() => {
+                this.$message.info("已取消通过")
+              });
+            }
           } else {
-            this.$message.success("复核失败")
-            this.checkDialogClosed(),
-              this.getFileList();
+            return false;
           }
-        }).catch(function (error) {
-          alert("服务端获取数据失败");
         });
-
       },
       //获取所有分类信息
       getConfigFileKindList() {
@@ -433,17 +510,17 @@
         return "登记复核【" + val + "】";
       },
       newTitle(val) {
-        if (val==1)
+        if (val == 1)
           return "商品";
-        else if(val==2)
+        else if (val == 2)
           return "物料";
         else
           return "";
       },
-      productTitle(val){
-        if (val==1)
+      productTitle(val) {
+        if (val == 1)
           return "高档";
-        else if(val==2)
+        else if (val == 2)
           return "中档";
         else
           return "低挡";

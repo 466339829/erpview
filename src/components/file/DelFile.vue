@@ -37,6 +37,12 @@
                 <el-option label="物料" value="2"/>
               </el-select>
             </el-form-item>
+            <el-form-item label="审核状态">
+              <el-select clearable @clear="getFileList" v-model="queryFile.checkTag" placeholder="请选择">
+                <el-option label="通过" value="1"/>
+                <el-option label="不通过" value="2"/>
+              </el-select>
+            </el-form-item>
 
             <el-form-item label="建档时间">
               <el-date-picker @change="change"
@@ -70,7 +76,17 @@
         <el-table-column prop="firstKindName" label="I级分类" width="120px"></el-table-column>
         <el-table-column prop="secondKindName" label="II级分类" width="120px"></el-table-column>
         <el-table-column prop="thirdKindName" label="III级分类" width="120px"></el-table-column>
-        <el-table-column prop="responsiblePerson" label="产品经理"></el-table-column>
+        <el-table-column label="审核状态" width="120px">
+          <template slot-scope="scope">
+            {{ scope.row.checkTag | newCheckTag }}
+          </template>
+        </el-table-column>
+        <el-table-column label="建档时间">
+          <template slot-scope="scope">
+            <i class="el-icon-time"/>
+            {{ scope.row.registerTime }}
+          </template>
+        </el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button
@@ -167,7 +183,7 @@
           pageNo: 1,
           pageSize: 6,
           //审核标志0: 等待1: 通过2: 不通过
-          checkTag: 1,
+          checkTag:'',
           //产品删除标志0: 未删除1: 已删除2永久删除
           deleteTag: 0,
           firstKindId: '',
@@ -214,7 +230,9 @@
         });
         this.axios.post("/files/page", params).then( (resp) =>{
           this.total = resp.data.total;
-          this.fileList = resp.data.list;
+          this.fileList = resp.data.list.filter((item)=>{
+            return item.checkTag != "0";
+          });
         }).catch(function (error) {
           return this.$message.error('获取角色列表失败！')
         })
@@ -309,6 +327,14 @@
           return "物料";
         else
           return "";
+      },
+      newCheckTag(val){
+        if (val==1)
+          return "通过";
+        else if(val==2)
+          return "不通过";
+        else
+          return "等待";
       }
     }
   }

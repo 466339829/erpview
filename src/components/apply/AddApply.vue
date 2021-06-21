@@ -6,13 +6,15 @@
       <el-col :span="16" :offset="16">
         <div>
               <span slot="footer" class="dialog-footer">
-                <el-button icon="el-icon-circle-plus-outline" type="primary"
+                <el-button icon="el-icon-circle-plus-outline" type="primary" v-if="viewShow==1"
                            @click="getFileList">添加产品</el-button>
-                <el-button icon="el-icon-remove-outline" type="primary"
+                <el-button icon="el-icon-remove-outline" type="primary" v-if="viewShow==1"
                            @click="getSelected">删除产品</el-button>
-                <el-button icon="el-icon-view" type="primary"
+                <el-button icon="el-icon-view" type="primary" v-if="viewShow==1"
                            @click="updateViewShow">预览</el-button>
-                <el-button icon="el-icon-view" type="primary"
+                <el-button icon="el-icon-back" type="primary" v-if="viewShow==2"
+                           @click="viewShow=1">返回</el-button>
+                <el-button icon="el-icon-view" type="primary" v-if="viewShow==2"
                            @click="addApplyList">提交</el-button>
                 </span>
         </div>
@@ -28,28 +30,38 @@
     <el-divider></el-divider>
 
     <div class="app-container">
-      <el-form :model="addApplyForm"  :inline="true" label-width="120px">
-        <el-form-item label="生产理由" >
+      <el-form :model="addApplyForm"
+               ref="addApplyForm" :rules="addApplyFormRules":inline="true" label-width="120px">
+
+        <el-form-item label="生产理由" v-if="viewShow==1" >
           <el-input placeholder="新发生" disabled/>
         </el-form-item>
-        <el-form-item label="供货时间" >
-          <el-date-picker type="date"  v-model="value1" placeholder="选择供货时间">
+        <el-form-item label="登记人" prop="register" v-if="viewShow==1">
+          <el-input  clearable v-model="addApplyForm.register"/>
+        </el-form-item>
+        <el-form-item label="登记时间" v-if="viewShow==1">
+          <el-date-picker readonly  type="datetime"
+                            v-model="registerTime">
           </el-date-picker>
         </el-form-item>
 
-        <el-form-item label="登记人" prop="register">
-          <el-input  clearable v-model="addApplyForm.register"/>
-        </el-form-item>
-        <el-form-item label="登记时间" prop="registerTime">
-          <el-date-picker disabled  type="datetime"
-                            v-model="addApplyForm.registerTime">
-          </el-date-picker>
-        </el-form-item>
+        <el-row :gutter="20" v-if="viewShow==2">
+          <el-col :span="5">
+            <div><strong>生产理由: </strong> 新发生</div>
+          </el-col>
+          <el-col :span="5">
+            <div><strong>登记人: </strong> {{addApplyForm.register}}</div>
+          </el-col>
+          <el-col :span="5">
+            <div><strong>登记时间: </strong> {{addApplyForm.registerTime}}</div>
+          </el-col>
+        </el-row>
+
         <el-divider></el-divider>
 
         <!-- 产品列表区域 -->
         <el-table :data="designProcedure" :row-class-name="tableRowClassName"
-                  @selection-change="handleSelectionChange"border stripe>
+                  @selection-change="handleSelectionChange" border stripe>
           <!-- stripe: 斑马条纹 border：边框-->
           <el-table-column type="selection" width="55"></el-table-column>
           <el-table-column prop="productId" label="产品编号"></el-table-column>
@@ -62,13 +74,17 @@
               {{scope.row.amount*scope.row.realCostPrice}}
             </template>
           </el-table-column>
-          <el-table-column prop="amount" label="数量">
+
+          <el-table-column v-if="viewShow==1" prop="amount" label="数量">
             <template slot-scope="scope">
               <el-input clearable v-model.number="scope.row.amount" maxlength="4"
                         oninput="value=value.replace(/[^\d]/g,'')"/>
             </template>
           </el-table-column>
+
+          <el-table-column v-if="viewShow==2" prop="amount" label="数量"></el-table-column>
         </el-table>
+        <el-divider></el-divider>
         <el-row :gutter="20" style="margin-top: 20px;margin-left:70px">
           <el-col :span="5">
             <div><span>总件数: </span> {{countSum}}</div>
@@ -77,11 +93,16 @@
             <div><span>总金额: </span> {{moneySum}}</div>
           </el-col>
         </el-row>
-        <el-row :gutter="20" style="margin-top: 10px;">
-          <el-col :span="9">
+        <el-row :gutter="20" style="margin-top: 10px;" v-if="viewShow==1">
+          <el-col :span="15">
             <el-form-item label="备注" prop="remark">
               <el-input clearable v-model="addApplyForm.remark" type="textarea" style="width: 300px"/>
             </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="20" style="margin-top: 10px;" v-if="viewShow==2">
+          <el-col :span="9">
+            <div><strong>备注: </strong> {{addApplyForm.remark}}</div>
           </el-col>
         </el-row>
 
@@ -135,6 +156,9 @@
             {{scope.row.type | newTitle}}
           </template>
         </el-table-column>
+        <el-table-column prop="firstKindName" label="I级分类" width="120px"></el-table-column>
+        <el-table-column prop="secondKindName" label="II级分类" width="120px"></el-table-column>
+        <el-table-column prop="thirdKindName" label="III级分类" width="120px"></el-table-column>
          <el-table-column prop="realCostPrice" label="价格(元)"></el-table-column>
         <el-table-column prop="amountUnit" label="单位"></el-table-column>
         <el-table-column label="生产">
@@ -171,13 +195,23 @@
     name: "AddApply",
     data(){
       return{
+        addApplyFormRules: {
+          register: [
+            {required: true, message: '请输入登记人', trigger: 'blur'},
+            {min: 2, max: 4, message: '长度在 2 到 4 个字符', trigger: 'blur'},
+          ],
+          remark: [
+            {required: true, message: '请输入备注', trigger: 'blur'},
+            {min: 2, max: 10, message: '长度在 2 到 6 个字符', trigger: 'blur'},
+          ],
+        },
         viewShow:1,
         addApplyForm:{
-          registerTime:''
+          register:'',
+          remark:''
         },
+        registerTime:'',
         value1:'',
-        countSum:0,
-        moneySum:0,
 
         designProcedure:[],
 
@@ -214,7 +248,7 @@
     methods:{
       getDataTime() {//默认显示今天
         setInterval(() => {
-          this.addApplyForm.registerTime = new Date();
+          this.registerTime = new Date();
         },100)
       },
       //获取产品列表
@@ -305,6 +339,18 @@
           this.designProcedure.push(row);
       },
       updateViewShow(){
+        var bool = true;
+        if (this.designProcedure.length==0){
+          bool = false;
+          this.$message.error("请至少添加一个产品")
+        }
+        this.$refs.addApplyForm.validate((valid) => {
+          if (valid) {
+            if (bool==true) {
+              this.viewShow = 2;
+            }
+          }
+        })
 
       },
       //保存选中结果
@@ -359,7 +405,7 @@
           item.appltId="";
           item.register = this.addApplyForm.register;
           item.remark = this.addApplyForm.remark;
-          item.registerTime =this.getData(this.addApplyForm.registerTime) ;
+          item.registerTime =this.getData(this.registerTime) ;
           item.checkTag = 0;
           item.manufactureTag = 0;
           item.checker ="";
@@ -367,11 +413,12 @@
           item.checkTime ="";
           item.manufactureTag =0;
         })
-        this.axios.post("/apply/addApply", JSON.stringify(this.designProcedure), {headers: {"Content-Type": "application/json"}})
-          .then((response) => {
-            if (response.data.result) {
+        this.axios.post("/apply/addApply", JSON.stringify(this.designProcedure),
+          {headers: {"Content-Type": "application/json"}}).then((response) => {
+            if (response.data) {
+              this.designProcedure = [];
+              this.addApplyForm = {};
               this.$message.success('操作成功,等待审核!');
-              this.designProcedure = []
             }
           }).catch(function (error) {
           return this.$message.error('操作失败！')
@@ -397,7 +444,19 @@
           return "";
       },
 
-    }
+    },
+    computed:{
+      moneySum(){
+        var sum =0;//scope.row.amount*scope.row.realCostPrice
+        this.designProcedure.forEach( (item) =>{
+          sum+= item.amount*item.realCostPrice;
+        })
+        return sum;
+      },
+      countSum(){
+        return this.designProcedure.length
+      }
+    },
 
   }
 </script>
