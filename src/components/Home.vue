@@ -98,6 +98,9 @@
   import QueryDesignProcedure from '../components/designprocedure/QueryDesignProcedure'
   import EditDesignProcedure from '../components/designprocedure/EditDesignProcedure'
 
+  import Inboundapplication from "./warehouse/Inboundapplication";
+  import SafetystockQuery from "./warehouse/SafetystockQuery";
+  import SafetystockUpdate from "./warehouse/SafetystockUpdate";
   import Safetystock from "./warehouse/Safetystock";
 
 

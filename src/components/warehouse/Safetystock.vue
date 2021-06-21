@@ -73,7 +73,8 @@
     <el-drawer
       title="安全库存配置单"
       :visible.sync="drawer"
-      :size="size">
+      :center="true"
+    :size="size">
       <el-form label-width="60px" :modal="ctfrom">
         <el-row :gutter="20">
           <el-col :span="10" :offset="1">
@@ -285,7 +286,7 @@
               showClose: true
             });
             this.drawer = false;
-            this.$router.push({})
+            this.tables();
           } else {
             this.$notify.success({
               title: '失败',

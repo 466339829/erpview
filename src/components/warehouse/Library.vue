@@ -45,9 +45,13 @@
         prop="thirdKindName"
         label="三级分类" :render-header="renderHeader">
       </el-table-column>
+      <el-table-column
+        prop="registerTime"
+        label="建档时间" :render-header="renderHeader">
+      </el-table-column>
       <el-table-column label="操作" :render-header="heand2">
         <template slot-scope="scope">
-          <el-button @click=FHbtn(scope.row.id) type="warning">复核</el-button>
+          <el-button @click=FHbtn(scope.row) type="warning">复核</el-button>
         </template>
       </el-table-column>
 
@@ -62,7 +66,7 @@
       :total="total">
     </el-pagination>
     <!-- Form -->
-      <el-dialog title="安全配置复核" width="900px"  center :visible.sync="dialogFormVisible">
+    <el-dialog  title="安全配置复核" width="900px" center :visible.sync="dialogFormVisible">
       <el-form :model="FHfrom">
         <el-row :gutter="20">
           <el-col :span="10" :offset="1">
@@ -170,7 +174,7 @@
             <div class="grid-content bg-purple">
               <span v-model="FHfrom.registerTime">系统当前时间:&nbsp&nbsp&nbsp{{currentTime}}</span>
             </div>
-            &nbsp;
+            &nbsp
             <el-switch
               v-model="value1"
               active-text="通过复核"
@@ -208,45 +212,69 @@
           id: 1, kc: "成品库", ycc: "01-01-01", menuca: "",
         }],
         currentTime: new Date(), // 获取当前时间
-        value1:true,
-        ceid:'',
-        feid:'',
+        value1: true,
+        ceid: '',
+        fename: '',
+        register: window.sessionStorage.getItem('loginId'),//复核人
+        checkTag: 2
       }
     },
     methods: {
-      Fhisok(){
-      var kg=this.value1;
-      var ceid=this.ceid;
-      var feid=this.feid;
-      alert(ceid)
-        alert(feid)
-      // var params=new URLSearchParams();
-      // params.append("id",id)
-      // if (kg==false){
-      //   this.axios.post("/Cells/fudeleteid",params).then((response)=>{
-      //     this.dialogFormVisible=false;
-      //     this.$message({
-      //       message: '已拒绝复核，可重新复核！！！',
-      //       type: 'warning'
-      //     });
-      //   }).catch()
-      // }
+      Fhisok() {
+        var kg = this.value1;
+        var ceid = this.ceid;
+        alert(kg)
+        var fenames = this.fename;
+        var params = new URLSearchParams();
+        if (kg == false) {
+          params.append("id", ceid)
+          params.append("productId", fenames);
+          this.axios.post("/Cells/fudeleteid", params).then((response) => {
+            this.dialogFormVisible = false;
+            this.$message({
+              message: '已拒绝复核，已转发重新复核！！！',
+              type: 'warning'
+            });
+            this.tbsdata()
+          }).catch()
+        } else if (kg == true) {
+          params.append("id", ceid);
+          params.append("checker", this.register);
+          params.append("checkTime", this.currentTime);
+          params.append("checkTag", this.checkTag);
+          this.axios.post("/Cells/updateio", params).then(() => {
+            this.dialogFormVisible = false;
+            this.$message({
+              message: '复核成功，已成功复核！！！',
+              type: 'warning'
+            });
+            this.tbsdata()
+          }).catch()
+        }
       },
-      FHbtn(id) {
-        this.ceid=id;
+      FHbtn(item) {
+        this.fename = item.productId;
+        this.ceid = item.id
         this.dialogFormVisible = true
         var params = new URLSearchParams();
-        params.append("id", id);
+        params.append("id", item.id);
         this.axios.post("/Cells/fuHebyid", params).then((response) => {
           this.FHfrom = response.data
         }).catch()
       },
       //初始化查询
       tbsdata() {
-        this.axios.post("/Cells/fuHe").then((response) => {
+        var params = new URLSearchParams();
+        params.append("pageNo", this.pageNo);
+        params.append("pageSize", this.pageSize);
+        params.append("productName", this.cpnames)
+        params.append("firstKindName", this.ones)
+        params.append("secondKindName", this.tuos)
+        params.append("thirdKindName", this.sans)
+        this.axios.post("/Cells/fuHe", params).then((response) => {
           this.tabs = response.data.list;
           this.total = response.data.total;
-          this.feid=response.data.list.id;
+          this.feid = response.data.list.id;
         }).catch()
       },
 
@@ -261,7 +289,7 @@
         this.tables()
       },
       cx() {
-
+        this.tbsdata()
       },
       renderHeader(h, {column}) { // h即为cerateElement的简写，具体可看vue官方文档
         return h(
