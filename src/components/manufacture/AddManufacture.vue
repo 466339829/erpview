@@ -99,9 +99,21 @@
           <el-table-column prop="procedureName" label="工序名称"></el-table-column>
           <el-table-column prop="detailsNumber" label="工序编号"></el-table-column>
           <el-table-column prop="procedureDescribe" label="描述"></el-table-column>
-          <el-table-column prop="labourHourAmount" label="工时数(小时)"></el-table-column>
-          <el-table-column prop="subtotal" label="工时成本小计(元)"></el-table-column>
-          <el-table-column prop="moduleSubtotal" label="物料成本小计"></el-table-column>
+          <el-table-column prop="labourHourAmount" label="工时数(小时)">
+            <template slot-scope="scope">
+              {{scope.row.labourHourAmount*amount}}
+            </template>
+          </el-table-column>
+          <el-table-column prop="subtotal" label="工时成本小计(元)">
+            <template slot-scope="scope">
+              {{scope.row.subtotal*amount}}
+            </template>
+          </el-table-column>
+          <el-table-column prop="moduleSubtotal" label="物料成本小计">
+            <template slot-scope="scope">
+              {{scope.row.moduleSubtotal*amount}}
+            </template>
+          </el-table-column>
           <el-table-column label="操作">
             <template slot-scope="scope">
               <el-button
@@ -111,7 +123,6 @@
                 @click="showProcedureModuleDialog(scope.row)"
               >审核物料
               </el-button>
-
             </template>
           </el-table-column>
         </el-table>
@@ -166,10 +177,18 @@
         <el-table-column prop="productId" label="物料编号"></el-table-column>
         <el-table-column prop="productName" label="物料名称"></el-table-column>
         <el-table-column prop="productDescribe" label="描述"></el-table-column>
-        <el-table-column prop="amount" label="本工序数量"></el-table-column>
+        <el-table-column prop="amount" label="本工序数量">
+          <template slot-scope="scope">
+            {{scope.row.amount*amount}}
+          </template>
+        </el-table-column>
         <el-table-column prop="amountUnit" label="单位"></el-table-column>
         <el-table-column prop="costPrice" label="单价(元)"></el-table-column>
-        <el-table-column prop="subtotal" label="小计(元)"></el-table-column>
+        <el-table-column prop="subtotal" label="小计(元)">
+          <template slot-scope="scope">
+            {{scope.row.subtotal*amount}}
+          </template>
+        </el-table-column>
       </el-table>
       <span slot="footer" class="dialog-footer">
     <el-button @click="ProcedureModuleDialogVisible = false">返 回</el-button>

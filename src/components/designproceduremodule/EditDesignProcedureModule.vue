@@ -339,6 +339,9 @@
         params.append("productId", this.productId);
         this.axios.post("/moduleDetails/selectByProductId", params).then((resp) => {
           this.moduleDetailsList = resp.data;
+          this.moduleDetailsList.forEach((item)=>{
+            item.amount = 0;
+          })
         }).catch(function (error) {
           return this.$message.error('获取产品列表失败！')
         })
@@ -386,10 +389,8 @@
       updateModuleDetails(row) {
         this.proDetail = row;
         this.axios.post("/designProcedureModule/updateChangeByPId/" + row.id).then((resp) => {
-          if (resp.data==true){
             this.getDesignList();
             this.moduleDialogVisible = true;
-          }
         }).catch(function (error) {
           return this.$message.error('获取物料信息失败！')
         })

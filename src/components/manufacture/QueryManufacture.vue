@@ -40,7 +40,19 @@
         <el-table-column prop="manufactureId" label="派工单编号"></el-table-column>
         <el-table-column prop="productId" label="产品编号"></el-table-column>
         <el-table-column prop="productName" label="产品名称"></el-table-column>
-        <el-table-column prop="amount" label="数量"></el-table-column>
+        <el-table-column prop="amount" label="数量" width="95px"></el-table-column>
+        <el-table-column label="合格数量" width="95px">生产中</el-table-column>
+        <el-table-column prop="checkTag" label="审核状态">
+          <template slot-scope="scope">
+            {{ scope.row.checkTag |newCheckTag }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="manufactureProcedureTag" label="生产状态">
+          <template slot-scope="scope">
+            {{ scope.row.manufactureProcedureTag |newProcedureTag }}
+          </template>
+        </el-table-column>
+
         <el-table-column label="登记时间">
           <template slot-scope="scope">
             <i class="el-icon-time"/>
@@ -50,11 +62,11 @@
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button
-              type="warning"
-              icon="el-icon-star-off"
+              type="success"
+              icon="el-icon-search"
               size="mini"
               @click="showCheckDialog(scope.row)"
-            >审核
+            >查看
             </el-button>
           </template>
         </el-table-column>
@@ -85,17 +97,7 @@
           <el-col :span="5">
             <div><strong>产品编号: </strong> {{manufacture.productName}}</div>
           </el-col>
-          <el-col :span="5" :offset="3">
-            <div>
-              <el-form-item prop="check">
-                <el-radio-group v-model="ruleForm.check">
-                  <el-radio v-model="ruleForm.check" label="1">通过</el-radio>
-                  <el-radio v-model="ruleForm.check" label="2">未通过</el-radio>
-                </el-radio-group>
-              </el-form-item>
-              <el-button type="warning" icon="el-icon-star-off" @click="submitForm('ruleForm')">确 定</el-button>
-            </div>
-          </el-col>
+
         </el-row>
         <el-row :gutter="20">
           <el-col :span="5">
@@ -116,14 +118,19 @@
           <el-table-column prop="labourHourAmount" label="工时数(小时)"></el-table-column>
           <el-table-column prop="subtotal" label="工时成本小计(元)"></el-table-column>
           <el-table-column prop="moduleSubtotal" label="物料成本小计(元)"></el-table-column>
-          <el-table-column label="审核物料">
+          <el-table-column label="工序状态" prop="procedureFinishTag">
+            <template slot-scope="scope">
+              {{ scope.row.procedureFinishTag |newFinishTag }}
+            </template>
+          </el-table-column>
+          <el-table-column label="操作">
             <template slot-scope="scope">
               <el-button
-                type="warning"
-                icon="el-icon-star-off"
+                type="success"
+                icon="el-icon-search"
                 size="mini"
                 @click="showProcedureModuleDialog(scope.row)"
-              >审核物料
+              >查看物料
               </el-button>
             </template>
           </el-table-column>
@@ -198,7 +205,7 @@
 
 <script>
   export default {
-    name: "CheckManufacture",
+    name: "QueryManufacture",
     data() {
       return {
         rules: {
@@ -247,7 +254,6 @@
           manufactureId: '',
           productName: '',
           dataTime: '',
-          checkTag:"0"
         },
         total: 0,
         applyList: [],
@@ -428,6 +434,42 @@
     },
     created() {
       this.getManufactureList();
+    },
+    filters: {   //过滤器
+      newCheckTag(val) {
+        if (val==0)
+          return "等待";
+        else if(val==1)
+          return "通过";
+        else
+          return "不通过";
+      },
+      newTag(val) {
+        if (val==0)
+          return "未设计";
+        else if(val==1)
+          return "已提交";
+        else
+          return "已审核";
+      },
+      newProcedureTag(val){
+        if (val==0)
+          return "等待";
+        else if(val==1)
+          return "执行";
+        else
+          return "完成";
+      },
+      newFinishTag(val){
+        if (val==0)
+          return "等待";
+        else if(val==1)
+          return "已完成";
+        else if(val==2)
+          return "未完成";
+        else
+          return "已审核";
+      }
     }
   }
 </script>

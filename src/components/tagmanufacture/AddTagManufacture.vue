@@ -40,8 +40,8 @@
         <el-table-column prop="manufactureId" label="派工单编号"></el-table-column>
         <el-table-column prop="productId" label="产品编号"></el-table-column>
         <el-table-column prop="productName" label="产品名称"></el-table-column>
-        <el-table-column prop="amount" label="数量"></el-table-column>
-        <el-table-column label="登记时间">
+        <el-table-column prop="amount" label="数量" width="95px"></el-table-column>
+         <el-table-column label="登记时间">
           <template slot-scope="scope">
             <i class="el-icon-time"/>
             {{ scope.row.registerTime }}
@@ -50,11 +50,10 @@
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button
-              type="warning"
-              icon="el-icon-star-off"
+              type="info" icon="el-icon-message"
               size="mini"
               @click="showCheckDialog(scope.row)"
-            >审核
+            >登记
             </el-button>
           </template>
         </el-table-column>
@@ -85,17 +84,7 @@
           <el-col :span="5">
             <div><strong>产品编号: </strong> {{manufacture.productName}}</div>
           </el-col>
-          <el-col :span="5" :offset="3">
-            <div>
-              <el-form-item prop="check">
-                <el-radio-group v-model="ruleForm.check">
-                  <el-radio v-model="ruleForm.check" label="1">通过</el-radio>
-                  <el-radio v-model="ruleForm.check" label="2">未通过</el-radio>
-                </el-radio-group>
-              </el-form-item>
-              <el-button type="warning" icon="el-icon-star-off" @click="submitForm('ruleForm')">确 定</el-button>
-            </div>
-          </el-col>
+
         </el-row>
         <el-row :gutter="20">
           <el-col :span="5">
@@ -110,20 +99,20 @@
         <!-- 产品物料组成 -->
         <el-table :data="procedureList" border stripe>
           <!-- stripe: 斑马条纹 border：边框-->
-          <el-table-column prop="id" label="序号"></el-table-column>
           <el-table-column prop="procedureName" label="工序名称"></el-table-column>
-          <el-table-column prop="procedureId" label="工序编号"></el-table-column>
-          <el-table-column prop="labourHourAmount" label="工时数(小时)"></el-table-column>
-          <el-table-column prop="subtotal" label="工时成本小计(元)"></el-table-column>
-          <el-table-column prop="moduleSubtotal" label="物料成本小计(元)"></el-table-column>
-          <el-table-column label="审核物料">
+          <el-table-column prop="labourHourAmount" label="设计工时数"></el-table-column>
+          <el-table-column prop="realLabourHourAmount" label="实际工时数"></el-table-column>
+          <el-table-column prop="subtotal" label="设计工时成本(元)"></el-table-column>
+          <el-table-column prop="realSubtotal" label="实际工时成本(元)"></el-table-column>
+          <el-table-column prop="moduleSubtotal" label="设计物料成本(元)"></el-table-column>
+          <el-table-column prop="realModuleSubtotal" label="实际物料成本(元)"></el-table-column>
+          <el-table-column label="工序登记">
             <template slot-scope="scope">
               <el-button
-                type="warning"
-                icon="el-icon-star-off"
+                type="info" icon="el-icon-message"
                 size="mini"
                 @click="showProcedureModuleDialog(scope.row)"
-              >审核物料
+              >登记
               </el-button>
             </template>
           </el-table-column>
@@ -164,6 +153,7 @@
       </el-form>
       <el-divider></el-divider>
     </el-dialog>
+
     <el-dialog title="工序物料单" :visible.sync="procedureModuleDialogVisible" width="90%" @close="procedureModuleDialogClosed">
       <el-row :gutter="20" style="margin-top: -20px">
         <el-col :span="5">
@@ -180,7 +170,6 @@
         <el-table-column prop="id" label="序号" width="80px"></el-table-column>
         <el-table-column prop="productId" label="物料编号"></el-table-column>
         <el-table-column prop="productName" label="物料名称"></el-table-column>
-        <el-table-column prop="productDescribe" label="描述"></el-table-column>
         <el-table-column prop="amount" label="本工序数量"></el-table-column>
         <el-table-column prop="amountUnit" label="单位"></el-table-column>
         <el-table-column prop="costPrice" label="单价(元)"></el-table-column>
@@ -198,7 +187,7 @@
 
 <script>
   export default {
-    name: "CheckManufacture",
+    name: "AddTagManufacture",
     data() {
       return {
         rules: {
@@ -247,7 +236,6 @@
           manufactureId: '',
           productName: '',
           dataTime: '',
-          checkTag:"0"
         },
         total: 0,
         applyList: [],
@@ -428,7 +416,8 @@
     },
     created() {
       this.getManufactureList();
-    }
+    },
+
   }
 </script>
 

@@ -164,7 +164,7 @@
 
         <el-row v-if="viewShow==1" :gutter="20" style="margin-top: 10px">
           <el-col :span="5">
-            <el-form-item v-if="viewShow==1" label="设计人" prop="designer" style="margin-top: 10px">
+            <el-form-item v-if="viewShow==1" label="设计人" prop="designer" >
               <el-input clearable v-model="addModuleForm.designer"></el-input>
             </el-form-item>
           </el-col>
@@ -180,12 +180,15 @@
         <el-col :span="5">
           <div><strong>设计人: </strong> {{addModuleForm.designer}}</div>
         </el-col>
-      </el-row>
-      <el-row v-if="viewShow==2" :gutter="20" style="margin-top: 10px">
         <el-col :span="5">
           <div><strong>设计要求: </strong> {{addModuleForm.moduleDescribe}}</div>
         </el-col>
       </el-row>
+   <!--   <el-row v-if="viewShow==2" :gutter="20" style="margin-top: 10px">
+        <el-col :span="5">
+          <div><strong>设计要求: </strong> {{addModuleForm.moduleDescribe}}</div>
+        </el-col>
+      </el-row>-->
     </el-dialog>
 
     <el-dialog title="添加物料"
@@ -466,6 +469,7 @@
         this.addDialogVisible = true;
         this.axios.post("/files/selectById/" + id).then((resp) => {
           this.addModuleForm = resp.data;
+          this.addModuleForm.designer =window.sessionStorage.getItem('loginId');
         }).catch(function (error) {
           return this.$message.error('获取角色信息失败！')
         })

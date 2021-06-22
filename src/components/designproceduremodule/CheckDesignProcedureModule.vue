@@ -202,7 +202,7 @@
           ],
           checker: [
             {required: true, message: '请输入审核人', trigger: 'blur'},
-            {min: 2, max: 4, message: '长度在 2 到 4 个字符', trigger: 'blur'},
+            {min: 2, max: 5, message: '长度在 2 到 5 个字符', trigger: 'blur'},
           ],
           checkSuggestion: [
             {required: true, message: '请输入审核意见', trigger: 'blur'},
@@ -210,6 +210,7 @@
           ],
         },
         checkForm: {
+          checker:window.sessionStorage.getItem('loginId'),
           checkTime:''
         },
         // 获取品生产工序列表查询参数对象
@@ -345,10 +346,10 @@
                 cancelButtonText: '取消',
                 type: 'warning'
               }).then(() => {
-                this.axios.post("/designProcedureModule/delete/" + this.module.id).then((response) => {
-                  if (response.data.result) {
+                this.axios.post("/designProcedure/delete/" +this.procedureInfo.id).then((response) => {
+                  if (response.data) {
                     this.$message.success("操作成功")
-                    this.queryModule.pageNo = 1;
+                    this.queryDesignProcedure.pageNo = 1;
                     this.getDesignProcedureList();
                     this.addDialogVisible = false;
                   } else {

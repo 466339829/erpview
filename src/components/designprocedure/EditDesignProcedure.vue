@@ -386,7 +386,7 @@
         designProcedureDetailsList:[],
 
         checkForm: {
-          changer:'',
+          changer:window.sessionStorage.getItem('loginId'),
           changeTime:'',
           procedureDescribe:'',
         },
@@ -616,7 +616,7 @@
               this.addDialogVisible= false;
               this.$message.success("删除成功,待审核")
             } else {
-              this.$message.success("删除失败");
+              this.$message.error("删除失败,"+row.procedureName+"]已存在工序物料组成设计");
             }
           })
         }).catch(() => {

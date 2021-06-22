@@ -234,7 +234,6 @@
       //编辑审核模态框
       showCheckDialog(row) {
         this.apply = row;
-        this.checkDialogVisible = true;
         var params = new URLSearchParams();
         params.append("applyId", row.applyId)
         this.axios.post("/apply/selectByAid", params).then((resp) => {
@@ -242,6 +241,7 @@
         }).catch(function (error) {
           return this.$message.error('获取角色信息失败！')
         })
+        this.checkDialogVisible = true;
         setInterval(() => {
           this.getData();
         },1000)

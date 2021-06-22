@@ -189,7 +189,7 @@
           ],
           checker: [
             {required: true, message: '请输入审核人', trigger: 'blur'},
-            {min: 2, max: 4, message: '长度在 2 到 4 个字符', trigger: 'blur'},
+            {min: 2, max: 5, message: '长度在 2 到 5个字符', trigger: 'blur'},
           ],
           checkSuggestion: [
             {required: true, message: '请输入审核意见', trigger: 'blur'},
@@ -197,7 +197,7 @@
           ],
         },
         checkForm: {
-          checker:'',
+          checker:window.sessionStorage.getItem('loginId'),
           checkSuggestion:'',
           checkTime:''
         },

@@ -366,7 +366,7 @@
               this.updateDialogVisible = false;
               this.$message.success("删除成功")
             } else {
-              this.$message.success("删除失败");
+              this.$message.error("删除失败,[" + row.productName +"]已存在工序物料组成设计" );
             }
           })
         }).catch(() => {

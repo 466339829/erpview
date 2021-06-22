@@ -41,7 +41,7 @@
         </el-form-item>
         <el-form-item label="登记时间" v-if="viewShow==1">
           <el-date-picker readonly  type="datetime"
-                            v-model="registerTime">
+                            v-model="addApplyForm.registerTime">
           </el-date-picker>
         </el-form-item>
 
@@ -67,11 +67,11 @@
           <el-table-column prop="productId" label="产品编号"></el-table-column>
           <el-table-column prop="productName" label="产品名称"></el-table-column>
           <el-table-column prop="productDescribe" label="产品描述"></el-table-column>
-          <el-table-column prop="realCostPrice" label="价格(元)"></el-table-column>
+          <el-table-column prop="costPrice" label="价格(元)"></el-table-column>
           <el-table-column prop="amountUnit" label="单位"></el-table-column>
           <el-table-column label="小计(元)">
             <template slot-scope="scope">
-              {{scope.row.amount*scope.row.realCostPrice}}
+              {{scope.row.amount*scope.row.costPrice}}
             </template>
           </el-table-column>
 
@@ -159,7 +159,7 @@
         <el-table-column prop="firstKindName" label="I级分类" width="120px"></el-table-column>
         <el-table-column prop="secondKindName" label="II级分类" width="120px"></el-table-column>
         <el-table-column prop="thirdKindName" label="III级分类" width="120px"></el-table-column>
-         <el-table-column prop="realCostPrice" label="价格(元)"></el-table-column>
+         <el-table-column prop="costPrice" label="价格(元)"></el-table-column>
         <el-table-column prop="amountUnit" label="单位"></el-table-column>
         <el-table-column label="生产">
           <template slot-scope="scope">
@@ -208,7 +208,8 @@
         viewShow:1,
         addApplyForm:{
           register:'',
-          remark:''
+          remark:'',
+          registerTime:''
         },
         registerTime:'',
         value1:'',
@@ -248,8 +249,20 @@
     methods:{
       getDataTime() {//默认显示今天
         setInterval(() => {
-          this.registerTime = new Date();
-        },100)
+          var dataTime = new Date();
+          var nian = dataTime.getFullYear();
+          var yue = dataTime.getMonth() + 1;
+          var ri = dataTime.getDate();
+          var shi = dataTime.getHours();
+          var fen = dataTime.getMinutes();
+          var miao = dataTime.getSeconds();
+          if (yue < 10) yue = "0" + yue;
+          if (ri < 10) ri = "0" + ri;
+          if (miao < 10) miao = "0" + miao;
+          if (fen < 10) fen = "0" + fen;
+          if (shi < 10) shi = "0" + shi;
+          this.addApplyForm.registerTime =nian + "-" + yue + "-" + ri + " " + shi + ":" + fen + ":" + miao;
+        },1000)
       },
       //获取产品列表
       getFileList() {
@@ -405,7 +418,7 @@
           item.appltId="";
           item.register = this.addApplyForm.register;
           item.remark = this.addApplyForm.remark;
-          item.registerTime =this.getData(this.registerTime) ;
+          item.registerTime =this.addApplyForm.registerTime ;
           item.checkTag = 0;
           item.manufactureTag = 0;
           item.checker ="";
@@ -418,6 +431,7 @@
             if (response.data) {
               this.designProcedure = [];
               this.addApplyForm = {};
+              this.viewShow=1;
               this.$message.success('操作成功,等待审核!');
             }
           }).catch(function (error) {
@@ -426,10 +440,11 @@
       }
     },
     mounted() {
-      this.getDataTime()
+
     },
     created() {
       this.getConfigFileKindList();
+      this.getDataTime()
     },
     filters: {//过滤器
       title(val) {
@@ -449,7 +464,7 @@
       moneySum(){
         var sum =0;//scope.row.amount*scope.row.realCostPrice
         this.designProcedure.forEach( (item) =>{
-          sum+= item.amount*item.realCostPrice;
+          sum+= item.amount*item.costPrice;
         })
         return sum;
       },

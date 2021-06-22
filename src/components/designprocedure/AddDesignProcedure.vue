@@ -118,9 +118,6 @@
       </el-row>
 
       <!-- 内容主体 -->
-      <el-row :gutter="20" style="margin-top: 10px">
-
-      </el-row>
       <el-form
         :model="addDesignProcedureForm"
         ref="addDesignProcedureForm"
@@ -292,7 +289,7 @@
         designProcedureList:[],
 
         addDesignProcedureForm:{
-          designer:'',
+          designer:window.sessionStorage.getItem('loginId'),
           procedureDescribe:''
         },
         designProcedure:{},
