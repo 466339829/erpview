@@ -91,20 +91,21 @@
   import EditDesignProcedureModule from '../components/designproceduremodule/EditDesignProcedureModule'
   import AddApply from '../components/apply/AddApply'
   import Inboundapplication from "./warehouse/Inboundapplication";
-import SafetystockQuery from "./warehouse/SafetystockQuery";
-import SafetystockUpdate from "./warehouse/SafetystockUpdate";
+  import SafetystockQuery from "./warehouse/SafetystockQuery";
+  import SafetystockUpdate from "./warehouse/SafetystockUpdate";
   import Safetystock from "./warehouse/Safetystock";
 
-      import InboundappFuhe from "./warehouse/InboundappFuhe";
+  import InboundappFuhe from "./warehouse/InboundappFuhe";
   import Library from "./warehouse/Library";
+
   export default {
     components: {
       //yong
       Users, AddUser, Welcome, RoleMenus, DelUser, EditUser, Roles, AddRole, DelRole, EditRole,
       Menus, AddMenus, EditMenu, DelMenu, UserRoles, AddFile, CheckFile, QueryFile, EditFile,
       DelFile, RemoveFile, RecoveryFile, AddModule, CheckModule, EditModule, QueryModule,
-      AddDesignProcedureModule, CheckDesignProcedureModule,QueryDesignProcedureModule,
-      EditDesignProcedureModule,Inboundapplication,SafetystockQuery,SafetystockUpdate,InboundappFuhe,
+      AddDesignProcedureModule, CheckDesignProcedureModule, QueryDesignProcedureModule,
+      EditDesignProcedureModule, Inboundapplication, SafetystockQuery, SafetystockUpdate, InboundappFuhe,
 
       //
       Safetystock,

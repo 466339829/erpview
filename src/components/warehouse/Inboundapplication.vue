@@ -219,7 +219,8 @@
         var _this = this;
         var params = new URLSearchParams();
         this.tabs.forEach((item) => {
-          item.storer = this.form.storer;//入库人
+          item.subtotal=item.subtotal
+          item.storer = this.form.storer//入库人
           item.reason = this.form.reason//入库理由
           item.amountSum = this.zjs//总件数
           item.costPriceSum = this.sunprice//总金额
@@ -227,7 +228,7 @@
           item.remark = this.form.remark//备注
           item.register = this.register//登记人
           item.registerTime = this.currentTime//登记时间
-          item.productDescribe = this.productDescribe//描述
+          item.productDescribe = this.form.remark//描述
           item.gatheredAmount = this.tabs.amount//确认入库件数
           item.gatherTag = this.gatherTag//入库标志
         })
