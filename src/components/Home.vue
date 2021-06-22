@@ -95,7 +95,7 @@ import SafetystockQuery from "./warehouse/SafetystockQuery";
 import SafetystockUpdate from "./warehouse/SafetystockUpdate";
   import Safetystock from "./warehouse/Safetystock";
 
-
+      import InboundappFuhe from "./warehouse/InboundappFuhe";
   import Library from "./warehouse/Library";
   export default {
     components: {
@@ -104,7 +104,7 @@ import SafetystockUpdate from "./warehouse/SafetystockUpdate";
       Menus, AddMenus, EditMenu, DelMenu, UserRoles, AddFile, CheckFile, QueryFile, EditFile,
       DelFile, RemoveFile, RecoveryFile, AddModule, CheckModule, EditModule, QueryModule,
       AddDesignProcedureModule, CheckDesignProcedureModule,QueryDesignProcedureModule,
-      EditDesignProcedureModule,Inboundapplication,SafetystockQuery,SafetystockUpdate,
+      EditDesignProcedureModule,Inboundapplication,SafetystockQuery,SafetystockUpdate,InboundappFuhe,
 
       //
       Safetystock,

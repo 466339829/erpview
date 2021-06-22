@@ -20,14 +20,14 @@
       <el-row :gutter="24">
         <el-col :span="10" :offset="2">
           <div class="grid-content bg-purple">
-            <el-form-item label="入库人:">
+            <el-form-item label="入库人:" prop="storer">
               <el-input style="width: 220px" clearable v-model="form.storer"></el-input>
             </el-form-item>
           </div>
         </el-col>
         <el-col :span="10" :offset="2">
           <div class="grid-content bg-purple-light">
-            <el-form-item label="入库理由:">
+            <el-form-item label="入库理由:" prop="reason">
               <el-select @change="selectGet" v-model="form.reason" placeholder="请选择">
                 <el-option clearable
                            v-for="item in options"
@@ -112,7 +112,7 @@
       <el-row :gutter="24">
         <el-col :span="24">
           <div class="grid-content bg-purple">
-            <el-form-item label="备注:">
+            <el-form-item label="备注:" prop="remark">
               <el-input
                 type="textarea"
                 placeholder="请输入内容"
@@ -216,7 +216,7 @@
     methods: {
       //添加form:
       sc() {
-        var _this=this;
+        var _this = this;
         var params = new URLSearchParams();
         this.tabs.forEach((item) => {
           item.storer = this.form.storer;//入库人
@@ -231,16 +231,17 @@
           item.gatheredAmount = this.tabs.amount//确认入库件数
           item.gatherTag = this.gatherTag//入库标志
         })
-       this.axios.post("/gath/gathset",
+        this.axios.post("/gath/gathset",
           JSON.stringify(this.tabs),
-         {headers:{"Content-Type":"application/json"}} ).then(function (response) {
-         _this.$message({
-           showClose: true,
-           message: '恭喜你，登记成功',
-           type: 'success'
-         });
-              this.form="";
+          {headers: {"Content-Type": "application/json"}}).then(function (response) {
+          _this.$message({
+            showClose: true,
+            message: '恭喜你，登记成功',
+            type: 'success'
+          });
         }).catch();
+        this.$refs.form.resetFields();
+        this.tabs = [];
       },
       //删除产品按钮
       //获取表格单选框索引删除
