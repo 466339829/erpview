@@ -126,7 +126,7 @@
 
   import InboundappFuhe from "./warehouse/InboundappFuhe";
   import Library from "./warehouse/Library";
-
+import Inboundquery from "./warehouse/Inboundquery";
   export default {
     components: {
       //yong
@@ -139,7 +139,7 @@
       AddTagManufacture,
       AddDesignProcedureModule, CheckDesignProcedureModule, QueryDesignProcedureModule,
       EditDesignProcedureModule, Inboundapplication, SafetystockQuery, SafetystockUpdate, InboundappFuhe,
-
+      Inboundquery,
       //
       Safetystock,
 

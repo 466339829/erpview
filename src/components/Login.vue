@@ -1,7 +1,13 @@
 <template>
+
   <div class="login_container">
     <div class="login_box">
       <div>
+        <el-row :gutter="20">
+          <el-col :span="11" :offset="6" class="lab_text">
+            ERP后台管理系统
+          </el-col>
+        </el-row>
         <el-form
           :model="loginForm"
           :rules="loginFormRules"
@@ -9,15 +15,17 @@
           label-width="60px"
           class="login_form"
         >
-          <el-form-item label="账号" prop="loginId">
-            <el-input v-model="loginForm.loginId" prefix-icon="iconfont icon-user"></el-input>
+          <el-form-item label="账号"  prop="loginId">
+            <el-input @keydown.enter.native="login" v-model="loginForm.loginId" prefix-icon="iconfont icon-user"></el-input>
           </el-form-item>
           <el-form-item label="密码" prop="password">
             <el-input
-              v-model="loginForm.password" type="password" prefix-icon="iconfont icon-3702mima"></el-input>
+              v-model="loginForm.password" type="password" prefix-icon="iconfont icon-3702mima"
+              @keydown.enter.native="login">
+            </el-input>
           </el-form-item>
           <el-form-item class="btns">
-            <el-button type="primary" @click="login">登录</el-button>
+            <el-button type="primary"  @click="login">登录</el-button>
             <el-button type="info" @click="resetLoginForm">重置</el-button>
           </el-form-item>
         </el-form>
@@ -46,7 +54,7 @@
             {min: 6, max: 18, message: '长度在 6 到 18 个字符', trigger: 'blur'}
           ]
         },
-        URL: 'http://localhost:8080/images/',
+        URL: 'http://localhost:8888/images/',
       }
     },
     methods: {
@@ -103,8 +111,11 @@
   }
 
   .login_container {
-    background-color: #2b4b6b;
-    height: 100%;
+    background:url("../components/warehouse/img/img0_3840x2160.jpg");
+    width:100%;			//大小设置为100%
+    height:100%;			//大小设置为100%
+    position:fixed;
+    background-size:100% 100%;
   }
 
   .login_box {
@@ -136,5 +147,9 @@
   .info {
     font-size: 13px;
     margin: 10px 15px;
+  }
+  .lab_text{
+    font-size: 25px;
+    margin-top: 40px;
   }
 </style>

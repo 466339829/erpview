@@ -31,7 +31,8 @@
         width="180"
         label="用途类型" :render-header="renderHeader">
         <template slot-scope="scope">
-          {{scope.row.type | type}}
+          <span v-if="scope.row.type==1" style="color:deepskyblue"> {{scope.row.type | type}}</span>
+          <span v-if="scope.row.type==2" style="color:violet"> {{scope.row.type | type}}</span>
         </template>
       </el-table-column>
 

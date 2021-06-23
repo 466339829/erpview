@@ -10,7 +10,8 @@
     <el-table-column
       prop="productId"
       width="180"
-      label="产品编号" :render-header="renderHeader">
+      label="产品编号"
+      :render-header="renderHeader">
     </el-table-column>
 
     <el-table-column
@@ -35,7 +36,9 @@
       prop="checkTag"
       label="状态" :render-header="renderHeader">
       <template  slot-scope="scope">
-        {{scope.row.checkTag |Tag}}
+        <span v-if="scope.row.checkTag==1" style="color: olivedrab">{{scope.row.checkTag |Tag}}</span>
+        <span v-if="scope.row.checkTag==2" style="color:blue">{{scope.row.checkTag |Tag}}</span>
+
       </template>
     </el-table-column>
     <el-table-column label="操作" :render-header="heand2">
