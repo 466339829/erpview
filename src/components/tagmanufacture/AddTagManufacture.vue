@@ -72,7 +72,7 @@
 
 
     <el-dialog title="生产派工单" :visible.sync="checkDialogVisible" width="80%" @close="checkDialogClosed">
-      <el-form :inline="true" :model="ruleForm" :rules="rules" ref="ruleForm" class="demo-ruleForm"
+      <el-form :inline="true" :model="ruleForm"  ref="ruleForm" class="demo-ruleForm"
                style="margin-top: -10px">
         <el-row :gutter="20" >
           <el-col :span="5">
@@ -108,12 +108,9 @@
           <el-table-column prop="realModuleSubtotal" label="实际物料成本(元)"></el-table-column>
           <el-table-column label="工序登记">
             <template slot-scope="scope">
-              <el-button
-                type="info" icon="el-icon-message"
-                size="mini"
+              <el-button type="info" icon="el-icon-message" size="mini" v-if="scope.row.procedureFinishTag==0"
                 @click="showProcedureModuleDialog(scope.row)"
-              >登记
-              </el-button>
+              >登记</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -154,7 +151,7 @@
       <el-divider></el-divider>
     </el-dialog>
 
-    <el-dialog title="工序物料单" :visible.sync="procedureModuleDialogVisible" width="90%" @close="procedureModuleDialogClosed">
+    <el-dialog title="生产登记单" :visible.sync="procedureModuleDialogVisible" width="80%" @close="procedureModuleDialogClosed">
       <el-row :gutter="20" style="margin-top: -20px">
         <el-col :span="5">
           <div><strong>派工单单编号: </strong> {{manufacture.manufactureId}}</div>
@@ -162,7 +159,25 @@
         <el-col :span="5">
           <div><strong>工序名称: </strong> {{procedure.procedureName}}</div>
         </el-col>
+        <el-col :span="5" :offset="9">
+          <el-button icon="el-icon-check"  type="primary"
+                     @click="">提  交</el-button>
+          <el-button icon="el-icon-circle-close" type="primary"
+                     @click="procedureModuleDialogVisible = false">返 回</el-button>
+        </el-col>
       </el-row>
+      <el-form :model="addProceduringForm" ref="addProceduringForm" label-width="100px"
+               :rules="addProceduringFormRules">
+        <el-row :gutter="20" >
+          <el-col :span="5">
+            <el-form-item label="负责人" prop="procedurePesponsiblePerson" >
+              <el-input clearable v-model="addProceduringForm.procedurePesponsiblePerson"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="5">
+            <div><strong>设计工时数: </strong> {{procedure.labourHourAmount}}</div>
+          </el-col>
+        </el-row>
       <el-divider></el-divider>
       <!-- 产品工序组成 -->
       <el-table :data="procedureModuleList" border stripe>
@@ -170,15 +185,45 @@
         <el-table-column prop="id" label="序号" width="80px"></el-table-column>
         <el-table-column prop="productId" label="物料编号"></el-table-column>
         <el-table-column prop="productName" label="物料名称"></el-table-column>
-        <el-table-column prop="amount" label="本工序数量"></el-table-column>
-        <el-table-column prop="amountUnit" label="单位"></el-table-column>
-        <el-table-column prop="costPrice" label="单价(元)"></el-table-column>
-        <el-table-column label="小计(元)">
+        <el-table-column prop="amount" label="设计数量"></el-table-column>
+        <el-table-column prop="renewAmount" label="补充数量"></el-table-column>
+        <el-table-column prop="realAmount" label="已使用数量"></el-table-column>
+
+        <el-table-column prop="shuliang" label="本次数量" >
           <template slot-scope="scope">
-            {{scope.row.amount*scope.row.costPrice}}
+            <el-input clearable v-model="scope.row.shuliang"
+                      onkeyup="this.value = this.value.replace(/[^\d.]/g,'');"></el-input>
           </template>
         </el-table-column>
       </el-table>
+      <el-divider></el-divider>
+
+        <el-row :gutter="20" >
+          <el-col :span="5">
+            <div><strong>已用工时数: </strong> {{procedure.realLabourHourAmount}}</div>
+          </el-col>
+          <el-col :span="5">
+            <el-form-item label="本次工时数" prop="labourHourAmount" >
+              <el-input clearable v-model.number="addProceduringForm.labourHourAmount"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="20" >
+          <el-col :span="5">
+            <el-form-item label="登记人" prop="register" >
+              <el-input clearable v-model="addProceduringForm.register"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="5">
+            <el-form-item label="登记时间" prop="registerTime" >
+              <el-date-picker
+                v-model="addProceduringForm.registerTime" readonly
+                type="datetime" class="input-class" style="width: 200px">
+              </el-date-picker>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
       <el-divider></el-divider>
     </el-dialog>
 
@@ -190,17 +235,18 @@
     name: "AddTagManufacture",
     data() {
       return {
-        rules: {
-          check: [
-            {required: true, message: '请选择', trigger: 'change'}
+        addProceduringFormRules: {
+          procedurePesponsiblePerson: [
+            {required: true, message: '请输入责任人', trigger: 'blur'},
+            {min: 2, max: 6, message: '长度在 2 到 6 个字符', trigger: 'blur'},
           ],
-          checker: [
-            {required: true, message: '请输入审核人', trigger: 'blur'},
-            {min: 2, max: 10, message: '长度在 2 到 20 个字符', trigger: 'blur'},
-          ],
-          remark: [
-            {required: true, message: '请输入备注', trigger: 'blur'},
+          register: [
+            {required: true, message: '请输入登记人', trigger: 'blur'},
             {min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur'},
+          ],
+          labourHourAmount: [
+            { required: true, message: '请输入本次工时数', trigger: 'blur' },
+            { type: 'number', message: '工时数必须为数字值', trigger: 'blur' },
           ]
         },
         pickerOptions: {
@@ -230,6 +276,15 @@
             }
           }]
         },
+
+        addProceduringForm:{
+          register:window.sessionStorage.getItem('loginId'),
+          procedurePesponsiblePerson:window.sessionStorage.getItem('loginId'),
+          registerTime:'',
+          labourHourAmount:''
+        },
+
+
         queryManufacture: {
           pageNo: 1,
           pageSize: 7,
@@ -343,9 +398,15 @@
         this.procedure = row;
         this.axios.post("/procedureModule/selectByPid/"+row.id).then((resp) => {
           this.procedureModuleList = resp.data;
+          this.procedureModuleList.forEach((item)=>{
+            item.shuliang = 0;
+          })
         }).catch(function (error) {
           return this.$message.error('获取角色信息失败！')
         })
+        setInterval(() => {
+          this.addProceduringForm.registerTime = this.getDataTime(new Date());
+        }, 1000)
         this.procedureModuleDialogVisible = true;
       },
       // 监听 添加设计单对话框的关闭事件

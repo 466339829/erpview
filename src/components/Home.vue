@@ -6,7 +6,24 @@
         <span>后台管理系统</span>
       </div>
 
-      <el-button type="info" @click="logout">退出</el-button>
+      <!--<el-button type="info" @click="logout">退出</el-button>-->
+      <el-row class="block-col-2">
+        <el-col :span="12">
+          <el-dropdown>
+            <span class="el-dropdown-link">
+              <div class="avatar-wrapper">
+              <img :src="photo" class="user-avatar">
+              <i class="el-icon-caret-bottom"/>
+              </div>
+      </span>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item icon="el-icon-eleme">首页</el-dropdown-item>
+              <el-dropdown-item icon="el-icon-edit">修改信息</el-dropdown-item>
+              <el-dropdown-item @click.native="logout" icon="el-icon-switch-button">退出</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </el-col>
+      </el-row>
     </el-header>
     <!-- 主体 -->
     <el-container>
@@ -93,10 +110,14 @@
   import CheckApply from '../components/apply/CheckApply'
   import QueryApply from '../components/apply/QueryApply'
   import AddManufacture from '../components/manufacture/AddManufacture'
+  import CheckManufacture from '../components/manufacture/CheckManufacture'
+  import QueryManufacture from '../components/manufacture/QueryManufacture'
+
   import AddDesignProcedure from '../components/designprocedure/AddDesignProcedure'
   import CheckDesignProcedure from '../components/designprocedure/CheckDesignProcedure'
   import QueryDesignProcedure from '../components/designprocedure/QueryDesignProcedure'
   import EditDesignProcedure from '../components/designprocedure/EditDesignProcedure'
+  import AddTagManufacture from '../components/tagmanufacture/AddTagManufacture'
 
   import Inboundapplication from "./warehouse/Inboundapplication";
   import SafetystockQuery from "./warehouse/SafetystockQuery";
@@ -105,16 +126,17 @@
 
 
   import Library from "./warehouse/Library";
+
   export default {
     components: {
       //yong
       Users, AddUser, Welcome, RoleMenus, DelUser, EditUser, Roles, AddRole, DelRole, EditRole,
       Menus, AddMenus, EditMenu, DelMenu, UserRoles, AddFile, CheckFile, QueryFile, EditFile,
       DelFile, RemoveFile, RecoveryFile, AddModule, CheckModule, EditModule, QueryModule,
-      AddDesignProcedureModule, CheckDesignProcedureModule,QueryDesignProcedureModule,
-      EditDesignProcedureModule,AddApply,CheckApply,QueryApply,AddManufacture,AddDesignProcedure,
-      CheckDesignProcedure,QueryDesignProcedure,EditDesignProcedure,
-
+      AddDesignProcedureModule, CheckDesignProcedureModule, QueryDesignProcedureModule,
+      EditDesignProcedureModule, AddApply, CheckApply, QueryApply, AddManufacture, AddDesignProcedure,
+      CheckDesignProcedure, QueryDesignProcedure, EditDesignProcedure, CheckManufacture, QueryManufacture,
+      AddTagManufacture,
       //
       Safetystock,
 
@@ -123,6 +145,8 @@
     },
     data() {
       return {
+        URL: 'http://localhost:8080/images/',
+        photo: window.sessionStorage.getItem('photo'),
         uid: window.sessionStorage.getItem('id'),
         // 左侧菜单数据
         menuList: [],
@@ -263,5 +287,40 @@
 
   .el-main {
     background: #ffffff;
+  }
+
+  .el-dropdown-link {
+    cursor: pointer;
+    color: #409EFF;
+  }
+
+  .el-icon-arrow-down {
+    font-size: 12px;
+  }
+
+  .demonstration {
+    display: block;
+    color: #8492a6;
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+  .avatar-wrapper {
+    margin-top: -5px;
+    position: relative;
+
+    .user-avatar {
+      cursor: pointer;
+      width: 40px;
+      height: 40px;
+      border-radius: 2px;
+    }
+
+    .el-icon-caret-bottom {
+      cursor: pointer;
+      position: absolute;
+      right: -20px;
+      top: 25px;
+      font-size: 12px;
+    }
   }
 </style>
