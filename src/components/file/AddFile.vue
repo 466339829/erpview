@@ -98,10 +98,10 @@
             <el-input v-model="addFileForm.productDescribe" type="textarea" class="textarea"/>
           </el-form-item>
           <el-form-item label="登记人" prop="register">
-            <el-input clearable v-model="addFileForm.register"/>
+            <el-input readonly clearable v-model="addFileForm.register"/>
           </el-form-item>
           <el-form-item label="建档时间" prop="registerTime">
-            <el-date-picker v-model="addFileForm.registerTime" type="datetime" disabled class="input-class">
+            <el-date-picker v-model="addFileForm.registerTime" type="datetime" readonly class="input-class">
             </el-date-picker>
           </el-form-item>
 
@@ -166,6 +166,9 @@
           thirdKindId: [
             {required: true, message: '请选择III分类级别', trigger: 'change'},
           ],
+          type: [
+            {required: true, message: '请选择用途类型', trigger: 'change'},
+          ],
           listPrice: [
             {required: true, message: '请输入市场单价(元)', trigger: 'blur'},
             {type: 'number', message: '请输入数字值', trigger: 'blur'}
@@ -185,6 +188,8 @@
           secondKindId:'',
           thirdKindId:'',
           register: window.sessionStorage.getItem('loginId'),
+          registerTime:'',
+          image:''
         },
 
         uploadURL: 'http://localhost:8080/file/upload',
@@ -223,45 +228,56 @@
       },
       //添加产品
       addFile(formName) {
+        var bool = true;
+        if (this.addFileForm.image =='') {
+          this.$message.error("请上传产品图片");
+          bool = false;
+        }
         this.$refs.addFileForm.validate((valid) => {
           if (valid) {
-            var params = new URLSearchParams();
-            Object.keys(this.addFileForm).forEach((key) => {
-              params.append(key, this.addFileForm[key])
-            });
-            this.axios.post("/files/insert", params).then((response) => {
-              if (response.data) {
-                this.$message.success("添加成功,待复核");
-                this.addDialogClosed();
-                this.loading = true;
-                setTimeout(() => {
-                  this.loading = false
-                }, 1000);
-              } else {
-                this.$message.success("添加失败")
-                this.addDialogClosed();
-              }
-            }).catch(function (error) {
-              alert("服务端获取数据失败");
-            })
+              var params = new URLSearchParams();
+              Object.keys(this.addFileForm).forEach((key) => {
+                params.append(key, this.addFileForm[key])
+              });
+            if (bool==true) {
+              this.axios.post("/files/insert", params).then((response) => {
+                if (response.data) {
+                  this.$message.success("添加成功,待复核");
+                  this.addDialogClosed();
+                  this.loading = true;
+                  setTimeout(() => {
+                    this.loading = false
+                  }, 1000);
+                } else {
+                  this.$message.success("添加失败")
+                  this.addDialogClosed();
+                }
+              }).catch(function (error) {
+                alert("服务端获取数据失败");
+              })
+            }
           }
         })
       },
-     getDataTime() {//默认显示今天
-        var date = new Date();
-        var nian = date.getFullYear();
-        var yue = date.getMonth() + 1;
-        var ri = date.getDate();
-        var shi = date.getHours();
-        var fen = date.getMinutes();
-        var miao = date.getSeconds();
-        if (yue < 10) yue = "0" + yue;
-        if (ri < 10) ri = "0" + ri;
-        if (miao < 10) miao = "0" + miao;
-        if (fen < 10) fen = "0" + fen;
-        if (shi < 10) shi = "0" + shi;
-        this.addFileForm.registerTime = nian + "-" + yue + "-" + ri + " " + shi + ":" + fen + ":" + miao;
-      },
+
+      getDataTime() {//默认显示今天
+       setInterval(() => {
+         var date = new Date();
+         var nian = date.getFullYear();
+         var yue = date.getMonth() + 1;
+         var ri = date.getDate();
+         var shi = date.getHours();
+         var fen = date.getMinutes();
+         var miao = date.getSeconds();
+         if (yue < 10) yue = "0" + yue;
+         if (ri < 10) ri = "0" + ri;
+         if (miao < 10) miao = "0" + miao;
+         if (fen < 10) fen = "0" + fen;
+         if (shi < 10) shi = "0" + shi;
+         this.addFileForm.registerTime = nian + "-" + yue + "-" + ri + " " + shi + ":" + fen + ":" + miao;
+         this.$forceUpdate()
+       },1000)
+     },
       handleRemove(file, fileList) {
         this.addFileForm.image = '';
         const filePath = file.response.data;
@@ -345,9 +361,7 @@
     },
     created() {
       this.getConfigFileKindList();
-      setInterval(() => {
-        this.getDataTime();
-      },1000)
+      this.getDataTime();
     }
   }
 </script>

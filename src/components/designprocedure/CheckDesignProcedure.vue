@@ -3,11 +3,22 @@
     <!--   搜索 品生产工序列表分页-->
     <el-card>
       <el-row :gutter="20">
-        <el-col :span="8">
+        <el-col :span="20">
           <el-form :inline="true">
-            <el-form-item label="姓名">
+            <el-form-item label="产品名称">
               <el-input placeholder="请输入产品名称" clearable @clear="getDesignProcedureList"
                         v-model="queryDesignProcedure.productName"></el-input>
+            </el-form-item>
+            <el-form-item label="建档时间">
+              <el-date-picker @change="change"
+                              v-model="queryDesignProcedure.dataTime"
+                              type="daterange"
+                              unlink-panels
+                              range-separator="至"
+                              start-placeholder="开始日期"
+                              end-placeholder="结束日期"
+                              :picker-options="pickerOptions">
+              </el-date-picker>
             </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="getDesignProcedureList">查询</el-button>
@@ -61,23 +72,23 @@
                ref="checkForm"
                label-width="100px"
                :rules="rules">
-      <el-row :gutter="20" style="margin-bottom: 20px;margin-top: -20px;margin-left: 30px">
-        <el-col :span="5">
-          <div><strong>设计单编号: </strong> {{procedureInfo.designId}}</div>
-        </el-col>
-        <el-col :span="3">
-          <div><strong>设计人: </strong> {{procedureInfo.designer}}</div>
-        </el-col>
-        <el-col :span="5">
-          <div><strong>产品编号: </strong> {{designProcedure.productId}}</div>
-        </el-col>
-        <el-col :span="5">
-          <div><strong>产品名称: </strong> {{designProcedure.productName}}</div>
-        </el-col>
+        <el-row :gutter="20" style="margin-bottom: 20px;margin-top: -20px;margin-left: 30px">
+          <el-col :span="5">
+            <div><strong>设计单编号: </strong> {{procedureInfo.designId}}</div>
+          </el-col>
+          <el-col :span="3">
+            <div><strong>设计人: </strong> {{procedureInfo.designer}}</div>
+          </el-col>
+          <el-col :span="5">
+            <div><strong>产品编号: </strong> {{designProcedure.productId}}</div>
+          </el-col>
+          <el-col :span="5">
+            <div><strong>产品名称: </strong> {{designProcedure.productName}}</div>
+          </el-col>
 
-        <el-col :span="6">
-              <div>
-           <!-- <el-form :inline="true" :model="ruleForm" :rules="rules" ref="ruleForm" class="demo-ruleForm">-->
+          <el-col :span="6">
+            <div>
+              <!-- <el-form :inline="true" :model="ruleForm" :rules="rules" ref="ruleForm" class="demo-ruleForm">-->
               <el-form-item prop="check">
                 <el-radio-group v-model="checkForm.check">
                   <el-radio v-model="checkForm.check" label="1">通过</el-radio>
@@ -86,50 +97,37 @@
               </el-form-item>
               <el-button type="warning" icon="el-icon-star-off" @click="submitForm('checkForm')">确 定</el-button>
 
-          </div>
-        </el-col>
+            </div>
+          </el-col>
 
-      </el-row>
-      <el-divider></el-divider>
-      <!--&lt;!&ndash; 内容主体 &ndash;&gt;
-      &lt;!&ndash; 产品工序组成 &ndash;&gt;-->
-      <el-table :data="designProcedureDetails" :row-class-name="tableRowClassName" border stripe>
-        <!--  &lt;!&ndash; stripe: 斑马条纹 border：边框&ndash;&gt;-->
-        <el-table-column prop="id" label="序号"></el-table-column>
-        <el-table-column prop="procedureName" label="工序名称"></el-table-column>
-        <el-table-column prop="procedureId" label="工序编号"></el-table-column>
-        <el-table-column prop="procedureDescribe" label="描述"></el-table-column>
-        <el-table-column prop="labourHourAmount" label="公时数(小时)"></el-table-column>
-        <el-table-column prop="subtotal" label="公时成本小计(元)"></el-table-column>
-        <el-table-column prop="moduleSubtotal" label="物料成本小计(元)"></el-table-column>
-        <el-table-column label="设计">
-          <template slot-scope="scope">
-            <el-button v-if="scope.row.moduleDetails == null"
-                       type="warning"
-                       icon="el-icon-star-off"
-                       size="mini"
-                       @click="showModuleDetails(scope.row)"
-            >审核
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+        </el-row>
         <el-divider></el-divider>
-      <el-row :gutter="20" style="margin-top: 20px;margin-left:30px">
-        <el-col :span="5">
-          <div><strong>工时总成本: </strong> {{procedureInfo.costPriceSum}}</div>
-        </el-col>
-        <el-col :span="5">
-          <div><strong>物料总成本: </strong> {{moduleSubtotal}}</div>
-        </el-col>
-        <el-col :span="4">
-          <div><strong>登记人: </strong> {{designProcedure.register}}</div>
-        </el-col>
-        <el-col :span="5">
-          <div><strong>建档时间: </strong> {{designProcedure.registerTime}}</div>
-        </el-col>
-      </el-row>
-      <br>
+        <!--&lt;!&ndash; 内容主体 &ndash;&gt;
+        &lt;!&ndash; 产品工序组成 &ndash;&gt;-->
+        <el-table :data="designProcedureDetails" :row-class-name="tableRowClassName" border stripe>
+          <!--  &lt;!&ndash; stripe: 斑马条纹 border：边框&ndash;&gt;-->
+          <el-table-column prop="id" label="序号"></el-table-column>
+          <el-table-column prop="procedureName" label="工序名称"></el-table-column>
+          <el-table-column prop="procedureId" label="工序编号"></el-table-column>
+          <el-table-column prop="procedureDescribe" label="描述"></el-table-column>
+          <el-table-column prop="labourHourAmount" label="工时数(小时)"></el-table-column>
+          <el-table-column prop="amountUnit" label="单位"></el-table-column>
+          <el-table-column prop="costPrice" label="单位工时成本"></el-table-column>
+          <el-table-column prop="subtotal" label="工时成本小计(元)"></el-table-column>
+        </el-table>
+        <el-divider></el-divider>
+        <el-row :gutter="20" style="margin-top: 20px;margin-left:30px">
+          <el-col :span="5">
+            <div><strong>工时总成本: </strong> {{procedureInfo.costPriceSum}}</div>
+          </el-col>
+          <el-col :span="4">
+            <div><strong>登记人: </strong> {{designProcedure.register}}</div>
+          </el-col>
+          <el-col :span="5">
+            <div><strong>建档时间: </strong> {{designProcedure.registerTime}}</div>
+          </el-col>
+        </el-row>
+        <br>
 
         <el-form-item label="审核人" prop="checker">
           <el-input clearable v-model="checkForm.checker"/>
@@ -150,59 +148,48 @@
       <el-divider></el-divider>
     </el-dialog>
 
-    <!-- 添加设计单的对话框 -->
-    <el-dialog title="工序物料设计单" :visible.sync="moduleDialogVisible" width="90%" @close="moduleDialogClosed">
-      <el-row :gutter="20" style="margin-top: -20px">
-        <el-col :span="5">
-          <div><strong>设计单编号: </strong> {{procedureInfo.designId}}</div>
-        </el-col>
-        <el-col :span="4">
-          <div><strong>设计人: </strong> {{procedureInfo.designer}}</div>
-        </el-col>
-        <el-col :span="5">
-          <div><strong>产品编号: </strong> {{designProcedure.productId}}</div>
-        </el-col>
-        <el-col :span="5">
-          <div><strong>产品名称: </strong> {{designProcedure.productName}}</div>
-        </el-col>
-        <el-col :span="5">
-          <div><strong>工序名称: </strong> {{proDetail.procedureName}}</div>
-        </el-col>
-      </el-row>
-      <el-divider></el-divider>
-      <!-- 产品工序组成 -->
-      <el-table :data="moduleDetailsList" border stripe>
-        <!-- stripe: 斑马条纹 border：边框-->
-        <el-table-column prop="id" label="序号" width="80px"></el-table-column>
-        <el-table-column prop="productId" label="物料编号"></el-table-column>
-        <el-table-column prop="productName" label="物料名称"></el-table-column>
-        <el-table-column prop="productDescribe" label="描述"></el-table-column>
-        <el-table-column prop="amount" label="本工序数量"></el-table-column>
-        <el-table-column prop="amountUnit" label="单位"></el-table-column>
-        <el-table-column prop="costPrice" label="单价(元)"></el-table-column>
-        <el-table-column label="小计(元)">
-          <template slot-scope="scope">
-            {{scope.row.amount*scope.row.costPrice}}
-          </template>
-        </el-table-column>
-      </el-table>
-      <el-divider></el-divider>
-    </el-dialog>
-  </div>
+    </div>
 </template>
 
 <script>
   export default {
-    name: "AddDesignProcedureModule",
+    name: "CheckDesignProcedure",
     data() {
       return {
+        pickerOptions: {
+          shortcuts: [{
+            text: '最近一周',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近一个月',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近三个月',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+              picker.$emit('pick', [start, end]);
+            }
+          }]
+        },
         rules: {
           check: [
             {required: true, message: '请选择', trigger: 'change'}
           ],
           checker: [
             {required: true, message: '请输入审核人', trigger: 'blur'},
-            {min: 2, max: 5, message: '长度在 2 到 5 个字符', trigger: 'blur'},
+            {min: 2, max: 5, message: '长度在 2 到 5个字符', trigger: 'blur'},
           ],
           checkSuggestion: [
             {required: true, message: '请输入审核意见', trigger: 'blur'},
@@ -211,6 +198,7 @@
         },
         checkForm: {
           checker:window.sessionStorage.getItem('loginId'),
+          checkSuggestion:'',
           checkTime:''
         },
         // 获取品生产工序列表查询参数对象
@@ -218,8 +206,8 @@
           productName: '',
           pageNo: 1,
           pageSize: 5,
-          checkTag: 1,
-          designModuleTag: 1
+          checkTag: 0,
+          dataTime:'',
         },
         designProcedureList: [],
         total: 0,
@@ -238,21 +226,13 @@
       }
     },
     methods: {
+      // 条件查询建档时间value = []
+      change(value) {
+        if (value == null) this.getDesignProcedureList();
+      },
       getDataTime() {//默认显示今天
         setInterval(() => {
-          var date = new Date();
-          var nian =   date.getFullYear();
-          var yue =   date.getMonth()+1;
-          var ri = date.getDate();
-          var shi = date.getHours();
-          var fen = date.getMinutes();
-          var miao = date.getSeconds();
-          if (yue<10) yue= "0"+yue;
-          if (ri<10) ri= "0"+ri;
-          if(miao<10) miao= "0"+miao;
-          if(fen<10) fen= "0"+fen;
-          if(shi<10) shi= "0"+shi;
-          this.checkForm.checkTime = nian+"-"+yue+"-"+ri+" "+shi+":"+fen+":"+miao;
+          this.checkForm.checkTime = this.dataTime(new Date());
         }, 1000)
       },
       tableRowClassName(row, index) {
@@ -262,12 +242,17 @@
       // 监听 添加设计单对话框的关闭事件
       addDialogClosed() {
         this.$nextTick(() => {
+          this.$refs.checkForm.resetFields();
           this.addDialogVisible = false
         })
       },
       //获取品生产工序列表
       getDesignProcedureList() {
         var params = new URLSearchParams();
+        if (this.queryDesignProcedure.dataTime) {
+          params.append("registerTime", this.dataTime(this.queryDesignProcedure.dataTime[0]))
+          params.append("registerTime2", this.dataTime(this.queryDesignProcedure.dataTime[1]))
+        }
         Object.keys(this.queryDesignProcedure).forEach((key) => {
           params.append(key, this.queryDesignProcedure[key])
         })
@@ -300,7 +285,9 @@
         }).catch(function (error) {
           return this.$message.error('获取产品列表失败！')
         })
-       this.getDataTime();
+        setInterval(() => {
+          this.checkForm.checkTime = this.dataTime(new Date());
+        }, 1000)
       },
       //点击设计
       showModuleDetails(row) {
@@ -340,18 +327,25 @@
         }
         this.$refs[formName].validate((valid) => {
           if (valid) {
+            var params = new URLSearchParams();
+            var checkTime = this.checkForm.checkTime;
+            params.append("id", this.procedureInfo.id)
+            params.append("checkTime",checkTime)
+            params.append("checker",this.checkForm.checker)
+            params.append("checkSuggestion",this.checkForm.checkSuggestion)
             if (checked == 2) {
-              this.$confirm('不通过[' + this.designProcedure.productName + ']工序物料设计单, 是否继续?', '提示', {
+              this.$confirm('不通过[' + this.designProcedure.productName + ']工序设计单, 是否继续?', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning'
               }).then(() => {
-                this.axios.post("/designProcedure/delete/" +this.procedureInfo.id).then((response) => {
+                params.append("checkTag","2")
+                this.axios.post("/designProcedure/checkTag" ,params).then((response) => {
                   if (response.data) {
                     this.$message.success("操作成功")
                     this.queryDesignProcedure.pageNo = 1;
                     this.getDesignProcedureList();
-                    this.addDialogVisible = false;
+                    this.addDialogClosed();
                   } else {
                     this.$message.error("操作失败")
                   }
@@ -361,22 +355,18 @@
               });
             }
             if (checked == 1) {
-              this.$confirm('通过[' + this.designProcedure.productName + ']工序物料设计单, 是否继续?', '提示', {
+              this.$confirm('通过[' + this.designProcedure.productName + ']工序设计单, 是否继续?', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'success'
               }).then(() => {
-                var params = new URLSearchParams();
-                params.append("id", this.procedureInfo.id)
-                params.append("checkTime",this.checkForm.checkTime)
-                params.append("checker",this.checkForm.checker)
-                params.append("checkSuggestion",this.checkForm.checkSuggestion)
-                this.axios.post("/designProcedure/designModuleTag", params).then((response) => {
+                params.append("checkTag","1")
+                this.axios.post("/designProcedure/checkTag", params).then((response) => {
                   if (response.data) {
                     this.$message.success("操作成功")
                     this.queryDesignProcedure.pageNo = 1;
                     this.getDesignProcedureList();
-                    this.addDialogVisible = false;
+                    this.addDialogClosed();
                   } else {
                     this.$message.error("操作失败")
                   }
@@ -392,22 +382,13 @@
       },
     },
     created() {
-      this.getDesignProcedureList()
+      this.getDesignProcedureList();
     },
-    computed:{
-      moduleSubtotal(){
-        var sum =0;
-        this.designProcedureDetails.forEach( (item) =>{
-          sum+= item.moduleSubtotal;
-        })
-        return sum;
-      }
-    },
+    mounted() {
+    }
   }
 </script>
 
 <style scoped>
-  .el-input, .textarea, .el-select {
-    width: 180px;
-  }
+
 </style>

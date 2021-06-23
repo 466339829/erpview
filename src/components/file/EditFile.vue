@@ -37,6 +37,13 @@
               </el-select>
             </el-form-item>
 
+            <el-form-item label="审核状态">
+              <el-select clearable @clear="getFileList" v-model="queryFile.checkTag" placeholder="请选择">
+                <el-option label="通过" value="1"/>
+                <el-option label="不通过" value="2"/>
+              </el-select>
+            </el-form-item>
+
             <el-form-item label="建档时间">
               <el-date-picker @change="change"
                               v-model="queryFile.dataTime"
@@ -68,6 +75,11 @@
         <el-table-column prop="firstKindName" label="I级分类" width="100px"></el-table-column>
         <el-table-column prop="secondKindName" label="II级分类" width="100px"></el-table-column>
         <el-table-column prop="thirdKindName" label="III级分类" width="100px"></el-table-column>
+        <el-table-column label="审核状态" width="120px">
+          <template slot-scope="scope">
+            {{ scope.row.checkTag | newCheckTag }}
+          </template>
+        </el-table-column>
         <el-table-column label="建档时间" width="190px">
           <template slot-scope="scope">
             <i class="el-icon-time"/>
@@ -229,6 +241,9 @@
 
         <el-form-item label="产品图片" prop="image">
           <img :src=imageURL class="fileImages">
+          <span class="el-upload-list__item-actions">
+              <span class="el-upload-list__item-preview" @click="pictureCardPreview(imageURL)"><i class="el-icon-zoom-in"></i></span>
+            </span>
           <el-upload
             ref="upload"
             list-type="picture-card"
@@ -243,9 +258,9 @@
           </el-upload>
         </el-form-item>
       </el-form>
-      <el-dialog title="产品图片预览" :visible.sync="previewDialogVisible">
-        <img width="100%" :src="picPreviewPath" alt="" class="previewImg">
-      </el-dialog>
+    </el-dialog>
+    <el-dialog title="产品图片预览" :visible.sync="previewDialogVisible">
+      <img width="100%" :src="picPreviewPath" alt="" class="previewImg">
     </el-dialog>
   </div>
 </template>
@@ -320,7 +335,7 @@
           pageNo: 1,
           pageSize:6,
           //审核标志0: 等待1: 通过2: 不通过
-          checkTag: 1,
+          checkTag: "",
           //产品删除标志0: 未删除1: 已删除2永久删除
           deleteTag: 0,
           firstKindId: '',
@@ -410,8 +425,11 @@
           params.append(key, this.queryFile[key])
         });
         this.axios.post("/files/page", params).then((resp) => {
+          console.log(resp.data);
           this.total = resp.data.total;
-          this.fileList = resp.data.list;
+          this.fileList = resp.data.list.filter((item)=>{
+              return item.checkTag != "0";
+          });
         }).catch(function (error) {
           return this.$message.error('获取角色列表失败！')
         })
@@ -546,6 +564,10 @@
       change(value) {
         if (value == null) this.getFileList();
       },
+      pictureCardPreview(file) {
+        this.picPreviewPath = file;
+        this.previewDialogVisible = true;
+      },
     },
     created() {
       this.getFileList();
@@ -566,6 +588,14 @@
           return "物料";
         else
           return "";
+      },
+      newCheckTag(val){
+        if (val==1)
+          return "通过";
+        else if(val==2)
+          return "不通过";
+        else
+          return "等待";
       }
 
     },

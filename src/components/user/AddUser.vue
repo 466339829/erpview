@@ -3,10 +3,21 @@
     <!--   搜索 添加 用户列表分页-->
     <el-card>
       <el-row :gutter="20">
-        <el-col :span="8">
+        <el-col :span="20">
           <el-form :inline="true">
             <el-form-item label="姓名">
               <el-input placeholder="请输入姓名" clearable @clear="getUserList" v-model="queryInfo.queryName"></el-input>
+            </el-form-item>
+            <el-form-item label="创建时间">
+              <el-date-picker @change="change"
+                              v-model="queryInfo.dataTime"
+                              type="daterange"
+                              unlink-panels
+                              range-separator="至"
+                              start-placeholder="开始日期"
+                              end-placeholder="结束日期"
+                              :picker-options="pickerOptions">
+              </el-date-picker>
             </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="getUserList">查询</el-button>
@@ -26,6 +37,9 @@
         <el-table-column label="头像">
           <template slot-scope="scope">
             <img width="60px" height="60px" :src=URL+scope.row.photo alt="" class="previewImg">
+            <span class="el-upload-list__item-actions">
+              <span class="el-upload-list__item-preview" @click="pictureCardPreview(scope.row.photo)"><i class="el-icon-zoom-in"></i></span>
+            </span>
           </template>
         </el-table-column>
         <el-table-column label="创建时间">
@@ -78,6 +92,7 @@
             :before-upload="beforeAvatarUpload"
             :on-success="handleSuccess">
             <i class="el-icon-plus"></i>
+            <div slot="tip" class="el-upload__tip">只能上传一张图片，且不超过2MB</div>
           </el-upload>
         </el-form-item>
       </el-form>
@@ -86,6 +101,7 @@
         <el-button type="primary" @click="addUser('addUserForm')">添 加</el-button>
       </span>
     </el-dialog>
+
     <el-dialog title="头像预览" :visible.sync="previewDialogVisible">
       <img width="100%" :src="picPreviewPath" alt="" class="previewImg">
     </el-dialog>
@@ -130,6 +146,33 @@
         }
       };
       return {
+        pickerOptions: {
+          shortcuts: [{
+            text: '最近一周',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近一个月',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近三个月',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+              picker.$emit('pick', [start, end]);
+            }
+          }]
+        },
         URL: 'http://localhost:8080/images/',
         // 添加用户对话框
         addUserFormRules: {
@@ -149,7 +192,8 @@
         queryInfo: {
           queryName: '',
           pageNo: 1,
-          pageSize: 5
+          pageSize: 5,
+          dataTime:''
         },
         userList: [],
         total: 0,
@@ -170,6 +214,10 @@
       }
     },
     methods: {
+      // 条件查询建档时间value = []
+      change(value) {
+        if (value == null) this.getUserList();
+      },
       beforeAvatarUpload(file) {
         const isJPG = file.type === 'image/jpeg';
         const isLt2M = file.size / 1024 / 1024 < 2;
@@ -213,10 +261,28 @@
         // 2.将图片信息对象，push到pics数组中
         this.addUserForm.photo = picInfo;
       },
+      getDataTime(dataTime) {//默认显示今天
+        var nian = dataTime.getFullYear();
+        var yue = dataTime.getMonth() + 1;
+        var ri = dataTime.getDate();
+        var shi = dataTime.getHours();
+        var fen = dataTime.getMinutes();
+        var miao = dataTime.getSeconds();
+        if (yue < 10) yue = "0" + yue;
+        if (ri < 10) ri = "0" + ri;
+        if (miao < 10) miao = "0" + miao;
+        if (fen < 10) fen = "0" + fen;
+        if (shi < 10) shi = "0" + shi;
+        return nian + "-" + yue + "-" + ri + " " + shi + ":" + fen + ":" + miao;
+      },
       //获取用户列表
       getUserList() {
         var _this = this;
         var params = new URLSearchParams();
+        if (this.queryInfo.dataTime) {
+          params.append("creationDate", this.getDataTime(this.queryInfo.dataTime[0]))
+          params.append("creationDate2", this.getDataTime(this.queryInfo.dataTime[1]))
+        }
         params.append("pageNo", _this.queryInfo.pageNo);
         params.append("pageSize", _this.queryInfo.pageSize);
         params.append("loginId", _this.queryInfo.queryName);
@@ -241,6 +307,11 @@
       },
       //添加
       addUser(formName) {
+        var bool = true;
+        if (this.addUserForm.photo==''){
+          this.$message.error("请上传头像");
+          bool = false;
+        }
         var _this = this;
         this.$refs[formName].validate((valid) => {
           if (valid) {
@@ -248,23 +319,29 @@
             Object.keys(_this.addUserForm).forEach(function (key) {
               params.append(key, _this.addUserForm[key])
             })
-            this.axios.post("/users/insert", params).then((response) => {
-              if (response.data.result) {
-                _this.$message.success(response.data.message)
-                _this.addDialogClosed(),
-                _this.getUserList();
-                _this.$refs.upload.clearFiles()
-              } else {
-                _this.$message.success(response.data.message)
-                _this.addDialogClosed(),
-                _this.getUserList();
-                _this.$refs.upload.clearFiles()
-              }
-            }).catch(function (error) {
-              alert("服务端获取数据失败");
-            });
+            if (bool==true) {
+              this.axios.post("/users/insert", params).then((response) => {
+                if (response.data.result) {
+                  _this.$message.success(response.data.message)
+                  _this.addDialogClosed(),
+                    _this.getUserList();
+                  _this.$refs.upload.clearFiles()
+                } else {
+                  _this.$message.success(response.data.message)
+                  _this.addDialogClosed(),
+                    _this.getUserList();
+                  _this.$refs.upload.clearFiles()
+                }
+              }).catch(function (error) {
+                alert("服务端获取数据失败");
+              });
+            }
           }
         })
+      },
+      pictureCardPreview(file) {
+        this.picPreviewPath = this.URL+file;
+        this.previewDialogVisible = true;
       },
     },
     created() {
@@ -274,7 +351,7 @@
 </script>
 
 <style scoped>
-  .el-input, .textarea ,.el-select{
-    width: 180px;
+  el-form el-form-item .el-input, .textarea ,.el-select{
+    width: 500px;
   }
 </style>

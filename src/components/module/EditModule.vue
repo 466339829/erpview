@@ -67,7 +67,7 @@
     </el-card>
 
     <el-dialog title="变更物料组成设计单" :visible.sync="updateDialogVisible" width="90%" @close="updateDialogClosed">
-      <el-row :gutter="20">
+      <el-row :gutter="20" style="margin-top: -30px">
         <el-col :span="16" :offset="18">
           <div>
               <span slot="footer" class="dialog-footer">
@@ -79,22 +79,10 @@
           </div>
         </el-col>
       </el-row>
-      <el-form
-        :model="module"
-        ref="module"
-        label-width="100px"
-      >
-        <el-row :gutter="20">
+      <el-form :model="module" ref="module" label-width="100px">
+        <el-row :gutter="20" style="margin-bottom: -20px">
           <el-col :span="5">
             <div><strong>设计单编号: </strong> {{module.designId}}</div>
-          </el-col>
-          <el-col :span="5">
-            <div v-if="viewShow==1">
-              <el-form-item label="设计人" prop="designer">
-                <el-input clearable v-model="module.designer"></el-input>
-              </el-form-item>
-            </div>
-            <div v-if="viewShow==2"><strong>设计人: </strong> {{module.designer}}</div>
           </el-col>
           <el-col :span="4">
             <div><strong>产品名称: </strong> {{module.productName}}</div>
@@ -104,10 +92,10 @@
           </el-col>
         </el-row>
         <!-- 内容主体 -->
-        <el-divider></el-divider>
-        <div>
+        <el-divider ></el-divider>
+
           <label class="document-btn">已添加物料</label>
-        </div>
+
         <!-- 产品物料组成 -->
         <el-table :data="moduleDetailsList" border stripe>
           <!-- stripe: 斑马条纹 border：边框-->
@@ -142,18 +130,15 @@
           </el-table-column>
         </el-table>
         <el-divider></el-divider>
-        <el-row :gutter="20">
+        <!--新添加物料-->
+        <el-row :gutter="20" style="margin-bottom: 10px">
           <el-col :span="3">
             <label class="document-btn">新添加物料</label>
           </el-col>
-          <el-col :span="16" :offset="17" v-if="viewShow==1">
-            <div>
-              <span slot="footer" class="dialog-footer">
+          <el-col :span="6" :offset="14" v-if="viewShow==1">
                 <el-button icon="el-icon-circle-plus-outline" type="primary"
                            @click="AddModuleDetailLists">添加新物料</el-button>
                <el-button icon="el-icon-remove-outline" type="info" @click="getSelected">删除新物料</el-button>
-                  </span>
-            </div>
           </el-col>
         </el-row>
         <!-- 产品物料组成 -->
@@ -190,9 +175,16 @@
           </el-table-column>
         </el-table>
         <el-divider></el-divider>
-        <span><strong>物料总成本: </strong>  {{module.costPriceSum}}</span><br>
+        <span><strong>物料总成本: </strong>  {{costPriceSum}}</span><br>
 
         <el-row :gutter="20" v-if="viewShow==1">
+          <el-col :span="5">
+            <div v-if="viewShow==1">
+              <el-form-item label="设计人" prop="designer">
+                <el-input clearable v-model="module.designer"></el-input>
+              </el-form-item>
+            </div>
+          </el-col>
           <el-col :span="5">
             <div> <el-form-item label="设计要求" prop="moduleDescribe">
               <el-input v-model="module.moduleDescribe" clearable type="textarea" class="xxx"/>
@@ -201,6 +193,9 @@
         </el-row>
 
         <el-row :gutter="20" v-if="viewShow==2">
+          <el-col :span="5">
+            <div><strong>设计人: </strong> {{module.designer}}</div>
+          </el-col>
           <el-col :span="5">
             <div><strong>设计要求: </strong> {{module.moduleDescribe}}</div>
           </el-col>
@@ -314,7 +309,6 @@
           pageNo: 1,
           pageSize: 7,
           dataTime: '',
-          checkTag: 1,
         },
         moduleList: [],
         total: 0,
@@ -368,10 +362,11 @@
           params.append("parentId", row.parentId)
           this.axios.post("/moduleDetails/delete", params).then((response) => {
             if (response.data.result) {
-              this.getData(this.updateId);
+              this.getModuleList();
+              this.updateDialogVisible = false;
               this.$message.success("删除成功")
             } else {
-              this.$message.success("删除失败");
+              this.$message.error("删除失败,[" + row.productName +"]已存在工序物料组成设计" );
             }
           })
         }).catch(() => {
@@ -537,7 +532,13 @@
         });
         this.axios.post("/module/page", params).then((resp) => {
           this.total = resp.data.total;
-          this.moduleList = resp.data.list;
+          this.moduleList = resp.data.list.filter((item)=>{
+            return item.checkTag !=0;
+          });
+
+          /*this.designProcedureList = resp.data.list.filter((item)=>{
+            return item.checkTag!=0
+          })*/
         }).catch(function (error) {
           return this.$message.error('获取产品列表失败！')
         })
@@ -566,7 +567,23 @@
         else
           return "";
       }
-    }
+    },
+    computed:{
+      costPriceSum(){
+        var totalprice =0;
+        var _this =this;//scope.row.amount*scope.row.costPrice
+        this.moduleDetailsList.forEach( (item) =>{
+            totalprice+= item.amount*item.costPrice;
+        })
+        var i = 0;
+        if (this.productList.length>0){
+          this.productList.forEach( (item) =>{
+            i+= item.amount*item.costPrice;
+          })
+        }
+        return totalprice+i;
+      }
+    },
   }
 </script>
 

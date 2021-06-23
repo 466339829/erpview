@@ -3,7 +3,7 @@
     <!--   搜索 添加 角色列表分页-->
     <el-card>
       <el-row :gutter="20">
-        <el-col :span="8">
+        <el-col :span="20">
           <el-form :inline="true">
             <el-form-item label="角色名称">
               <el-input placeholder="请输入角色名称" clearable @clear="getRoleList" v-model="queryRole.queryName"></el-input>
@@ -182,7 +182,5 @@
 </script>
 
 <style scoped>
-  .el-input, .textarea ,.el-select{
-    width: 180px;
-  }
+
 </style>

@@ -40,8 +40,8 @@
         <el-table-column label="审核">
           <template slot-scope="scope">
             <el-button
-              type="warning"
-              icon="el-icon-star-off"
+              type="success"
+              icon="el-icon-view"
               size="mini"
               @click="showAddDialog(scope.row)"
             >查看

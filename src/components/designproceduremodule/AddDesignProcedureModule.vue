@@ -63,7 +63,6 @@
                      :total="total"
       ></el-pagination>
     </el-card>
-
     <!-- 添加设计单的对话框 -->
     <el-dialog title="工序物料设计单" :visible.sync="addDialogVisible" width="80%" @close="addDialogClosed">
       <el-row :gutter="20" style="margin-bottom: 20px;margin-top: -40px">
@@ -126,7 +125,7 @@
           <div><strong>工时总成本: </strong> {{procedureInfo.costPriceSum}}</div>
         </el-col>
         <el-col :span="5">
-          <div><strong>物料总成本: </strong> {{procedureInfo.moduleCostPriceSum}}</div>
+          <div><strong>物料总成本: </strong> {{moduleSubtotal}}</div>
         </el-col>
         <el-col :span="4">
           <div><strong>登记人: </strong> {{designProcedure.register}}</div>
@@ -136,6 +135,7 @@
         </el-col>
       </el-row>
     </el-dialog>
+
 
     <!-- 设计-->
     <el-dialog title="工序物料设计单" :visible.sync="moduleDialogVisible" width="80%" @close="moduleDialogClosed">
@@ -190,59 +190,6 @@
         </el-table-column>
       </el-table>
     </el-dialog>
-    <!--重新设计-->
-    <el-dialog title="工序物料设计单" :visible.sync="updateDialogVisible" width="80%" @close="updateDialogClosed">
-      <el-row :gutter="20" style="margin-top: -20px">
-        <el-col :span="16" :offset="19">
-          <div v-if="viewShow==true">
-            <el-button icon="el-icon-check" type="primary" @click="updateDetail">确 定</el-button>
-            <el-button icon="el-icon-back"  type="primary" @click="viewShow=false">返 回</el-button>
-          </div>
-          <div v-if="viewShow==false">
-            <el-button icon="el-icon-view" type="primary" @click="checkDetail">预 览</el-button>
-          </div>
-        </el-col>
-        <el-col :span="5">
-          <div><strong>设计单编号: </strong> {{procedureInfo.designId}}</div>
-        </el-col>
-        <el-col :span="4">
-          <div><strong>设计人: </strong> {{procedureInfo.designer}}</div>
-        </el-col>
-        <el-col :span="5">
-          <div><strong>产品编号: </strong> {{designProcedure.productId}}</div>
-        </el-col>
-        <el-col :span="5">
-          <div><strong>产品名称: </strong> {{designProcedure.productName}}</div>
-        </el-col>
-        <el-col :span="5">
-          <div><strong>工序名称: </strong> {{proDetail.procedureName}}</div>
-        </el-col>
-      </el-row>
-      <el-divider></el-divider>
-      <!-- 产品工序组成 -->
-      <el-table :data="updateDetailsList" border stripe>
-        <!-- stripe: 斑马条纹 border：边框-->
-        <el-table-column prop="id" label="序号" width="80px"></el-table-column>
-        <el-table-column prop="productId" label="物料编号"></el-table-column>
-        <el-table-column prop="productName" label="物料名称"></el-table-column>
-        <el-table-column prop="productDescribe" label="描述"></el-table-column>
-        <el-table-column prop="amount" label="数量" width="80px"></el-table-column>
-        <el-table-column prop="residualAmount" label="可用数量" width="80px"></el-table-column>
-        <el-table-column prop="amountUnit" label="单位" width="100px"></el-table-column>
-        <el-table-column prop="costPrice" label="单价(元)"></el-table-column>
-        <el-table-column label="小计(元)" prop="subtotal">
-          <template slot-scope="scope">
-            {{scope.row.amount*scope.row.costPrice}}
-          </template>
-        </el-table-column>
-        <el-table-column label="本工序数量" v-if="viewShow==false">
-          <template slot-scope="scope">
-            <el-input v-model.number="scope.row.amount" :max="10" :min="1"
-                      onkeyup="this.value = this.value.replace(/[^\d.]/g,'')" style="width: 130px"></el-input>
-          </template>
-        </el-table-column>
-      </el-table>
-    </el-dialog>
 
   </div>
 </template>
@@ -252,9 +199,6 @@
     name: "AddDesignProcedureModule",
     data() {
       return {
-        addViewShow:false,
-        viewShow: false,
-        value: '',
         pickerOptions: {
           shortcuts: [{
             text: '最近一周',
@@ -287,31 +231,29 @@
           productName: '',
           pageNo: 1,
           pageSize: 5,
-          CheckTag: "1",
+          checkTag: "1",
           designModuleTag: "0",
           dataTime: ''
         },
         total: 0,
         designProcedureList: [],
 
-        addDialogVisible: false,
-        procedureInfo: {},
+        addDialogVisible:false,
+        viewShow:1,
+        addViewShow:false,
+
+        procedureInfo:{},
         designProcedure: {},
+
         designProcedureDetails: [],
 
-        proDetail: {},
-        moduleDialogVisible: false,
-        moduleDetailsList: [],
+        proDetail:{},
+        moduleDialogVisible:false,
+        moduleDetailsList:[],
 
-        updateDialogVisible: false,
-        updateDetailsList: [],
       }
     },
     methods: {
-      tableRowClassName(row, index) {
-        // 给每条数据添加一个索引
-        row.row.index = row.rowIndex
-      },
       getDataTime(dataTime) {//默认显示今天
         var nian = dataTime.getFullYear();
         var yue = dataTime.getMonth() + 1;
@@ -356,14 +298,6 @@
       change(value) {
         if (value == null) this.getDesignProcedureList();
       },
-      // 监听 添加设计单对话框的关闭事件
-      addDialogClosed() {
-        this.$nextTick(() => {
-          this.viewShow =1;
-          this.addViewShow = false;
-          this.addDialogVisible = false
-        })
-      },
       //制定设计单
       showAddDialog(row) {
         this.procedureInfo = row;
@@ -380,6 +314,18 @@
           return this.$message.error('获取产品列表失败!')
         })
       },
+      // 给每条数据添加一个索引
+      tableRowClassName(row, index) {
+        row.row.index = row.rowIndex
+      },
+      // 监听 添加设计单对话框的关闭事件
+      addDialogClosed() {
+        this.$nextTick(() => {
+          this.viewShow =1;
+          this.addViewShow = false;
+          this.addDialogVisible = false
+        })
+      },
       //点击设计
       showModuleDetails(row) {
         this.proDetail = row;
@@ -392,16 +338,33 @@
         params.append("productId", this.productId);
         this.axios.post("/moduleDetails/selectByProductId", params).then((resp) => {
           this.moduleDetailsList = resp.data;
+          this.moduleDetailsList.forEach((item)=>{
+            item.amount= 0
+          })
         }).catch(function (error) {
           return this.$message.error('获取产品列表失败！')
         })
       },
       // 监听 添加设计单对话框的关闭事件
       moduleDialogClosed() {
+        this.getProcedureDetailsByPId(this.procedureInfo.id);
         this.$nextTick(() => {
           this.addViewShow = false;
           this.moduleDialogVisible = false;
         })
+      },
+      //预览
+      checkAddDetail(){
+        var bool = true;
+        this.moduleDetailsList.forEach((item) => {
+          if (item.residualAmount < item.amount){
+            this.$message.error("超出可用数量范围");
+            bool = false;
+          }
+        })
+        if (bool == true){
+          this.addViewShow=true
+        }
       },
       //工序添加物料
       addModuleDetail() {
@@ -421,92 +384,53 @@
         this.addViewShow=false;
         this.moduleDialogClosed();
       },
-      //打开重新设计框
+      //打开重新设计
       updateModuleDetails(row) {
         this.proDetail = row;
-        this.axios.post("/designProcedureModule/selectByPId/" + row.id).then((resp) => {
-          this.updateDetailsList = resp.data;
-          resp.data.forEach((item) => {
-            item.residualAmount = item.amount;
+        this.axios.post("/designProcedureModule/updateByPId/" + row.id).then((resp) => {
+          this.getDesignList();
+          this.moduleDialogVisible = true;
+        }).catch(function (error) {
+          return this.$message.error('获取物料信息失败！')
+        })
+      },
 
-          })
-        }).catch(function (error) {
-          return this.$message.error('获取角色信息失败！')
-        })
-        this.updateDialogVisible = true;
-      },
-      // 监听 添加设计单对话框的关闭事件
-      updateDialogClosed() {
-        this.$nextTick(() => {
-          this.viewShow = 1;
-          this.updateDialogVisible = false;
-        })
-      },
-      //重新设计确定
-      updateDetail() {
-        this.updateDetailsList.forEach((item) => {
-          item.subtotal = item.amount * item.costPrice;
-        })
-        this.axios.post("/designProcedureModule/updateDesignProcedureModule", JSON.stringify(this.updateDetailsList),
-          {headers: {"Content-Type": "application/json"}}).then((response) => {
-          if (response.data.result == true) {
-            this.getProcedureDetailsByPId(this.procedureInfo.id);
-            this.$message.success('操作成功!');
-          }
-        }).catch(function (error) {
-          return this.$message.error('操作失败！')
-        })
-        this.updateDialogVisible = false;
-      },
-      checkDesignModuleTag() {
+      //提交
+      checkDesignModuleTag(){
         var bool = true;
-        this.designProcedureDetails.forEach((item)=>{
-          if (item.designModuleTag==0){
-            this.$message.error("请设计工序物料设计单");
+        this.getDesignList();
+        console.log(this.moduleDetailsList)
+        this.moduleDetailsList.forEach((item)=>{
+          if (item.residualAmount!=0){
+            this.$message.error("对不起，尚有可用物料，请您仔细检查工序物料设计！");
             bool = false;
           }
         })
-        if (bool == true) {
+        if (bool == true){
           this.axios.post("/designProcedure/checkDesignModuleTag/" + this.procedureInfo.id).then((resp) => {
-            if (resp.data) {
-              this.$message.success("设计成功，待审核");
-              this.addDialogVisible = false;
+            if (resp.data==true){
               this.getDesignProcedureList();
+              this.addDialogClosed();
+              this.$message.success('操作成功，待审核！')
             }
           }).catch(function (error) {
-            return this.$message.error('获取产品信息失败！')
+            return this.$message.error('获取物料信息失败！')
           })
-        }
-      },
-      //预览
-      checkDetail() {
-        var bool = true;
-        this.updateDetailsList.forEach((item) => {
-          if (item.residualAmount < item.amount){
-            this.$message.error("超出可用数量范围");
-            bool = false;
-          }
-        })
-        if (bool == true){
-          this.viewShow=true
-        }
-      },
-      checkAddDetail(){
-        var bool = true;
-        this.moduleDetailsList.forEach((item) => {
-          if (item.residualAmount < item.amount){
-            this.$message.error("超出可用数量范围");
-            bool = false;
-          }
-        })
-        if (bool == true){
-          this.addViewShow=true
         }
       }
     },
     created() {
       this.getDesignProcedureList();
-    }
+    },
+    computed:{
+      moduleSubtotal(){
+        var sum =0;
+        this.designProcedureDetails.forEach( (item) =>{
+          sum+= item.moduleSubtotal;
+        })
+        return sum;
+      }
+    },
   }
 </script>
 

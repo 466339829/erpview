@@ -68,7 +68,12 @@
         <el-table-column prop="firstKindName" label="I级分类" width="120px"></el-table-column>
         <el-table-column prop="secondKindName" label="II级分类" width="120px"></el-table-column>
         <el-table-column prop="thirdKindName" label="III级分类" width="120px"></el-table-column>
-        <el-table-column prop="responsiblePerson" label="产品经理"></el-table-column>
+        <el-table-column label="建档时间">
+          <template slot-scope="scope">
+            <i class="el-icon-time"/>
+            {{ scope.row.registerTime }}
+          </template>
+        </el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button
