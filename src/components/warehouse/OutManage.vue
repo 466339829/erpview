@@ -140,12 +140,13 @@
               sum1+=item.amount;
               sum2+=item.paidAmount;
             })
-            this.sum=sum1;
-            this.outsum=sum2;
+            this.sum=sum1;//总数
+            this.outsum=sum2;//出库总件数
           }).catch();
           this.outlist=e;
-        },//最终调度
+        },//最终调度，判断是否重复调度
         diaodu(e){
+            //已调度
             if (e.payTag==2){
               const h = this.$createElement;
               this.$message({
@@ -155,6 +156,7 @@
                 ])
               });
             }else{
+              //表格调度
               if (e.amount==e.paidAmount){
                 var params=new FormData();
                 params.append("id",e.id);
@@ -194,6 +196,35 @@
         },
         //提交
         tijiao(){
+            //不通过
+          if (this.radio==2){
+            var params=new FormData();
+            params.append("id",this.id);
+            params.append("checkTag",this.radio);
+            this.axios.post("/pay/payupdate2",params).then(response=>{
+              if (response){
+                const h = this.$createElement;
+                this.$message({
+                  message: h('p', null, [
+                    h('span', null),
+                    h('i', { style: 'color: teal' }, '已提交')
+                  ])
+                });
+              }else{
+                const h = this.$createElement;
+                this.$message({
+                  message: h('p', null, [
+                    h('span', null),
+                    h('i', { style: 'color: red' }, '提交错误')
+                  ])
+                });
+              }
+            }).catch();
+            this.manageVisible=false;
+            this.getDesignProcedureList();
+            return;
+          }
+          //通过
             if (this.sum==this.outsum){
                 var params=new FormData();
                 params.append("id",this.id);
@@ -208,6 +239,7 @@
                         ])
                       });
                       this.manageVisible=false;
+                      this.getDesignProcedureList();
                     }else{
                       const h = this.$createElement;
                       this.$message({

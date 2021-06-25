@@ -95,8 +95,9 @@ import SafetystockQuery from "./warehouse/SafetystockQuery";
 import SafetystockUpdate from "./warehouse/SafetystockUpdate";
   import Safetystock from "./warehouse/Safetystock";
   import OutManage from "./warehouse/OutManage";
-
+  import ManageSelect from "./warehouse/ManageSelect";
   import Library from "./warehouse/Library";
+  import InManage from "./warehouse/InManage";
   export default {
     components: {
       //yong
@@ -105,7 +106,7 @@ import SafetystockUpdate from "./warehouse/SafetystockUpdate";
       DelFile, RemoveFile, RecoveryFile, AddModule, CheckModule, EditModule, QueryModule,
       AddDesignProcedureModule, CheckDesignProcedureModule,QueryDesignProcedureModule,
       EditDesignProcedureModule,Inboundapplication,SafetystockQuery,SafetystockUpdate,
-      Safetystock, Library,OutManage
+      Safetystock, Library,OutManage,ManageSelect,InManage
     },
     data() {
       return {
