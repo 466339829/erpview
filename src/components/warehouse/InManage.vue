@@ -193,8 +193,8 @@
             this.axios.post("/Cells/selectByBeforeId/"+befroeId).then(response=>{
                 //判断产品是否配置安全库存
               if (response.data>0){
-                  //调度
-                if (e.amount==e.gatheredAmount){
+                  //调度,调度数量不为0且不为空字符串可调度
+                if (e.gatheredAmount!=0&&e.gatheredAmount!=''){
                   var params=new FormData();
                   params.append("id",e.id);
                   params.append("gatheredAmount",e.gatheredAmount);
@@ -294,6 +294,8 @@
                       h('i', { style: 'color: teal' }, '提交成功')
                     ])
                   });
+                  this.InManageVisible=false;
+                  this.getGatherList();
                 }else{
                   const h = this.$createElement;
                   this.$message({

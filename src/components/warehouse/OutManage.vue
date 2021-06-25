@@ -114,7 +114,7 @@
             id:0,
             DesignProcedureList:[],//出库调度
             outlist:[],//单个出库调度物料
-            PayDetailsList:{},//出库明细调度
+            PayDetailsList:{},//出库明细调度,表格中的数据
           }
       },
       methods:{
@@ -156,8 +156,8 @@
                 ])
               });
             }else{
-              //表格调度
-              if (e.amount==e.paidAmount){
+              //表格调度,数量不为0且不为空字符串
+              if (e.paidAmount!=0&&e.paidAmount!=''){
                 var params=new FormData();
                 params.append("id",e.id);
                 params.append("paidAmount",e.paidAmount);
@@ -224,8 +224,21 @@
             this.getDesignProcedureList();
             return;
           }
-          //通过
-            if (this.sum==this.outsum){
+          //存在没有调度的就提示【请先完成审核】
+          var list=this.PayDetailsList.find(item=>{
+            return item.payTag!=2;
+          })
+          if (list!=null){
+            const h = this.$createElement;
+            this.$message({
+              message: h('p', null, [
+                h('span', null),
+                h('i', { style: 'color: red' }, '请先完成审核')
+              ])
+            });
+            return;
+          }
+                //能提交
                 var params=new FormData();
                 params.append("id",this.id);
                 params.append("checkTag",this.radio);
@@ -250,15 +263,7 @@
                       });
                     }
                 }).catch();
-            }else{
-              const h = this.$createElement;
-              this.$message({
-                message: h('p', null, [
-                  h('span', null),
-                  h('i', { style: 'color: red' }, '请确认出库件数')
-                ])
-              });
-            }
+
         }
         ,
         sizechage(val) {
