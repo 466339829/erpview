@@ -40,8 +40,8 @@
     data() {
       return {
         loginForm: {
-          loginId: '',
-          password: ''
+          loginId: '王老板',
+          password: '123456'
         },
         // 表单验证
         loginFormRules: {
@@ -127,7 +127,7 @@
     left: 50%;
     top: 50%;
     -webkit-transform: translate(-50%, -50%);
-    background-color: #fff;
+    background-color: #66b1ff;
 
   }
 

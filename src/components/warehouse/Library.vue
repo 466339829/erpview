@@ -223,7 +223,6 @@
       Fhisok() {
         var kg = this.value1;
         var ceid = this.ceid;
-        alert(kg)
         var fenames = this.fename;
         var params = new URLSearchParams();
         if (kg == false) {

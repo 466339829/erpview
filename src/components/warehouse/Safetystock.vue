@@ -75,8 +75,11 @@
       title="安全库存配置单"
       :visible.sync="drawer"
       :center="true"
-    :size="size">
-      <el-form label-width="60px" :modal="ctfrom">
+      :size="size">
+      <el-form label-width="60px"
+               :model="ctfrom"
+               ref="ctfrom"
+               :rules="ctfromRules">
         <el-row :gutter="20">
           <el-col :span="10" :offset="1">
             <div>
@@ -93,15 +96,15 @@
         <el-row :gutter="24">
           <el-col :span="12">
             <div>
-              <el-form-item label="库存上限:">
-                <el-input v-model="ctfrom.maxAmount" clearable></el-input>
+              <el-form-item label="库存上限:" prop="maxAmount" label-width="100px">
+                <el-input v-model.number="ctfrom.maxAmount" clearable></el-input>
               </el-form-item>
             </div>
           </el-col>
           <el-col :span="12">
             <div>
-              <el-form-item label="库存下限:">
-                <el-input v-model="ctfrom.minAmount" clearable></el-input>
+              <el-form-item label="库存下限:" prop="minAmount" label-width="100px">
+                <el-input v-model.number="ctfrom.minAmount" clearable></el-input>
               </el-form-item>
             </div>
           </el-col>
@@ -109,14 +112,14 @@
         <el-row :gutter="24">
           <el-col :span="12">
             <div>
-              <el-form-item label="登记人:">
+              <el-form-item label="登记人:" prop="register" label-width="100px">
                 <el-input :disabled="true" v-model="ctfrom.register" clearable></el-input>
               </el-form-item>
             </div>
           </el-col>
           <el-col :span="12">
             <div>
-              <el-form-item label="设计人:">
+              <el-form-item label="设计人:" prop="designer" label-width="100px">
                 <el-input v-model="ctfrom.designer"></el-input>
               </el-form-item>
             </div>
@@ -203,6 +206,20 @@
     name: "Safetystock",
     data() {
       return {
+        //表单验证
+        ctfromRules: {
+          maxAmount: [
+            {required: true, message: '请输入库存上限(件)', trigger: 'blur'},
+            {type: 'number', message: '请输入数字值', trigger: 'blur'}
+          ],
+          minAmount: [
+            {required: true, message: '请输入库存下限(件)', trigger: 'blur'},
+            {type: 'number', message: '请输入数字值', trigger: 'blur'}
+          ],
+          designer:[
+            {required: true, message: '请输入设计人', trigger: 'blur'},
+          ]
+        },
         tableData: [],
         pageNo: 1,
         pageSize: 5,
@@ -235,6 +252,7 @@
           thirdKindName: "",
           id: ""
         },
+
         tabs: [{
           id: 1, kc: "成品库", ycc: "01-01-01", menuca: "",
         }],
@@ -267,39 +285,46 @@
         }).catch()
       },
       f1() {
-        this.isload = true;
-        this.txt = "提交中";
-        var _this = this
-        var params = new URLSearchParams();
-        Object.keys(this.ctfrom).forEach(function (item) {
-          params.append(item, _this.ctfrom[item])
-        });
-        this.axios.post("/Cells/cesint", params).then((response) => {
-          //模拟在回调函数中  还原按钮
-          if (response.data == true) {
-            console.log("true")
-            setTimeout(function () {
-              _this.txt = "提交成功";
-            }, 2000);
-            this.$notify.success({
-              title: '成功',
-              message: '提交成功',
-              showClose: true
+        console.log(this.$refs.ctfrom)
+        this.$refs["ctfrom"].validate((valid) => {
+
+          if (valid) {
+            this.isload = true;
+            this.txt = "提交中";
+            var _this = this
+            var params = new URLSearchParams();
+            Object.keys(this.ctfrom).forEach(function (item) {
+              params.append(item, _this.ctfrom[item])
             });
-            this.drawer = false;
-            this.tables();
-          } else {
-            this.$notify.success({
-              title: '失败',
-              message: '提交失败',
-              showClose: true
-            });
-            this.drawer = false;
+            this.axios.post("/Cells/cesint", params).then((response) => {
+              //模拟在回调函数中  还原按钮
+              if (response.data == true) {
+                console.log("true")
+                setTimeout(function () {
+                  _this.txt = "提交成功";
+                }, 2000);
+                this.$notify.success({
+                  title: '成功',
+                  message: '提交成功',
+                  showClose: true
+                });
+                this.drawer = false;
+                this.tables();
+              } else {
+                this.$notify.success({
+                  title: '失败',
+                  message: '提交失败',
+                  showClose: true
+                });
+                this.drawer = false;
+              }
+              this.tables();
+            }).catch(function (error) {
+              console.log(error)
+            })
           }
-          this.tables();
-        }).catch(function (error) {
-          console.log(error)
-        })
+        });
+
       },
       tableRowClassName({row, rowIndex}) {
         if (rowIndex === 1) {
