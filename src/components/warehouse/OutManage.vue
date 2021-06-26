@@ -132,9 +132,24 @@
         manage(e){
           this.manageVisible=true;
           this.id=e.id;
+          /*var sum1=0;
+          var sum2=0;*/
+          /*this.axios.post("/pay/selectId/"+this.id).then(response=>{
+            this.PayDetailsList=response.data;
+            this.PayDetailsList.forEach(item=>{
+              sum1+=item.amount;
+              sum2+=item.paidAmount;
+            })
+            this.sum=sum1;//总数
+            this.outsum=sum2;//出库总件数
+          }).catch();*/
+          this.selectId(e);
+          this.outlist=e;
+        },//最终调度，判断是否重复调度
+        selectId(e){
           var sum1=0;
           var sum2=0;
-          this.axios.post("/pay/selectId/"+this.id).then(response=>{
+          this.axios.post("/pay/selectId/"+e.id).then(response=>{
             this.PayDetailsList=response.data;
             this.PayDetailsList.forEach(item=>{
               sum1+=item.amount;
@@ -143,8 +158,7 @@
             this.sum=sum1;//总数
             this.outsum=sum2;//出库总件数
           }).catch();
-          this.outlist=e;
-        },//最终调度，判断是否重复调度
+        },
         diaodu(e){
             //已调度
             if (e.payTag==2){
@@ -161,8 +175,11 @@
                 var params=new FormData();
                 params.append("id",e.id);
                 params.append("paidAmount",e.paidAmount);
+                params.append("productId",e.productId)
+                //paidAmount
+                params.append("paidAmount",e.paidAmount)
                 this.axios.post("/pay/update",params).then(response=>{
-                  if (response){
+                  if (response.data){
                     const h = this.$createElement;
                     this.$message({
                       message: h('p', null, [
@@ -170,7 +187,9 @@
                         h('i', { style: 'color: teal' }, '调度成功')
                       ])
                     });
-                    this.manageVisible=false;
+                    this.selectId(this.outlist);
+                    /*this.outlist=e;*/
+                   /* this.manageVisible=false;*/
                   }else{
                     const h = this.$createElement;
                     this.$message({
@@ -241,7 +260,7 @@
                 //能提交
                 var params=new FormData();
                 params.append("id",this.id);
-                params.append("checkTag",this.radio);
+                params.append("payTag",2);
                 this.axios.post("/pay/payupdate",params).then(response=>{
                     if (response){
                       const h = this.$createElement;
