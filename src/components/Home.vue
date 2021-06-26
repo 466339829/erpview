@@ -3,12 +3,12 @@
     <!-- 头部 -->
     <el-header>
       <div>
-        <span>后台管理系统</span>
+        <span>REP后台管理系统</span>
       </div>
 
       <!--<el-button type="info" @click="logout">退出</el-button>-->
-      <el-row class="block-col-2">
-        <el-col :span="12">
+      <el-row>
+        <el-col :span="6">
           <el-dropdown>
             <span class="el-dropdown-link">
               <div class="avatar-wrapper">
@@ -17,9 +17,8 @@
               </div>
       </span>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item icon="el-icon-eleme">首页</el-dropdown-item>
-              <el-dropdown-item icon="el-icon-edit">修改信息</el-dropdown-item>
-              <el-dropdown-item @click.native="logout" icon="el-icon-switch-button">退出</el-dropdown-item>
+              <el-dropdown-item @click.native="dialogVisible = true" icon="el-icon-edit">修改信息</el-dropdown-item>
+              <el-dropdown-item @click.native="logout" icon="el-icon-switch-button">退 出</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </el-col>
@@ -71,6 +70,71 @@
           </el-tab-pane>
         </el-tabs>
       </el-main>
+
+
+      <el-dialog
+        title="修改个人信息"
+        :visible.sync="dialogVisible"
+        width="50%">
+        <el-divider></el-divider>
+        <el-tabs :tab-position="tabPosition" style="height: 250px;">
+          <el-tab-pane label="修改密码">
+            <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px"
+                     class="demo-ruleForm">
+              <el-form-item label="原始密码" prop="pwd">
+                <el-input clearable type="password" v-model="ruleForm.pwd" autocomplete="off"></el-input>
+              </el-form-item>
+              <el-form-item label="新密码" prop="password">
+                <el-input clearable type="password" v-model="ruleForm.password" show-password
+                          autocomplete="off"></el-input>
+              </el-form-item>
+              <el-form-item label="确认新密码" prop="checkPassword">
+                <el-input clearable type="password" v-model="ruleForm.checkPassword" show-password
+                          autocomplete="off"></el-input>
+              </el-form-item>
+              <el-form-item>
+                <el-button type="primary" @click="submitForm('ruleForm')">提交</el-button>
+                <el-button @click="resetForm('ruleForm')">重置</el-button>
+              </el-form-item>
+            </el-form>
+          </el-tab-pane>
+          <el-tab-pane label="修改头像">
+            <span>原始头像</span>
+            <el-form :inline="true" :model="photoForm" status-icon ref="photoForm" label-width="100px"
+                     class="demo-ruleForm">
+              <img :src=photo class="fileImages" style="display: inline;float: left">
+              <span class="el-upload-list__item-actions">
+            </span>
+              <el-form-item label="新头像" prop="image">
+                <el-upload
+                  ref="upload"
+                  list-type="picture-card"
+                  class="avatar-uploader"
+                  :on-preview="handlePictureCardPreview"
+                  :on-remove="handleRemove"
+                  :action="uploadURL"
+                  :limit="1"
+                  :before-upload="beforeAvatarUpload"
+                  :on-success="handleSuccess">
+                  <i class="el-icon-plus"></i>
+                  <div slot="tip" class="el-upload__tip">只能上传一张图片，且不超过2MB</div>
+                </el-upload>
+              </el-form-item>
+
+              <el-form-item>
+                <el-button type="primary" @click="submitPhotoForm('photoForm')">提交</el-button>
+              </el-form-item>
+            </el-form>
+          </el-tab-pane>
+        </el-tabs>
+        <el-divider></el-divider>
+        <span slot="footer" class="dialog-footer">
+    <el-button @click="dialogVisible = false">取 消</el-button>
+  </span>
+      </el-dialog>
+      <el-dialog title="产品图片预览" :visible.sync="previewDialogVisible">
+        <img width="100%" :src="picPreviewPath" alt="" class="previewImg">
+      </el-dialog>
     </el-container>
   </el-container>
 </template>
@@ -118,6 +182,9 @@
   import QueryDesignProcedure from '../components/designprocedure/QueryDesignProcedure'
   import EditDesignProcedure from '../components/designprocedure/EditDesignProcedure'
   import AddTagManufacture from '../components/tagmanufacture/AddTagManufacture'
+  import CheckTagManufacture from  '../components/tagmanufacture/CheckTagManufacture'
+  import QueryTagManufacture from  '../components/tagmanufacture/QueryTagManufacture'
+  import AddGather from  '../components/gather/AddGather'
 
   import Inboundapplication from "./warehouse/Inboundapplication";
   import SafetystockQuery from "./warehouse/SafetystockQuery";
@@ -126,18 +193,18 @@
 
   import InboundappFuhe from "./warehouse/InboundappFuhe";
   import Library from "./warehouse/Library";
-import Inboundquery from "./warehouse/Inboundquery";
+  import Inboundquery from "./warehouse/Inboundquery";
+
   export default {
     components: {
       //yong
       Users, AddUser, Welcome, RoleMenus, DelUser, EditUser, Roles, AddRole, DelRole, EditRole,
       Menus, AddMenus, EditMenu, DelMenu, UserRoles, AddFile, CheckFile, QueryFile, EditFile,
       DelFile, RemoveFile, RecoveryFile, AddModule, CheckModule, EditModule, QueryModule,
-      AddDesignProcedureModule, CheckDesignProcedureModule, QueryDesignProcedureModule,
-      EditDesignProcedureModule, AddApply, CheckApply, QueryApply, AddManufacture, AddDesignProcedure,
+       AddApply, CheckApply, QueryApply, AddManufacture, AddDesignProcedure,
       CheckDesignProcedure, QueryDesignProcedure, EditDesignProcedure, CheckManufacture, QueryManufacture,
-      AddTagManufacture,
-      AddDesignProcedureModule, CheckDesignProcedureModule, QueryDesignProcedureModule,
+      AddTagManufacture,CheckTagManufacture,QueryTagManufacture,
+      AddDesignProcedureModule, CheckDesignProcedureModule, QueryDesignProcedureModule,AddGather,
       EditDesignProcedureModule, Inboundapplication, SafetystockQuery, SafetystockUpdate, InboundappFuhe,
       Inboundquery,
       //
@@ -147,8 +214,47 @@ import Inboundquery from "./warehouse/Inboundquery";
       Library
     },
     data() {
+      var validatePass = (rule, value, callback) => {
+        if (value === '') {
+          callback(new Error('请输入密码'));
+        } else {
+          if (this.ruleForm.checkPassword !== '') {
+            this.$refs.ruleForm.validateField('checkPassword');
+          }
+          callback();
+        }
+      };
+      var validatePass2 = (rule, value, callback) => {
+        if (value === '') {
+          callback(new Error('请再次输入密码'));
+        } else if (value !== this.ruleForm.password) {
+          callback(new Error('两次输入密码不一致!'));
+        } else {
+          callback();
+        }
+      };
+      var checkPwd = (rule, value, callback) => {
+        if (value === '') {
+          callback(new Error('请输入原始密码'));
+        } else if (value !== this.mm) {
+          callback(new Error('原始密码不正确!'));
+        } else {
+          callback();
+        }
+      };
       return {
-        URL: 'http://localhost:8080/images/',
+        uploadURL: 'http://localhost:8080/file/upload',
+        rules: {
+          password: [
+            {validator: validatePass, trigger: 'blur'}
+          ],
+          checkPassword: [
+            {validator: validatePass2, trigger: 'blur'}
+          ],
+          pwd: [
+            {validator: checkPwd, trigger: 'blur'}
+          ]
+        },
         photo: window.sessionStorage.getItem('photo'),
         uid: window.sessionStorage.getItem('id'),
         // 左侧菜单数据
@@ -162,7 +268,20 @@ import Inboundquery from "./warehouse/Inboundquery";
           name: '1',
           content: 'Welcome'
         }],
-        tabIndex: 1   // 设置到name属性的值
+        tabIndex: 1,   // 设置到name属性的值
+        dialogVisible: false,
+        tabPosition: 'left',
+        ruleForm: {
+          password: '',
+          checkPassword: '',
+          pwd: ''
+        },
+        photoForm: {
+          image: ''
+        },
+        mm: window.sessionStorage.getItem('password'),
+        previewDialogVisible: false,
+        picPreviewPath: ''
       }
     },
     created() {
@@ -228,7 +347,87 @@ import Inboundquery from "./warehouse/Inboundquery";
       togleCollapse() {
         this.isCollapse = !this.isCollapse
       },
+      resetForm(formName) {
+        this.$refs[formName].resetFields();
+      },
+      submitForm(formName) {
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            var params = new URLSearchParams();
+            params.append("id", window.sessionStorage.getItem('id'));
+            params.append("password", this.ruleForm.password)
+            this.axios.post("/users/updatePwd", params).then((response) => {
+              if (response.data) {
+                window.sessionStorage.clear();
+                this.$message.success("修改成功,请重新登录");
+                this.$router.push("/login");
+              } else {
+                this.$message.error("修改失败");
+              }
+            }).catch(function (error) {
+              alert("服务端获取数据失败");
+            });
+          } else {
+            return false;
+          }
+        });
+      },
 
+      handleRemove(file, fileList) {
+        this.photoForm.image = '';
+        const filePath = file.response.data;
+        this.axios.post("file/delete/" + filePath.id).then((resp) => {
+          if (resp.data == true)
+            this.$message.success("删除成功")
+        }).catch(function (error) {
+          return this.$message.error('图片加载失败！')
+        })
+      },
+      handlePictureCardPreview(file) {
+        this.picPreviewPath = file.url;
+        this.previewDialogVisible = true;
+      },
+      handleSuccess(response) {
+        this.imageUrl = this.URL + response.data.path;
+        // 1.拼接得到一个图片信息对象 临时路径
+        // 2.将图片信息对象，添加到addFileForm.image 中
+        this.photoForm.image = response.data.path;
+      },
+      submitPhotoForm(formName) {
+        var bool = true;
+        if (this.photoForm.image == '') {
+          this.$message.error("请上传新头像");
+          bool = false;
+        }
+        if (bool==true) {
+          var params = new URLSearchParams();
+          params.append("id", window.sessionStorage.getItem('id'));
+          params.append("photo", this.photoForm.image)
+          this.axios.post("/users/updatePhoto", params).then((response) => {
+            if (response.data) {
+              window.sessionStorage.clear();
+              this.$message.success("修改成功,请重新登录");
+              this.$router.push("/login");
+            } else {
+              this.$message.error("修改失败");
+            }
+          }).catch(function (error) {
+            alert("服务端获取数据失败");
+          });
+        }
+      },
+      beforeAvatarUpload(file) {
+        const isJPG = file.type === 'image/jpeg';
+        const isLt2M = file.size / 1024 / 1024 < 2;
+
+        if (!isJPG) {
+          this.$message.error('上传头像图片只能是 JPG 格式!');
+        }
+        if (!isLt2M) {
+          this.$message.error('上传头像图片大小不能超过 2MB!');
+        }
+        return isJPG && isLt2M;
+      },
     }
   }
 </script>
@@ -307,6 +506,7 @@ import Inboundquery from "./warehouse/Inboundquery";
     font-size: 14px;
     margin-bottom: 20px;
   }
+
   .avatar-wrapper {
     margin-top: -5px;
     position: relative;
@@ -321,9 +521,15 @@ import Inboundquery from "./warehouse/Inboundquery";
     .el-icon-caret-bottom {
       cursor: pointer;
       position: absolute;
-      right: -20px;
+      right: -15px;
       top: 25px;
       font-size: 12px;
     }
+  }
+
+  .fileImages {
+    width: 70px;
+    height: 70px;
+    display: inline;
   }
 </style>

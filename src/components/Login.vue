@@ -16,12 +16,14 @@
           class="login_form"
         >
           <el-form-item label="账号"  prop="loginId">
-            <el-input @keydown.enter.native="login" v-model="loginForm.loginId" prefix-icon="iconfont icon-user"></el-input>
+            <el-input @keydown.enter.native="login" v-model="loginForm.loginId"
+                      prefix-icon="iconfont icon-user" clearable>
+            </el-input>
           </el-form-item>
           <el-form-item label="密码" prop="password">
             <el-input
               v-model="loginForm.password" type="password" prefix-icon="iconfont icon-3702mima"
-              @keydown.enter.native="login">
+              @keydown.enter.native="login" clearable show-password>
             </el-input>
           </el-form-item>
           <el-form-item class="btns">
@@ -40,8 +42,8 @@
     data() {
       return {
         loginForm: {
-          loginId: '',
-          password: ''
+          loginId: 'admin',
+          password: '123456'
         },
         // 表单验证
         loginFormRules: {
@@ -54,7 +56,7 @@
             {min: 6, max: 18, message: '长度在 6 到 18 个字符', trigger: 'blur'}
           ]
         },
-        URL: 'http://localhost:8888/images/',
+        URL: 'http://localhost:8080/images/',
       }
     },
     methods: {
@@ -82,6 +84,7 @@
                 window.sessionStorage.setItem('loginId',user.loginId);
                 window.sessionStorage.setItem('roleName',user.roleName);
                 window.sessionStorage.setItem('photo',this.URL+user.photo);
+                window.sessionStorage.setItem('password',user.password);
                 setTimeout(function () {
                   _this.$router.push("/home");
                 }, 1000)
