@@ -255,6 +255,7 @@
             :before-upload="beforeAvatarUpload"
             :on-success="handleSuccess">
             <i class="el-icon-plus"></i>
+            <div slot="tip" class="el-upload__tip">只能上传一张图片，且不超过2MB</div>
           </el-upload>
         </el-form-item>
       </el-form>

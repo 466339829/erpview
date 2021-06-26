@@ -239,7 +239,7 @@
           </el-form-item>
           <el-form-item label="审核时间" prop="checkTime">
             <el-date-picker
-              v-model="checkForm.checkTime" readonly
+              v-model.number="checkForm.checkTime" readonly
               type="datetime" class="input-class" style="width: 200px">
             </el-date-picker>
           </el-form-item>

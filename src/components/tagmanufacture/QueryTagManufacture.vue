@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!--   搜索 添加 产品列表分页-->
     <el-card>
       <el-row :gutter="20">
         <el-col>
@@ -40,7 +39,17 @@
         <el-table-column prop="manufactureId" label="派工单编号"></el-table-column>
         <el-table-column prop="productId" label="产品编号"></el-table-column>
         <el-table-column prop="productName" label="产品名称"></el-table-column>
-        <el-table-column prop="amount" label="数量"></el-table-column>
+        <el-table-column prop="amount" label="数量" width="95px"></el-table-column>
+        <el-table-column  label="合格品数量" width="95px">
+          <template slot-scope="scope">
+            {{ scope.row.testedAmount | amount}}
+          </template>
+        </el-table-column>
+        <el-table-column label="生产状态" width="95px">
+          <template slot-scope="scope">
+            {{ scope.row.manufactureProcedureTag | procedureTag}}
+          </template>
+        </el-table-column>
         <el-table-column label="登记时间">
           <template slot-scope="scope">
             <i class="el-icon-time"/>
@@ -50,11 +59,11 @@
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button
-              type="warning"
-              icon="el-icon-star-off"
+              type="success"
+              icon="el-icon-search"
               size="mini"
               @click="showCheckDialog(scope.row)"
-            >审核
+            >查看详情
             </el-button>
           </template>
         </el-table-column>
@@ -71,126 +80,83 @@
       ></el-pagination>
     </el-card>
 
-
     <el-dialog title="生产派工单" :visible.sync="checkDialogVisible" width="80%" @close="checkDialogClosed">
-      <el-form :inline="true" :model="ruleForm" :rules="rules" ref="ruleForm" class="demo-ruleForm"
-               style="margin-top: -20px">
-        <el-row :gutter="20"  >
+      <el-form :inline="true" :model="ruleForm" ref="ruleForm" class="demo-ruleForm"
+               style="margin-top: -10px">
+        <el-row :gutter="20">
           <el-col :span="5">
             <div><strong>派工单编号: </strong> {{manufacture.manufactureId}}</div>
           </el-col>
           <el-col :span="5">
             <div><strong>产品编号: </strong> {{manufacture.productId}}</div>
           </el-col>
-          <el-col :span="4">
+          <el-col :span="5">
             <div><strong>产品编号: </strong> {{manufacture.productName}}</div>
           </el-col>
-          <el-col :span="8" :offset="2">
-            <div>
-              <el-form-item prop="check">
-                <el-radio-group v-model="ruleForm.check">
-                  <el-radio v-model="ruleForm.check" label="1">通过</el-radio>
-                  <el-radio v-model="ruleForm.check" label="2">未通过</el-radio>
-                </el-radio-group>
-              </el-form-item>
-              <el-button type="warning" icon="el-icon-star-off" @click="submitForm('ruleForm')">确 定</el-button>
-            </div>
-          </el-col>
+
         </el-row>
         <el-row :gutter="20">
           <el-col :span="5">
             <div><strong>数量: </strong> {{manufacture.amount}}</div>
           </el-col>
           <el-col :span="5">
+            <div><strong>合格品数量: </strong> {{manufacture.testedAmount}}</div>
+          </el-col>
+          <el-col :span="5">
             <div><strong>工单制定人: </strong> {{manufacture.designer}}</div>
           </el-col>
         </el-row>
         <!-- 内容主体 -->
-        <el-divider ></el-divider>
+        <el-divider></el-divider>
         <!-- 产品物料组成 -->
-        <el-table :data="procedureList" border stripe>
+        <el-table :data="procedureList" border stripe :row-class-name="tableRowClassName">
           <!-- stripe: 斑马条纹 border：边框-->
-          <el-table-column prop="id" label="序号"></el-table-column>
           <el-table-column prop="procedureName" label="工序名称"></el-table-column>
-          <el-table-column prop="procedureId" label="工序编号"></el-table-column>
-          <el-table-column prop="labourHourAmount" label="工时数(小时)"></el-table-column>
-          <el-table-column prop="subtotal" label="工时成本小计(元)"></el-table-column>
-          <el-table-column prop="moduleSubtotal" label="物料成本小计(元)"></el-table-column>
-          <el-table-column label="审核物料">
-            <template slot-scope="scope">
-              <el-button
-                type="warning"
-                icon="el-icon-star-off"
-                size="mini"
-                @click="showProcedureModuleDialog(scope.row)"
-              >审核物料
-              </el-button>
-            </template>
-          </el-table-column>
+          <el-table-column prop="labourHourAmount" label="设计工时数"></el-table-column>
+          <el-table-column prop="realLabourHourAmount" label="实际工时数"></el-table-column>
+          <el-table-column prop="subtotal" label="设计工时成本(元)"></el-table-column>
+          <el-table-column prop="realSubtotal" label="实际工时成本(元)"></el-table-column>
+          <el-table-column prop="moduleSubtotal" label="设计物料成本(元)"></el-table-column>
+          <el-table-column prop="realModuleSubtotal" label="实际物料成本(元)"></el-table-column>
         </el-table>
         <el-divider></el-divider>
+
         <el-row :gutter="20">
           <el-col :span="5">
-            <div><strong>工时总成本: </strong> {{subtotal}}</div>
+            <div><strong>设计工时成本: </strong> {{subtotal}}</div>
           </el-col>
           <el-col :span="5">
-            <div><strong>物料总成本: </strong> {{moduleSubtotal}}</div>
+            <div><strong>设计物料成本: </strong> {{moduleSubtotal}}</div>
           </el-col>
+          <el-col :span="5">
+            <div><strong>实际工时成本: </strong> {{realSubtotal}}</div>
+          </el-col>
+          <el-col :span="5">
+            <div><strong>实际物料成本: </strong> {{realModuleSubtotal}}</div>
+          </el-col>
+        </el-row>
+
+        <el-row :gutter="20" style="margin-top: 10px">
           <el-col :span="5">
             <div><strong>登记人: </strong> {{manufacture.register}}</div>
           </el-col>
           <el-col :span="5">
             <div><strong>登记时间: </strong> {{manufacture.registerTime}}</div>
           </el-col>
-        </el-row>
-
-        <el-row :gutter="20" style="margin-top: 20px">
-          <el-col :span="20">
-            <el-form-item label="审核人" prop="checker">
-              <el-input clearable v-model="ruleForm.checker"></el-input>
-            </el-form-item>
-            <el-form-item label="审核时间" prop="checkTime">
-              <el-date-picker v-model="ruleForm.checkTime" type="datetime" readonly class="input-class">
-              </el-date-picker>
-            </el-form-item>
+          <el-col :span="5">
+            <div><strong>审核人: </strong> {{manufacture.checker}}</div>
+          </el-col>
+          <el-col :span="5">
+            <div><strong>审核时间: </strong> {{manufacture.checkTime}}</div>
           </el-col>
         </el-row>
-        <el-row :gutter="20">
-          <el-col :span="19">
-            <el-form-item label="备注" prop="remark">
-              <el-input v-model="ruleForm.remark" clearable type="textarea" style="width: 280px"/>
-            </el-form-item>
+
+        <el-row :gutter="20" style="margin-top: 10px">
+          <el-col :span="5">
+            <div><strong>备注: </strong> {{manufacture.remark}}</div>
           </el-col>
         </el-row>
       </el-form>
-      <el-divider></el-divider>
-    </el-dialog>
-
-    <el-dialog title="工序物料单" :visible.sync="procedureModuleDialogVisible" width="90%" @close="procedureModuleDialogClosed">
-      <el-row :gutter="20" style="margin-top: -20px">
-        <el-col :span="5">
-          <div><strong>派工单单编号: </strong> {{manufacture.manufactureId}}</div>
-        </el-col>
-        <el-col :span="5">
-          <div><strong>工序名称: </strong> {{procedure.procedureName}}</div>
-        </el-col>
-      </el-row>
-      <el-divider></el-divider>
-      <!-- 产品工序组成 -->
-      <el-table :data="procedureModuleList" border stripe>
-        <!-- stripe: 斑马条纹 border：边框-->
-        <el-table-column prop="id" label="序号" width="80px"></el-table-column>
-        <el-table-column prop="productId" label="物料编号"></el-table-column>
-        <el-table-column prop="productName" label="物料名称"></el-table-column>
-        <el-table-column prop="amount" label="本工序数量"></el-table-column>
-        <el-table-column prop="amountUnit" label="单位"></el-table-column>
-        <el-table-column prop="costPrice" label="单价(元)"></el-table-column>
-        <el-table-column label="小计(元)">
-          <template slot-scope="scope">
-            {{scope.row.amount*scope.row.costPrice}}
-          </template>
-        </el-table-column>
-      </el-table>
       <el-divider></el-divider>
     </el-dialog>
 
@@ -199,20 +165,27 @@
 
 <script>
   export default {
-    name: "CheckManufacture",
+    name: "QueryTagManufacture",
     data() {
       return {
         rules: {
-          check: [
-            {required: true, message: '请选择', trigger: 'change'}
+          realAmount: [
+            {required: true, message: '请输入合格品数量', trigger: 'blur'},
+            {type: 'number', message: '请输入数字值', trigger: 'blur'}
           ],
-          checker: [
-            {required: true, message: '请输入审核人', trigger: 'blur'},
-            {min: 2, max: 10, message: '长度在 2 到 20 个字符', trigger: 'blur'},
+        },
+        addProceduringFormRules: {
+          procedurePesponsiblePerson: [
+            {required: true, message: '请输入责任人', trigger: 'blur'},
+            {min: 2, max: 6, message: '长度在 2 到 6 个字符', trigger: 'blur'},
           ],
-          remark: [
-            {required: true, message: '请输入备注', trigger: 'blur'},
+          register: [
+            {required: true, message: '请输入登记人', trigger: 'blur'},
             {min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur'},
+          ],
+          labourHourAmount: [
+            {required: true, message: '请输入本次工时数', trigger: 'blur'},
+            {type: 'number', message: '工时数必须为数字值', trigger: 'blur'},
           ]
         },
         pickerOptions: {
@@ -242,13 +215,21 @@
             }
           }]
         },
+
+        addProceduringForm: {
+          register: window.sessionStorage.getItem('loginId'),
+          procedurePesponsiblePerson: window.sessionStorage.getItem('loginId'),
+          registerTime: '',
+          labourHourAmount: ''
+        },
+
         queryManufacture: {
           pageNo: 1,
           pageSize: 7,
           manufactureId: '',
           productName: '',
           dataTime: '',
-          checkTag:"0"
+          checkTag: '1',
         },
         total: 0,
         applyList: [],
@@ -264,11 +245,17 @@
           checker: '',
           check: ''
         },
-        procedure:{},
-        procedureModuleDialogVisible:false,
+        procedure: {},
+        procedureModuleDialogVisible: false,
 
-        procedureModuleList:[],
+        procedureModuleList: [],
+        dialogVisible: false,
 
+        transferTagVisible: false,
+        procedureName: '',
+        checkForm: {
+          realAmount: '',
+        },
       }
     },
     methods: {
@@ -320,7 +307,10 @@
       //审核
       showCheckDialog(row) {
         this.manufacture = row;
-        this.axios.post("/procedure/selectByPid/"+row.id).then((resp) => {
+        this.procedureSelectByPid(this.manufacture.id);
+      },
+      procedureSelectByPid(id) {
+        this.axios.post("/procedure/selectByPid/" + id).then((resp) => {
           this.procedureList = resp.data;
         }).catch(function (error) {
           return this.$message.error('获取角色信息失败！')
@@ -352,18 +342,44 @@
           this.checkDialogVisible = false;
         })
       },
-      showProcedureModuleDialog(row){
+      tableRowClassName(row, index) {
+        // 给每条数据添加一个索引
+        row.row.index = row.rowIndex
+      },
+      //登记
+      showProcedureModuleDialog(row) {
+        if (row.index == 0) {
+          this.selectByPid(row);
+          return;
+        }
+        var bool = true;
+        if (this.procedureList[row.index - 1].procedureTransferTag != 2) {
+          this.$message.error("上一工序尚未交接，本工序不能登记完成");
+          bool = false;
+        }
+        if (bool == true) {
+          this.selectByPid(row);
+        }
+      },
+      selectByPid(row) {
         this.procedure = row;
-        this.axios.post("/procedureModule/selectByPid/"+row.id).then((resp) => {
+        this.axios.post("/procedureModule/selectByPid/" + row.id).then((resp) => {
           this.procedureModuleList = resp.data;
+          this.procedureModuleList.forEach((item) => {
+            item.shuliang = 0;
+          })
         }).catch(function (error) {
           return this.$message.error('获取角色信息失败！')
         })
+        setInterval(() => {
+          this.addProceduringForm.registerTime = this.getDataTime(new Date());
+        }, 1000)
         this.procedureModuleDialogVisible = true;
       },
       // 监听 添加设计单对话框的关闭事件
       procedureModuleDialogClosed() {
         this.$nextTick(() => {
+          this.$refs.addProceduringForm.resetFields();
           this.procedureModuleDialogVisible = false;
         })
       },
@@ -376,17 +392,17 @@
           if (valid) {
             var params = new URLSearchParams();
             params.append("id", this.manufacture.id)
-            params.append("checkTime",this.ruleForm.checkTime)
-            params.append("checker",this.ruleForm.checker)
-            params.append("remark",this.ruleForm.remark)
+            params.append("checkTime", this.ruleForm.checkTime)
+            params.append("checker", this.ruleForm.checker)
+            params.append("remark", this.ruleForm.remark)
             if (checked == 2) {
               this.$confirm('不通过[' + this.manufacture.productName + ']生产派工单, 是否继续?', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning'
               }).then(() => {
-                params.append("checkTag","2")
-                this.axios.post("/manufacture/checkTag",params).then((response) => {
+                params.append("checkTag", "2")
+                this.axios.post("/manufacture/checkTag", params).then((response) => {
                   if (response.data.result) {
                     this.$message.success("操作成功")
                     this.queryManufacture.pageNo = 1;
@@ -406,7 +422,7 @@
                 cancelButtonText: '取消',
                 type: 'success'
               }).then(() => {
-                params.append("checkTag","1")
+                params.append("checkTag", "1")
                 this.axios.post("/manufacture/checkTag", params).then((response) => {
                   if (response.data.result) {
                     this.$message.success("操作成功")
@@ -426,9 +442,114 @@
           }
         });
       },
+      //提交
+      checkFinishTag(formName) {
+        var bool = true;
+        this.procedureModuleList.forEach((item) => {
+          console.log(item.shuliang - 0 + item.realAmount - 0)
+          if ((item.shuliang - 0 + item.realAmount - 0) > item.renewAmount) {
+            this.$message.error("物料登记数量有误或超出可用数量");
+            bool = false;
+          }
+          item.register = this.addProceduringForm.register;
+          item.registerTime = this.addProceduringForm.registerTime;
+          item.procedureResponsiblePerson = this.addProceduringForm.procedureResponsiblePerson;
+          item.labourHourAmount = this.addProceduringForm.labourHourAmount;
+        })
+
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            if (bool == true) {
+              this.axios.post("/procedureModule/procedureFinish", JSON.stringify(this.procedureModuleList),
+                {headers: {"Content-Type": "application/json"}}).then((response) => {
+                if (response.data.result == true) {
+                  /*this.$message.success('操作成功,待审核!');*/
+                  this.procedureSelectByPid(this.manufacture.id);
+                  /*this.procedureModuleDialogClosed();*/
+                  this.dialogVisible = true;
+                }
+              }).catch(function (error) {
+                return this.$message.error('操作失败！')
+              })
+            }
+          } else {
+            return false;
+          }
+        });
+      },
+      finishTag(val) {
+        /*console.log(this.procedure.id);*/
+        var params = new URLSearchParams();
+        params.append("procedureFinishTag", val);
+        params.append("id", this.procedure.id);
+        this.axios.post("/procedure/finishTag", params).then((resp) => {
+          console.log(resp.data)
+          if (resp.data.result == true) {
+            this.procedureSelectByPid(this.manufacture.id);
+            this.$message.success("操作成功,待审核!");
+            this.dialogVisible = false;
+            this.procedureModuleDialogClosed();
+          } else {
+            this.$message.success("工序未完成");
+          }
+        }).catch(function (error) {
+          return this.$message.error('获取列表失败！')
+        })
+      },
+      //交接登记
+      checkTransferTag(formName) {
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            var params = new URLSearchParams();
+            params.append("id", this.procedure.id);
+            params.append("realAmount",this.checkForm.realAmount);
+            this.axios.post("/procedure/transferTag", params).then((response) => {
+              if (response.data) {
+                this.$message.success("交接登记成功,待复核");
+                this.procedureSelectByPid(this.manufacture.id);
+                this.checkTransferTagClosed();
+              }
+            }).catch(function (error) {
+              alert("服务端获取数据失败");
+            })
+          }
+        })
+      },
+      //打开交接登记框
+      showTransferTagDialog(row) {
+        this.procedure = row;
+        this.procedureName = row.procedureName;
+        this.transferTagVisible = true;
+      },
+      // 监听 复核角色对话框的关闭事件
+      checkTransferTagClosed() {
+        this.$nextTick(() => {
+          this.$refs.checkForm.resetFields();
+          this.transferTagVisible = false
+        })
+      },
     },
     created() {
       this.getManufactureList();
+    },
+    filters: {
+      title(val) {
+        return "交接登记【" + val + "】";
+      },
+      amount(val){
+        if (val>0)
+          return val;
+        else
+          return "生产中"
+      },
+      procedureTag(val){
+        if (val==0)
+          return "等待";
+        if (val==1)
+          return "执行";
+        if (val==2)
+          return "完成";
+      }
     },
     computed:{
       moduleSubtotal(){
@@ -442,6 +563,20 @@
         var sum =0;
         this.procedureList.forEach( (item) =>{
           sum+= item.subtotal;
+        })
+        return sum;
+      },
+      realModuleSubtotal(){
+        var sum =0;
+        this.procedureList.forEach( (item) =>{
+          sum+= item.realModuleSubtotal;
+        })
+        return sum;
+      },
+      realSubtotal(){
+        var sum =0;
+        this.procedureList.forEach( (item) =>{
+          sum+= item.realSubtotal;
         })
         return sum;
       }

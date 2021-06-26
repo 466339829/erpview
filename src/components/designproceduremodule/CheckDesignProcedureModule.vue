@@ -193,7 +193,7 @@
 
 <script>
   export default {
-    name: "AddDesignProcedureModule",
+    name: "CheckDesignProcedureModule",
     data() {
       return {
         rules: {

@@ -105,10 +105,10 @@
       </el-table>
       <el-row :gutter="20" style="margin-top: 20px;margin-left:30px">
         <el-col :span="5">
-          <div><strong>工时总成本: </strong> {{procedureInfo.costPriceSum}}</div>
+          <div><strong>工时总成本: </strong> {{subtotal}}</div>
         </el-col>
         <el-col :span="5">
-          <div><strong>物料总成本: </strong> {{procedureInfo.moduleCostPriceSum}}</div>
+          <div><strong>物料总成本: </strong> {{moduleSubtotal}}</div>
         </el-col>
         <el-col :span="4">
           <div><strong>登记人: </strong> {{designProcedure.register}}</div>
@@ -287,7 +287,23 @@
         else
           return "已审核";
       }
-    }
+    },
+    computed:{
+      moduleSubtotal(){
+        var sum =0;
+        this.designProcedureDetails.forEach( (item) =>{
+          sum+= item.moduleSubtotal;
+        })
+        return sum;
+      },
+      subtotal(){
+        var sum =0;
+        this.designProcedureDetails.forEach( (item) =>{
+          sum+= item.subtotal;
+        })
+        return sum;
+      }
+    },
   }
 </script>
 
