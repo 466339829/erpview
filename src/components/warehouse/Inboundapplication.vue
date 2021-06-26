@@ -16,7 +16,7 @@
       </el-row>
       <br>
     </el-row>
-    <el-form ref="form" :model="form" label-width="80px">
+    <el-form ref="form" :model="form" :rules="ctfromRules" label-width="80px">
       <el-row :gutter="24">
         <el-col :span="10" :offset="2">
           <div class="grid-content bg-purple">
@@ -179,6 +179,12 @@
     name: "Inboundapplication",
     data() {
       return {
+        //表单验证
+        ctfromRules: {
+          storer: [
+            {required: true, message: '请输入登记人', trigger: 'blur'},
+          ],
+        },
         form: {
           storer: "",
           reason: '',
@@ -216,33 +222,37 @@
     methods: {
       //添加form:
       sc() {
-        var _this = this;
-        var params = new URLSearchParams();
-        this.tabs.forEach((item) => {
-          item.subtotal=item.subtotal
-          item.storer = this.form.storer//入库人
-          item.reason = this.form.reason//入库理由
-          item.amountSum = this.zjs//总件数
-          item.costPriceSum = this.sunprice//总金额
-          item.gatheredAmountSum = this.zjs//确认总件数
-          item.remark = this.form.remark//备注
-          item.register = this.register//登记人
-          item.registerTime = this.currentTime//登记时间
-          item.productDescribe = this.form.remark//描述
-          item.gatheredAmount = this.tabs.amount//确认入库件数
-          item.gatherTag = this.gatherTag//入库标志
-        })
-        this.axios.post("/gath/gathset",
-          JSON.stringify(this.tabs),
-          {headers: {"Content-Type": "application/json"}}).then(function (response) {
-          _this.$message({
-            showClose: true,
-            message: '恭喜你，登记成功',
-            type: 'success'
-          });
-        }).catch();
-        this.$refs.form.resetFields();
-        this.tabs = [];
+        this.$refs["form"].validate((valid) => {
+          if (valid) {
+            var _this = this;
+            var params = new URLSearchParams();
+            this.tabs.forEach((item) => {
+              item.subtotal = item.subtotal
+              item.storer = this.form.storer//入库人
+              item.reason = this.form.reason//入库理由
+              item.amountSum = this.zjs//总件数
+              item.costPriceSum = this.sunprice//总金额
+              item.gatheredAmountSum = this.zjs//确认总件数
+              item.remark = this.form.remark//备注
+              item.register = this.register//登记人
+              item.registerTime = this.currentTime//登记时间
+              item.productDescribe = this.form.remark//描述
+              item.gatheredAmount = this.tabs.amount//确认入库件数
+              item.gatherTag = this.gatherTag//入库标志
+            })
+            this.axios.post("/gath/gathset",
+              JSON.stringify(this.tabs),
+              {headers: {"Content-Type": "application/json"}}).then(function (response) {
+              _this.$message({
+                showClose: true,
+                message: '恭喜你，登记成功',
+                type: 'success'
+              });
+            }).catch();
+            this.$refs.form.resetFields();
+            this.tabs = [];
+          }
+        });
       },
       //删除产品按钮
       //获取表格单选框索引删除

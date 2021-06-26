@@ -173,7 +173,7 @@
         <el-table-column prop="productId" label="物料编号"></el-table-column>
         <el-table-column prop="productName" label="物料名称"></el-table-column>
         <el-table-column prop="productDescribe" label="描述"></el-table-column>
-        <el-table-column prop="amount" label="数量" width="80px"></el-table-column>
+        <!--<el-table-column prop="amount" label="数量" width="80px"></el-table-column>-->
         <el-table-column prop="residualAmount" label="可用数量" width="80px"></el-table-column>
         <el-table-column prop="amountUnit" label="单位" width="100px"></el-table-column>
         <el-table-column prop="costPrice" label="单价(元)"></el-table-column>

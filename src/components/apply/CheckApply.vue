@@ -101,7 +101,7 @@
               <el-input clearable v-model="ruleForm.checker"></el-input>
             </el-form-item>
             <el-form-item label="审核时间" prop="checkTime">
-              <el-date-picker v-model="ruleForm.checkTime" type="datetime" disabled class="input-class">
+              <el-date-picker v-model="ruleForm.checkTime" type="datetime" readonly class="input-class">
               </el-date-picker>
             </el-form-item>
 
@@ -241,6 +241,7 @@
         }).catch(function (error) {
           return this.$message.error('获取角色信息失败！')
         })
+        this.ruleForm.checker=window.sessionStorage.getItem('loginId');
         this.checkDialogVisible = true;
         setInterval(() => {
           this.getData();

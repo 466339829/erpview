@@ -46,7 +46,6 @@
                 @selection-change="handleSelectionChange" border stripe>
         <!-- stripe: 斑马条纹 border：边框-->
         <el-table-column type="selection"></el-table-column>
-        <el-table-column prop="id" label="序号"></el-table-column>
         <el-table-column prop="applyId" label="生产计划编号"></el-table-column>
         <el-table-column prop="productId" label="产品编号"></el-table-column>
         <el-table-column prop="productName" label="产品名称"></el-table-column>
@@ -72,7 +71,7 @@
     </el-card>
 
     <el-dialog title="生产派工单" :visible.sync="procedureDialogVisible" width="80%" @close="procedureDialogClosed">
-        <el-row :gutter="10" style="margin-bottom: 10px">
+        <el-row :gutter="10" style="margin-bottom: 5px">
           <el-col :span="4">
               <div><strong>产品编号: </strong> {{applyData.productId}}</div>
           </el-col>
@@ -85,7 +84,7 @@
           <el-col :span="4">
             <div><strong>描述: </strong> {{applyData.productDescribe}}</div>
           </el-col>
-          <el-col :span="4" :offset="4">
+          <el-col :span="6" :offset="2">
             <el-button icon="el-icon-check" type="primary" @click="submitAddManufactureForm">提 交</el-button>
             <el-button icon="el-icon-circle-close" type="danger" @click="procedureDialogClosed">取 消</el-button>
           </el-col>
@@ -95,7 +94,6 @@
         <!-- 产品列表区域 -->
         <el-table :data="designProcedureDetailsList" border stripe>
           <!-- stripe: 斑马条纹 border：边框-->
-          <el-table-column prop="id" label="序号"></el-table-column>
           <el-table-column prop="procedureName" label="工序名称"></el-table-column>
           <el-table-column prop="detailsNumber" label="工序编号"></el-table-column>
           <el-table-column prop="procedureDescribe" label="描述"></el-table-column>
@@ -156,9 +154,9 @@
           </el-row>
       </el-form>
       <el-divider></el-divider>
-      <span slot="footer" class="dialog-footer">
-    <el-button @click="procedureDialogVisible = false">返 回</el-button>
-  </span>
+      <!--<span slot="footer" class="dialog-footer">
+   &lt;!&ndash; <el-button @click="procedureDialogVisible = false">返 回</el-button>&ndash;&gt;
+  </span>-->
     </el-dialog>
 
     <el-dialog title="工序物料单" :visible.sync="ProcedureModuleDialogVisible"

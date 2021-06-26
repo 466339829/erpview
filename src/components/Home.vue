@@ -6,7 +6,24 @@
         <span>后台管理系统</span>
       </div>
 
-      <el-button type="info" @click="logout">退出</el-button>
+      <!--<el-button type="info" @click="logout">退出</el-button>-->
+      <el-row class="block-col-2">
+        <el-col :span="12">
+          <el-dropdown>
+            <span class="el-dropdown-link">
+              <div class="avatar-wrapper">
+              <img :src="photo" class="user-avatar">
+              <i class="el-icon-caret-bottom"/>
+              </div>
+      </span>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item icon="el-icon-eleme">首页</el-dropdown-item>
+              <el-dropdown-item icon="el-icon-edit">修改信息</el-dropdown-item>
+              <el-dropdown-item @click.native="logout" icon="el-icon-switch-button">退出</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </el-col>
+      </el-row>
     </el-header>
     <!-- 主体 -->
     <el-container>
@@ -90,6 +107,21 @@
   import QueryDesignProcedureModule from '../components/designproceduremodule/QueryDesignProcedureModule'
   import EditDesignProcedureModule from '../components/designproceduremodule/EditDesignProcedureModule'
   import AddApply from '../components/apply/AddApply'
+  import CheckApply from '../components/apply/CheckApply'
+  import QueryApply from '../components/apply/QueryApply'
+  import AddManufacture from '../components/manufacture/AddManufacture'
+  import CheckManufacture from '../components/manufacture/CheckManufacture'
+  import QueryManufacture from '../components/manufacture/QueryManufacture'
+
+  import AddDesignProcedure from '../components/designprocedure/AddDesignProcedure'
+  import CheckDesignProcedure from '../components/designprocedure/CheckDesignProcedure'
+  import QueryDesignProcedure from '../components/designprocedure/QueryDesignProcedure'
+  import EditDesignProcedure from '../components/designprocedure/EditDesignProcedure'
+  import AddTagManufacture from '../components/tagmanufacture/AddTagManufacture'
+  import CheckTagManufacture from  '../components/tagmanufacture/CheckTagManufacture'
+  import QueryTagManufacture from  '../components/tagmanufacture/QueryTagManufacture'
+  import AddGather from  '../components/gather/AddGather'
+
   import Inboundapplication from "./warehouse/Inboundapplication";
 import SafetystockQuery from "./warehouse/SafetystockQuery";
 import SafetystockUpdate from "./warehouse/SafetystockUpdate";
@@ -97,6 +129,8 @@ import SafetystockUpdate from "./warehouse/SafetystockUpdate";
   import OutManage from "./warehouse/OutManage";
   import ManageSelect from "./warehouse/ManageSelect";
   import Library from "./warehouse/Library";
+  import Inboundquery from "./warehouse/Inboundquery";
+
   import InManage from "./warehouse/InManage";
   export default {
     components: {
@@ -104,12 +138,61 @@ import SafetystockUpdate from "./warehouse/SafetystockUpdate";
       Users, AddUser, Welcome, RoleMenus, DelUser, EditUser, Roles, AddRole, DelRole, EditRole,
       Menus, AddMenus, EditMenu, DelMenu, UserRoles, AddFile, CheckFile, QueryFile, EditFile,
       DelFile, RemoveFile, RecoveryFile, AddModule, CheckModule, EditModule, QueryModule,
+       AddApply, CheckApply, QueryApply, AddManufacture, AddDesignProcedure,
+      CheckDesignProcedure, QueryDesignProcedure, EditDesignProcedure, CheckManufacture, QueryManufacture,
+      AddTagManufacture,CheckTagManufacture,QueryTagManufacture,
+      AddGather, InboundappFuhe,
+      Inboundquery,
+      //
+
+
       AddDesignProcedureModule, CheckDesignProcedureModule,QueryDesignProcedureModule,
       EditDesignProcedureModule,Inboundapplication,SafetystockQuery,SafetystockUpdate,
       Safetystock, Library,OutManage,ManageSelect,InManage
     },
     data() {
+      var validatePass = (rule, value, callback) => {
+        if (value === '') {
+          callback(new Error('请输入密码'));
+        } else {
+          if (this.ruleForm.checkPassword !== '') {
+            this.$refs.ruleForm.validateField('checkPassword');
+          }
+          callback();
+        }
+      };
+      var validatePass2 = (rule, value, callback) => {
+        if (value === '') {
+          callback(new Error('请再次输入密码'));
+        } else if (value !== this.ruleForm.password) {
+          callback(new Error('两次输入密码不一致!'));
+        } else {
+          callback();
+        }
+      };
+      var checkPwd = (rule, value, callback) => {
+        if (value === '') {
+          callback(new Error('请输入原始密码'));
+        } else if (value !== this.mm) {
+          callback(new Error('原始密码不正确!'));
+        } else {
+          callback();
+        }
+      };
       return {
+        uploadURL: 'http://localhost:8080/file/upload',
+        rules: {
+          password: [
+            {validator: validatePass, trigger: 'blur'}
+          ],
+          checkPassword: [
+            {validator: validatePass2, trigger: 'blur'}
+          ],
+          pwd: [
+            {validator: checkPwd, trigger: 'blur'}
+          ]
+        },
+        photo: window.sessionStorage.getItem('photo'),
         uid: window.sessionStorage.getItem('id'),
         // 左侧菜单数据
         menuList: [],
@@ -122,7 +205,20 @@ import SafetystockUpdate from "./warehouse/SafetystockUpdate";
           name: '1',
           content: 'Welcome'
         }],
-        tabIndex: 1   // 设置到name属性的值
+        tabIndex: 1,   // 设置到name属性的值
+        dialogVisible: false,
+        tabPosition: 'left',
+        ruleForm: {
+          password: '',
+          checkPassword: '',
+          pwd: ''
+        },
+        photoForm: {
+          image: ''
+        },
+        mm: window.sessionStorage.getItem('password'),
+        previewDialogVisible: false,
+        picPreviewPath: ''
       }
     },
     created() {
@@ -188,7 +284,87 @@ import SafetystockUpdate from "./warehouse/SafetystockUpdate";
       togleCollapse() {
         this.isCollapse = !this.isCollapse
       },
+      resetForm(formName) {
+        this.$refs[formName].resetFields();
+      },
+      submitForm(formName) {
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            var params = new URLSearchParams();
+            params.append("id", window.sessionStorage.getItem('id'));
+            params.append("password", this.ruleForm.password)
+            this.axios.post("/users/updatePwd", params).then((response) => {
+              if (response.data) {
+                window.sessionStorage.clear();
+                this.$message.success("修改成功,请重新登录");
+                this.$router.push("/login");
+              } else {
+                this.$message.error("修改失败");
+              }
+            }).catch(function (error) {
+              alert("服务端获取数据失败");
+            });
+          } else {
+            return false;
+          }
+        });
+      },
 
+      handleRemove(file, fileList) {
+        this.photoForm.image = '';
+        const filePath = file.response.data;
+        this.axios.post("file/delete/" + filePath.id).then((resp) => {
+          if (resp.data == true)
+            this.$message.success("删除成功")
+        }).catch(function (error) {
+          return this.$message.error('图片加载失败！')
+        })
+      },
+      handlePictureCardPreview(file) {
+        this.picPreviewPath = file.url;
+        this.previewDialogVisible = true;
+      },
+      handleSuccess(response) {
+        this.imageUrl = this.URL + response.data.path;
+        // 1.拼接得到一个图片信息对象 临时路径
+        // 2.将图片信息对象，添加到addFileForm.image 中
+        this.photoForm.image = response.data.path;
+      },
+      submitPhotoForm(formName) {
+        var bool = true;
+        if (this.photoForm.image == '') {
+          this.$message.error("请上传新头像");
+          bool = false;
+        }
+        if (bool==true) {
+          var params = new URLSearchParams();
+          params.append("id", window.sessionStorage.getItem('id'));
+          params.append("photo", this.photoForm.image)
+          this.axios.post("/users/updatePhoto", params).then((response) => {
+            if (response.data) {
+              window.sessionStorage.clear();
+              this.$message.success("修改成功,请重新登录");
+              this.$router.push("/login");
+            } else {
+              this.$message.error("修改失败");
+            }
+          }).catch(function (error) {
+            alert("服务端获取数据失败");
+          });
+        }
+      },
+      beforeAvatarUpload(file) {
+        const isJPG = file.type === 'image/jpeg';
+        const isLt2M = file.size / 1024 / 1024 < 2;
+
+        if (!isJPG) {
+          this.$message.error('上传头像图片只能是 JPG 格式!');
+        }
+        if (!isLt2M) {
+          this.$message.error('上传头像图片大小不能超过 2MB!');
+        }
+        return isJPG && isLt2M;
+      },
     }
   }
 </script>
@@ -250,5 +426,47 @@ import SafetystockUpdate from "./warehouse/SafetystockUpdate";
 
   .el-main {
     background: #ffffff;
+  }
+
+  .el-dropdown-link {
+    cursor: pointer;
+    color: #409EFF;
+  }
+
+  .el-icon-arrow-down {
+    font-size: 12px;
+  }
+
+  .demonstration {
+    display: block;
+    color: #8492a6;
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+
+  .avatar-wrapper {
+    margin-top: -5px;
+    position: relative;
+
+    .user-avatar {
+      cursor: pointer;
+      width: 40px;
+      height: 40px;
+      border-radius: 2px;
+    }
+
+    .el-icon-caret-bottom {
+      cursor: pointer;
+      position: absolute;
+      right: -15px;
+      top: 25px;
+      font-size: 12px;
+    }
+  }
+
+  .fileImages {
+    width: 70px;
+    height: 70px;
+    display: inline;
   }
 </style>

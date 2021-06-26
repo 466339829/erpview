@@ -5,7 +5,7 @@
       <el-row :gutter="20">
         <el-col :span="8">
           <el-form :inline="true">
-            <el-form-item label="姓名">
+            <el-form-item label="角色名称">
               <el-input placeholder="请输入角色名称" clearable @clear="getRoleList" v-model="queryRole.queryName"></el-input>
             </el-form-item>
             <el-form-item>

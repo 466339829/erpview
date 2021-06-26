@@ -54,7 +54,7 @@
             {min: 6, max: 18, message: '长度在 6 到 18 个字符', trigger: 'blur'}
           ]
         },
-        URL: 'http://localhost:8888/images/',
+        URL: 'http://localhost:8080/images/',
       }
     },
     methods: {
@@ -82,6 +82,7 @@
                 window.sessionStorage.setItem('loginId',user.loginId);
                 window.sessionStorage.setItem('roleName',user.roleName);
                 window.sessionStorage.setItem('photo',this.URL+user.photo);
+                window.sessionStorage.setItem('password',user.password);
                 setTimeout(function () {
                   _this.$router.push("/home");
                 }, 1000)
